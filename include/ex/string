@@ -1,0 +1,115 @@
+#ifndef    EX_STRING_HEADER
+#   define EX_STRING_HEADER
+
+
+#include <string>
+#include <memory>
+#include <cstdarg>
+#include <sstream>
+#include <stdexcept>
+
+
+// Generates universal unicode defenition
+#if defined(UNICODE) || defined(_UNICODE)
+#   undef  UNICODE
+#   define UNICODE
+#endif
+
+
+#undef L  // TODO: generate warning when L was defined
+#ifdef UNICODE
+#  define __L(s) L##s
+#else
+#  define __L(s) s
+#endif
+
+// L - conversion to project's encoding
+#define L(S)    __L(S)
+
+
+namespace ex
+{
+
+
+// Char - char-type which depends on project's encoding
+#ifdef UNICODE
+using Char = wchar_t;
+#else
+using Char = char;
+#endif
+
+
+// C++ strings
+using StringA  = std::string;
+using StringW  = std::wstring;
+using String   = std::basic_string<Char>;
+
+
+// C++ string streams
+using StringStreamA = std::stringstream;
+using StringStreamW = std::wstringstream;
+using StringStream  = std::basic_stringstream<Char>;
+
+
+// C-like safe strings
+using CStringA = std::unique_ptr<char   []>;
+using CStringW = std::unique_ptr<wchar_t[]>;
+using CString  = std::unique_ptr<Char   []>;
+
+
+// Encoding independent print functions
+// Exception: -
+bool print (const wchar_t* format, ...);
+bool print (const char*    format, ...);
+
+bool vprint(const wchar_t* format, va_list args);
+bool vprint(const char*    format, va_list args);
+
+
+// Encoding independent print to buffer functions
+// Exception: -
+bool sprint (wchar_t* buff, size_t buff_size, const wchar_t* format, ...);
+bool sprint (char*    buff, size_t buff_size, const char*    format, ...);
+
+bool vsprint(wchar_t* buff, size_t buff_size, const wchar_t* format, va_list args);
+bool vsprint(char*    buff, size_t buff_size, const char*    format, va_list args);
+
+
+namespace string // TODO: extend std::string and create String class
+{
+	// TODO: type safe format like A. Aleksandresku
+
+	// Maximum buffer size which are used in this module for output strings
+	extern const size_t kFormatBufferSize;
+
+
+	class FormatException : std::runtime_error
+	{
+	public:
+		explicit FormatException (const std::string& what_arg) : std::runtime_error(what_arg) {}
+		explicit FormatException (const char*        what_arg) : std::runtime_error(what_arg) {}
+	};
+
+
+	// Exception: FormatException
+	StringA FormatA(const char*    format, ...);
+	StringA FormatA(const char*    format, va_list args);
+	StringA FormatA(const StringA& format, ...);
+	StringA FormatA(const StringA& format, va_list args);
+
+	// Exception: FormatException
+	StringW FormatW(const wchar_t* format, ...);
+	StringW FormatW(const wchar_t* format, va_list args);
+	StringW FormatW(const StringW& format, ...);
+	StringW FormatW(const StringW& format, va_list args);
+
+	// Exception: FormatException
+	String Format(const Char*   format, ...);
+	String Format(const Char*   format, va_list args);
+	String Format(const String& format, ...);
+	String Format(const String& format, va_list args);
+}
+
+}
+
+#endif

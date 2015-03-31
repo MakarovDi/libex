@@ -1,0 +1,30 @@
+#ifndef    EX_EXCEPTION_HEADER
+#   define EX_EXCEPTION_HEADER
+
+
+#include "ex/string"
+
+
+namespace ex
+{
+
+
+template <class E, typename... Args>
+void throw_it(const char *format, Args... args)
+{
+	char buff[string::kFormatBufferSize];
+	throw E(sprint(buff, sizeof(buff), format, args...) ? buff : format);
+}
+
+
+template <class E, typename... Args>
+void throw_it(const StringA& format, Args... args)
+{
+	char buff[string::kFormatBufferSize];
+	throw E(sprint(buff, sizeof(buff), format.c_str(), args...) ? StringA(buff) : format);
+}
+
+
+}
+
+#endif

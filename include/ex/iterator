@@ -1,0 +1,211 @@
+#ifndef    EX_ITERATOR_HEADER
+#   define EX_ITERATOR_HEADER
+
+
+#include <memory> // unique_ptr
+
+#include "ex/debug"
+
+
+namespace ex
+{
+
+
+template<typename T>
+using unpointed = typename std::remove_pointer<T>::type;
+
+template<typename T>
+using const_unpointed = typename std::add_const<unpointed<T>>::type;
+
+
+template<typename Input, typename Output>
+using Transform = Output& (*)(Input&);
+
+
+template<typename Input, typename Output>
+Output& transparent(Input &input) { return input; }
+
+
+template<typename T>
+unpointed<T>& unref(T &input) { return *input; }
+
+
+template<typename T>
+const_unpointed<T>& const_unref(T &input) { return *input; }
+
+
+template<typename T, typename R=T, Transform<T, R> tfm=transparent<T, R>>
+class IteratorAdapter final
+{
+	class BaseIterator;
+	using pBaseIterator = std::unique_ptr<BaseIterator>;
+
+	class BaseIterator
+	{
+	public:
+		virtual ~BaseIterator() { }
+
+		virtual void inc() = 0;
+		virtual void dec() = 0;
+
+		virtual R& get_value() const = 0;
+
+		virtual bool equal(const BaseIterator&) = 0;
+
+		virtual pBaseIterator clone() const = 0;
+	};
+
+	template<class Iterator>
+	class ConcreteIterator : public BaseIterator
+	{
+	public:
+		explicit ConcreteIterator(const Iterator &i) : m_iterator(i)
+		{
+			DEBUG_MSG(".concr.ctor.copy\n");
+		}
+
+		explicit ConcreteIterator(Iterator &&i) : m_iterator(std::move(i))
+		{
+			DEBUG_MSG(".concr.ctor.move\n");
+		}
+
+		virtual void inc()             override { ++m_iterator;                             }
+		virtual void dec()             override { --m_iterator;                             }
+
+		virtual R& get_value()   const override { return tfm(const_cast<T&>(*m_iterator));  }
+
+		bool equal(const Iterator &cmp)   const { return cmp == m_iterator;                 }
+
+		virtual bool equal(const BaseIterator &cmp) override
+		{
+			const ConcreteIterator *iterator = static_cast<const ConcreteIterator*>(&cmp);
+			return m_iterator == iterator->m_iterator;
+		}
+
+		virtual pBaseIterator clone() const override
+		{
+			return pBaseIterator(new ConcreteIterator<Iterator>(m_iterator));
+		}
+	protected:
+		Iterator m_iterator;
+	};
+
+public:
+	IteratorAdapter() : m_faceless_iterator(nullptr) { }
+
+	template<class Iterator> // const -> cancel reference collapsing rules
+	IteratorAdapter& operator=(const Iterator &&i)
+	{
+		DEBUG_MSG(".assign.move.templ: %s\n", typeid(i).name());
+
+		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))));
+		return *this;
+	}
+
+	template<class Iterator>
+	IteratorAdapter& operator=(const Iterator &i)
+	{
+		DEBUG_MSG(".assign.copy.templ: %s\n", typeid(i).name());
+
+		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(i));
+		return *this;
+	}
+
+	IteratorAdapter& operator=(const IteratorAdapter &i)
+	{
+		DEBUG_MSG(".assign.copy\n");
+
+		m_faceless_iterator = std::move(i.m_faceless_iterator->clone());
+		return *this;
+	}
+
+	IteratorAdapter& operator=(IteratorAdapter &&i)
+	{
+		DEBUG_MSG(".assign.move\n");
+
+		m_faceless_iterator = std::move(i.m_faceless_iterator);
+		return *this;
+	}
+
+	template<class Iterator> // const -> cancel reference collapsing rules
+	IteratorAdapter(const Iterator &&i) :
+			m_faceless_iterator(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))))
+	{
+		DEBUG_MSG(".ctor.move.templ: %s\n", typeid(i).name());
+	}
+
+	template<class Iterator>
+	IteratorAdapter(const Iterator &i) :
+			m_faceless_iterator(new ConcreteIterator<Iterator>(i))
+	{
+		DEBUG_MSG(".ctor.copy.templ: %s\n", typeid(i).name());
+	}
+
+	//IteratorAdapter(IteratorAdapter &&ia) = default;
+	IteratorAdapter(IteratorAdapter &&i) :
+			m_faceless_iterator(std::move(i.m_faceless_iterator))
+	{
+		DEBUG_MSG(".ctor.move\n");
+	}
+
+	IteratorAdapter(const IteratorAdapter &i) :
+			m_faceless_iterator(i.m_faceless_iterator->clone())
+	{
+		DEBUG_MSG(".ctor.copy\n");
+	}
+
+	IteratorAdapter& operator++()
+	{
+		m_faceless_iterator->inc();
+		return *this;
+	}
+
+	IteratorAdapter operator++(int)
+	{
+		IteratorAdapter tmp(*this);
+		m_faceless_iterator->inc();
+		return tmp;
+	}
+
+	IteratorAdapter& operator--()
+	{
+		m_faceless_iterator->dec();
+		return *this;
+	}
+
+	IteratorAdapter operator--(int)
+	{
+		IteratorAdapter tmp(*this);
+		m_faceless_iterator->dec();
+		return tmp;
+	}
+
+	template<class Iterator>
+	bool operator==(const Iterator &cmp) const
+	{
+		typedef ConcreteIterator<Iterator> ConcreteIterator;
+		ConcreteIterator &i = static_cast<ConcreteIterator&>(*m_faceless_iterator.get());
+		return i.equal(cmp);
+	}
+
+	bool operator==(const IteratorAdapter &cmp) const
+	{
+		return m_faceless_iterator->equal(*cmp.m_faceless_iterator.get());
+	}
+
+	template<class Iterator>
+	bool operator!=(const Iterator &cmp)        const { return !operator==(cmp); }
+	bool operator!=(const IteratorAdapter &cmp) const { return !operator==(cmp); }
+
+	R& operator*()  const { return m_faceless_iterator->get_value(); }
+	R* operator->() const { return &operator*();                     }
+private:
+	pBaseIterator m_faceless_iterator;
+};
+
+
+}
+
+
+
+#endif // EX_ITERATOR_HEADER
