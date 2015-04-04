@@ -20,7 +20,7 @@ set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/bin)
 # Works only with C++11 (-std=c++11)
 # Show all warnings (-Wall)
 # All warnnings MUST be resolved (-pedantic)
-# TODO: add -pedantic on GCC
+# TODO: add -pedantic only on GCC
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic")
 
 # Generate and use config.h file
@@ -35,6 +35,8 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 # Enumerate source files
 set(SOURCES
     src/debug.cpp
+    src/platform.cpp
+    src/string.cpp
     src/version.cpp
 )
 
@@ -44,15 +46,18 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Enumerate header files
 set(HEADERS
-    include/ex/iterator
-    include/ex/string
     include/ex/debug
+    include/ex/exception
+    include/ex/iterator
+    include/ex/macro
+    include/ex/platform
+    include/ex/string
     include/ex/version
 )
 
 
 # define and export library with name ex
-add_library(ex STATIC ${SOURCES} ${HEADERS} src/string.cpp include/ex/exception include/ex/macro)
+add_library(ex STATIC ${SOURCES} ${HEADERS})
 
 # use linker for C++ (CXX)
 set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX)

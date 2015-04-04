@@ -7,7 +7,7 @@
 #include "ex/string"
 
 
-#ifdef WINDOWS
+#ifdef PLATFORM_IS_WINDOWS
 #   define WIN32_LEAN_AND_MEAN
 
 #   include <stdarg.h>
@@ -21,7 +21,8 @@ namespace ex
 {
 
 
-#ifdef WINDOWS
+#ifdef PLATFORM_IS_WINDOWS
+
 
 int OutputDebugStringF(const Char *format, ...)
 {
@@ -92,9 +93,9 @@ static void win_trace()
 
 void debug::trace()
 {
-#ifdef WINDOWS
+#ifdef PLATFORM_IS_WINDOWS
 	win_trace();
-#elif defined(UNIX)
+#elif defined(PLATFORM_IS_UNIX)
 	unix_trace();
 #else
 #   error Unknown system

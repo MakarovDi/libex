@@ -2,16 +2,72 @@
 #   define EX_PLATFORM_HEADER
 
 
-#if defined(__linux__) || defined(__APPLE__)
-#   define UNIX
-#elif defined(_WIN64) || defined(_WIN32)
-#   define WINDOWS
+// TODO: check for android
+// TODO: print_definitions
+
+
+// Check for UNIX-like platform:  Linux, BSD, OsX, Solaris, ...
+#if (defined(__unix__) || defined(__unix)) && !defined(_WIN32)
+   // GCC define _WIN32 and __unix__ when cross-compilation
+#  define PLATFORM_IS_UNIX
 #endif
 
 
+// Check for OSX, iOS, Darwin
+#if defined(__APPLE__) && defined(__MACH__)
+#  define PLATFORM_IS_APPLE
+#endif
+
+
+// Check for Windows (x86, x64)
+#if defined(_WIN32)
+#   define PLATFORM_IS_WINDOWS
+#endif
+
+
+#if defined(PLATFORM_IS_UNIX) && defined(__linux__)
+#   define PLATFORM_IS_LINUX
+#endif
+
+
+// TODO: check for __CYGWIN64__
+// Check for POSIX
+#if defined(PLATFORM_IS_UNIX) || defined(__CYGWIN__)
+#   define PLATFORM_IS_POSIX
+#endif
+
+
+// Check for BSD family: *BSD (DragonFly BSD, FreeBSD, OpenBSD, NetBSD), OSX, iOS, Darwin
+#if defined(PLATFORM_IS_UNIX) || defined(PLATFORM_IS_APPLE)
+#  include <sys/param.h>     // define *BSD macro if BSD
+#  if defined(BSD)
+#     define PLATFORM_IS_BSD
+#  endif
+#endif
+
 
 // TODO: x64, x86
-// TODO: POSIX
+// TODO: compiler/environment
+
+
+namespace ex
+{
+
+// run-time checks
+namespace platform
+{
+	bool is_unix();
+	bool is_windows();
+
+	bool is_linux();
+	bool is_bsd();
+	bool is_apple();
+	bool is_posix();
+}
+
+
+}
+
 
 // Platform class
 
