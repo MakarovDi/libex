@@ -17,6 +17,7 @@ namespace ex
 
 
 const size_t string::kFormatBufferSize = 2048;
+const Char* string::empty = L("");
 
 
 #define PRINT_INTERNAL(format)                          \

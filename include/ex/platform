@@ -1,9 +1,11 @@
 #ifndef    EX_PLATFORM_HEADER
 #   define EX_PLATFORM_HEADER
 
+//
+// see: ex/doc/platform for more details
+//
 
-// TODO: check for android
-// TODO: print_definitions
+#include "ex/string"
 
 
 // Check for UNIX-like platform:  Linux, BSD, OsX, Solaris, ...
@@ -33,7 +35,10 @@
 // TODO: check for __CYGWIN64__
 // Check for POSIX
 #if defined(PLATFORM_IS_UNIX) || defined(__CYGWIN__)
-#   define PLATFORM_IS_POSIX
+#  include <unistd.h>
+#  if defined(_POSIX_VERSION)
+#     define PLATFORM_IS_POSIX
+#  endif
 #endif
 
 
@@ -45,9 +50,21 @@
 #  endif
 #endif
 
+// check for android platform
+#if defined(__ANDROID__)
+#   define PLATFORM_IS_ANDROID
+#endif
+
 
 // TODO: x64, x86
 // TODO: compiler/environment
+
+// Universal current function's name macro
+#if defined(_MSC_VER)
+#   define FUNCTION_NAME __FUNCTION__ // MS have a problem with C99 support
+#else
+#   define FUNCTION_NAME __func__     // C99 standart
+#endif
 
 
 namespace ex
@@ -63,6 +80,10 @@ namespace platform
 	bool is_bsd();
 	bool is_apple();
 	bool is_posix();
+	bool is_android();
+
+	String info(); // check definitions from this module
+	String defs(); // check platform-dependent definitions
 }
 
 
