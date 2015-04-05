@@ -6,6 +6,7 @@
 #include "ex/platform"
 
 
+
 namespace ex
 {
 
@@ -32,9 +33,9 @@ struct debug
 
 
 
-#ifdef UNIX
+#ifdef PLATFORM_IS_UNIX
 #   define DEBUG_OUTPUT_FUNCTION _print
-#elif defined(WINDOWS)
+#elif defined(PLATFORM_IS_WINDOWS)
 
 int OutputDebugStringF(const Char *format, ...);
 
