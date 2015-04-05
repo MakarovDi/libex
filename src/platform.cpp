@@ -76,7 +76,27 @@ bool platform::is_android()
 }
 
 
-String platform::defs()
+bool is_x64()
+{
+#ifdef PLATFORM_IS_x64
+	return true;
+#else
+	return false;
+#endif
+}
+
+
+bool is_x86()
+{
+#ifdef PLATFORM_IS_x86
+	return true;
+#else
+	return false;
+#endif
+}
+
+
+String platform::compiler_defs()
 {
 	String result = string::empty;
 
@@ -195,7 +215,7 @@ String platform::defs()
 }
 
 
-String platform::info()
+String platform::defs()
 {
 	String result = string::empty;
 
@@ -233,6 +253,52 @@ String platform::info()
 	result += L("PLATFORM_IS_ANDROID\t: yes\n");
 #else
 	result += L("PLATFORM_IS_ANDROID\t: no\n");
+#endif
+
+	result += L("\n");
+
+#if defined(COMPILER_IS_CLANG)
+	result += L("COMPILER_IS_CLANG\n");
+#elif defined(COMPILER_IS_INTEL)
+	result += L("COMPILER_IS_INTEL\n");
+#elif defined(COMPILER_IS_HP)
+	result += L("COMPILER_IS_HP\n");
+#elif defined(COMPILER_IS_IBM)
+	result += L("COMPILER_IS_IBM\n");
+#elif defined(COMPILER_IS_MSC)
+	result += L("COMPILER_IS_MSC\n");
+#elif defined(COMPILER_IS_PORTLAND)
+	result += L("COMPILER_IS_PORTLAND\n");
+#elif defined(COMPILER_IS_SUN)
+	result += L("COMPILER_IS_SUN\n");
+#elif defined(COMPILER_IS_GNU)
+	result += L("COMPILER_IS_GNU\n");
+#endif
+
+	result += L("\n");
+
+#if defined(ENVIRONMENT_IS_CYGWIN)
+	result += L("ENVIRONMENT_IS_CYGWIN\n");
+#elif defined(ENVIRONMENT_IS_MINGW)
+	result += L("ENVIRONMENT_IS_MINGW\n");
+#else
+	result += L("ENVIRONMENT_IS_NATIVE\n");
+#endif
+
+	result += L("\n");
+
+#if defined(PROCESSOR_IS_IA64)
+	result += L("PROCESSOR_IS_IA64\n");
+#elif defined(PROCESSOR_IS_POWERPC)
+	result += L("PROCESSOR_IS_POWERPC\n");
+#elif defined(PROCESSOR_IS_SPARC)
+	result += L("PROCESSOR_IS_SPARC\n");
+#endif
+
+#if defined(PLATFORM_IS_x64)
+	result += L("PLATFORM_IS_x64\n");
+#elif defined(PLATFORM_IS_x86)
+	result += L("PLATFORM_IS_x86\n");
 #endif
 
 	return result;
