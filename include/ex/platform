@@ -14,23 +14,19 @@
 #  define PLATFORM_IS_UNIX
 #endif
 
-
 // Check for OSX, iOS, Darwin
 #if defined(__APPLE__) && defined(__MACH__)
 #  define PLATFORM_IS_APPLE
 #endif
-
 
 // Check for Windows (x86, x64)
 #if defined(_WIN32)
 #   define PLATFORM_IS_WINDOWS
 #endif
 
-
 #if defined(PLATFORM_IS_UNIX) && defined(__linux__)
 #   define PLATFORM_IS_LINUX
 #endif
-
 
 // TODO: check for __CYGWIN64__
 // Check for POSIX
@@ -41,10 +37,9 @@
 #  endif
 #endif
 
-
 // Check for BSD family: *BSD (DragonFly BSD, FreeBSD, OpenBSD, NetBSD), OSX, iOS, Darwin
 #if defined(PLATFORM_IS_UNIX) || defined(PLATFORM_IS_APPLE)
-#  include <sys/param.h>     // define *BSD macro if BSD
+#  include <sys/param.h>     // provides BSD macro on *BSD
 #  if defined(BSD)
 #     define PLATFORM_IS_BSD
 #  endif
@@ -56,8 +51,31 @@
 #endif
 
 
+
+#if defined(__clang__)                            // Clang/LLVM
+#   define COMPILER_IS_CLANG
+#elif defined(__ICC) || defined(__INTEL_COMPILER) // ICC/ICPC
+#   define COMPILER_IS_INTEL
+#elif defined(__HP_cc) || defined(__HP_aCC)       // Hewlett-Packard C/aC++
+#   define COMPILER_IS_HP
+#elif defined(__IBMC__) || defined(__IBMCPP__)    // IBM XL C/C++
+#   define COMPILER_IS_IBM
+#elif defined(_MSC_VER)                           // MS Compiler
+#   define COMPILER_IS_MSC
+#elif defined(__PGI)                              // Portland Group PGCC/PGCPP
+#   define COMPILER_IS_PORTLAND
+#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC) // Oracle Solaris Studio
+#   define COMPILER_IS_SUN
+#elif (defined(__GNUC__) || defined(__GNUG__)) && !defined(COMPILER_IS_INTEL)  // GNU Compiler
+#   define COMPILER_GNU
+#endif
+
+
 // TODO: x64, x86
-// TODO: compiler/environment
+// TODO: environment (MinGW, CygWIN, NATIVE)
+// TODO: Numbers for definitions -> for easy integration into array
+// TODO: String id for definitions
+
 
 // Universal current function's name macro
 #if defined(_MSC_VER)
@@ -83,7 +101,7 @@ namespace platform
 	bool is_android();
 
 	String info(); // check definitions from this module
-	String defs(); // check platform-dependent definitions
+	String defs(); // check platform-dependent definitions for diagnostic needs
 }
 
 
