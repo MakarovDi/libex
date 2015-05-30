@@ -53,17 +53,17 @@ bool vsprint(wchar_t* buff, size_t buff_size, const wchar_t* format, va_list arg
 bool vsprint(char*    buff, size_t buff_size, const char*    format, va_list args) { return vsnprintf (buff, buff_size, format, args) > 0; }
 
 
-#define FORMAT_INTERNAL(CharType, format_arg, format_value)                                                    \
-    CharType buff[kFormatBufferSize];                                                                          \
-    va_list args;                                                                                              \
-                                                                                                               \
-    va_start(args, format_arg);                                                                                \
-    bool formatted = vsprint(buff, ARRAY_LENGTH(buff), format_value, args);                                    \
-    va_end(args);                                                                                              \
-                                                                                                               \
-    if (!formatted)                                                                                            \
-        throw_it<string::FormatException>("vsprint failure! result larger than %d chars?", kFormatBufferSize); \
-                                                                                                               \
+#define FORMAT_INTERNAL(CharType, format_arg, format_value)                                                           \
+    CharType buff[kFormatBufferSize];                                                                                 \
+    va_list args;                                                                                                     \
+                                                                                                                      \
+    va_start(args, format_arg);                                                                                       \
+    bool formatted = vsprint(buff, ARRAY_LENGTH(buff), format_value, args);                                           \
+    va_end(args);                                                                                                     \
+                                                                                                                      \
+    if (!formatted)                                                                                                   \
+        throw_formatted<string::FormatException>("vsprint failure! result larger than %d chars?", kFormatBufferSize); \
+                                                                                                                      \
     return std::basic_string<CharType>(buff);
 
 
@@ -82,7 +82,8 @@ std::basic_string<CharType> vFromatInternal(const CharType* format, va_list args
     CharType buff[string::kFormatBufferSize];
 
     if (!vsprint(buff, ARRAY_LENGTH(buff), format, args))
-        throw_it<string::FormatException>("vsprint failure! result larger than %d chars?", string::kFormatBufferSize);
+        throw_formatted<string::FormatException>("vsprint failure! result larger than %d chars?",
+                                                 string::kFormatBufferSize);
 
     return std::basic_string<CharType>(buff);
 }

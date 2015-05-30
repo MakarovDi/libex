@@ -60,6 +60,8 @@ using CStringW = std::unique_ptr<wchar_t[]>;
 using CString  = std::unique_ptr<Char   []>;
 
 
+// TODO: move to <ex/cprint> module
+
 // Encoding independent print functions
 // Exception: -
 bool print (const wchar_t* format, ...);
