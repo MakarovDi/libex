@@ -35,6 +35,7 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 # Enumerate source files
 set(SOURCES
     src/debug.cpp
+    src/placebo.cpp
     src/platform.cpp
     src/string.cpp
     src/version.cpp
@@ -46,10 +47,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Enumerate header files
 set(HEADERS
+    include/ex/algo
     include/ex/debug
     include/ex/exception
     include/ex/iterator
     include/ex/macro
+    include/ex/placebo
     include/ex/platform
     include/ex/string
     include/ex/version
@@ -64,10 +67,10 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX)
 
 # Some debug settings
 if (WIN32)
-	# debug namespace use imagehlp and pdb on Windows
-	target_link_libraries(ex imagehlp)
-	# use debug symbols for pdb-generation
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+    # debug namespace use imagehlp and pdb on Windows
+    target_link_libraries(ex imagehlp)
+    # use debug symbols for pdb-generation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 endif()
 
 
