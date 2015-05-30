@@ -1,0 +1,39 @@
+#ifndef    EX_ALGO_HEADER
+#   define EX_ALGO_HEADER
+
+#include <algorithm>
+
+// Using:
+//
+//  (1)  a = uniqued(b);  // make copy of b
+//
+//  (2)  b = uniqued(b);  // make copy
+//
+//  (3)  b = sorted(std::move(b)) // no copy
+//
+//  (3)  lines = uniqued(sorted(std:: move(lines))); // no any copy
+//
+//  (4)  for (const auto& line : uniqued(sorted(std::move(lines)))) // no copy
+//
+
+// return copy of container x with unique elements
+template <class Container>
+Container uniqued(Container x)
+{
+	x.resize(std::unique(std::begin(x), std::end(x)) - std::begin(x));
+	return x;
+}
+
+
+// return sorted copy of container x
+template <class Container>
+Container sorted(Container x)
+{
+	std::sort(std::begin(x), std::end(x));
+	return x;
+}
+
+
+
+
+#endif
