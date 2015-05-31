@@ -3,12 +3,25 @@
 
 
 // Get count of elements in array
-#define ARRAY_LENGTH(array)     (sizeof(array)/sizeof(array[0]))
+#define ARRAY_LENGTH(array)     (sizeof(array) / sizeof(array[0]))
 
 
 // Convert language id 's' to literal, LITERAL(some_id) -> "some_id"
-#define __LITERAL(s)            #s             // convert language id 's' to literal, __LITERAL(some_id) -> "some_id"
-#define LITERAL(s)              __LITERAL(s)   // same as __LITERAL, but unfold all macro in s
+#define LITERAL_IMPL(s)     #s                // convert language id 's' to literal, LITERAL_IMPL(some_id) -> "some_id"
+#define LITERAL(s)          LITERAL_IMPL(s)   // same as LITERAL_IMPL, but unfold all macro in s
+
+
+// Concatinate two id CONCATENATE_IMPL(some_, id) -> some_id
+#define CONCATENATE_IMPL(s1, s2)    s1##s2
+#define CONCATENATE(s1, s2)         CONCATENATE_IMPL(s1, s2) // same as LITERAL_IMPL, but unfold all macro in s1 and s2
+
+
+// This macro try to define unique variable
+#ifdef __COUNTER__
+#   define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __COUNTER__)
+#else
+#   define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __LINE__)
+#endif
 
 
 

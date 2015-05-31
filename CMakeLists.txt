@@ -55,6 +55,7 @@ set(HEADERS
     include/ex/macro
     include/ex/placebo
     include/ex/platform
+    include/ex/scopeguard
     include/ex/string
     include/ex/version
 )
