@@ -11,7 +11,7 @@ project(ex) # Initialize PROJECT_xxx variables
 
 set(EX_VERSION_MAJOR     0)
 set(EX_VERSION_MINOR     1)
-set(EX_VERSION_REVISION  3)
+set(EX_VERSION_REVISION  4)
 
 # Configure output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -50,6 +50,7 @@ set(HEADERS
     include/ex/algo
     include/ex/debug
     include/ex/exception
+    include/ex/expected
     include/ex/iterator
     include/ex/macro
     include/ex/placebo
