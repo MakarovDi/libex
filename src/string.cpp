@@ -3,13 +3,11 @@
 #endif
 
 
+#include <cstdio>
+
 #include "ex/string"
 #include "ex/macro"
-
-#include <cstdio>
-#   undef __STRICT_ANSI__ // enables vsnprintf          // TODO: check GCC only ?
-
-#include <ex/exception>
+#include "ex/exception"
 
 
 namespace ex

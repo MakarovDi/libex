@@ -7,8 +7,9 @@
 
 
 // Convert language id 's' to literal, LITERAL(some_id) -> "some_id"
+#define __LITERAL(s)            #s             // convert language id 's' to literal, __LITERAL(some_id) -> "some_id"
 #define LITERAL(s)              __LITERAL(s)   // same as __LITERAL, but unfold all macro in s
-#   define __LITERAL(s)         #s             // convert language id 's' to literal, __LITERAL(some_id) -> "some_id"
+
 
 
 #endif
