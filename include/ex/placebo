@@ -21,14 +21,14 @@ public:
 		std::cout << m_id_str << ".ctor" << std::endl;
 	}
 
-	LiveTrace(const LiveTrace &obj)
+	LiveTrace(const LiveTrace& obj)
 	{
 		generate_id();
 		m_name = m_id_str + "[" + obj.m_id_str + " copy]";
 		std::cout << m_id_str << ".copy_ctor <- " << obj.m_id_str << std::endl;
 	}
 
-	LiveTrace(LiveTrace &&obj)
+	LiveTrace(LiveTrace&& obj)
 	{
 		generate_id();
 		m_name = m_id_str + "[" + obj.m_id_str + " move]";
@@ -37,7 +37,7 @@ public:
 		obj.m_name = "{" + obj.m_id_str + ":null -> " + m_id_str + "}";
 	}
 
-	LiveTrace& operator=(const LiveTrace &obj)
+	LiveTrace& operator=(const LiveTrace& obj)
 	{
 		if (&obj == this)
 		{
@@ -51,7 +51,7 @@ public:
 		return *this;
 	}
 
-	LiveTrace &operator=(LiveTrace &&obj)
+	LiveTrace& operator=(LiveTrace&& obj)
 	{
 		if (&obj == this)
 		{

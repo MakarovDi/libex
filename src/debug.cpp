@@ -45,32 +45,32 @@ int OutputDebugStringF(const Char *format, ...)
 
 static void win_trace()
 {
-	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
-	IMAGEHLP_SYMBOL *symbol = PIMAGEHLP_SYMBOL(symbol_buffer);
-
-	HANDLE process = GetCurrentProcess();
-	if (!SymInitialize(process, NULL, TRUE))
-	{
-		print("fail\n");
-	}
-
-	symbol->MaxNameLength   = 254;
-	symbol->SizeOfStruct = sizeof( IMAGEHLP_SYMBOL ) + 255;
-
-	DWORD dummy = 0;
-
-	// StackWalk(IMAGE_FILE_MACHINE_I386, process, )
-	if (SymGetSymFromAddr( process, (DWORD)win_trace , &dummy, symbol ))
-	{
-		print("Symbol: %s\n", symbol->Name);
-	}
-	else
-	{
-		DWORD gle = GetLastError();
-		print("fail: %lu\n", gle);
-	}
-
-	SymCleanup(process);
+//	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
+//	IMAGEHLP_SYMBOL *symbol = PIMAGEHLP_SYMBOL(symbol_buffer);
+//
+//	HANDLE process = GetCurrentProcess();
+//	if (!SymInitialize(process, NULL, TRUE))
+//	{
+//		print("fail\n");
+//	}
+//
+//	symbol->MaxNameLength   = 254;
+//	symbol->SizeOfStruct = sizeof( IMAGEHLP_SYMBOL ) + 255;
+//
+//	DWORD64 dummy = 0;
+//
+//	// StackWalk(IMAGE_FILE_MACHINE_I386, process, )
+//	if (SymGetSymFromAddr( process, (DWORD64)win_trace , &dummy, symbol ))
+//	{
+//		print("Symbol: %s\n", symbol->Name);
+//	}
+//	else
+//	{
+//		DWORD gle = GetLastError();
+//		print("fail: %lu\n", gle);
+//	}
+//
+//	SymCleanup(process);
 
 //	SYMBOL_INFO* symbol = new ;
 
