@@ -27,7 +27,7 @@ ENDIF()
 # Show all warnings (-Wall)
 # All warnnings MUST be resolved (-pedantic)
 # TODO: add -pedantic only on GCC
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wconversion -pedantic")
 
 # Generate and use config.h file
 configure_file (
