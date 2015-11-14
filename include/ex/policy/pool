@@ -29,7 +29,7 @@ namespace policy
 	protected:
 		void creation_notice(T&)    {}
 		void acquisition_notice(T&) {}
-		void releasion_notice(T&)   {}
+		void releasing_notice(T&)   {}
 
 		void destroy(storage<T*>& free_list)
 		{
@@ -69,7 +69,7 @@ namespace policy
 		}
 
 		void acquisition_notice(T&) {}
-		void releasion_notice(T&)   {}
+		void releasing_notice(T&)   {}
 		void destroy(storage<T*>& free_list) {}
 	protected:
 		AllAllocatedDestroy()  {}
@@ -105,7 +105,7 @@ namespace policy
 		}
 
 
-		void releasion_notice(T& object)
+		void releasing_notice(T& object)
 		{
 			auto object_pos = m_death_note.find(&object);
 
