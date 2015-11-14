@@ -1,0 +1,55 @@
+#ifndef EX_POLICY_H
+#define EX_POLICY_H
+
+
+#include <atomic>
+#include <mutex>
+
+
+namespace ex
+{
+namespace policy
+{
+
+	template < class Host >
+	class SingleThreadedModel
+	{
+	public:
+		template < typename U >
+		using shared = U;
+
+		struct Lock
+		{
+			Lock(Host&) {}
+			~Lock()  {}
+		};
+
+	protected:
+		SingleThreadedModel()  {}
+		~SingleThreadedModel() {}
+	};
+
+
+	template < class Host >
+	class MutexLockableModel
+	{
+	public:
+		template < typename U >
+		using shared = std::atomic<U>;
+
+		struct Lock
+		{
+			Lock(Host&) { m_mutex.lock();   }
+			~Lock()  { m_mutex.unlock(); }
+		private:
+			std::mutex m_mutex;
+		};
+	protected:
+		MutexLockableModel()  {}
+		~MutexLockableModel() {}
+	};
+}
+}
+
+
+#endif // EX_POLICY_H

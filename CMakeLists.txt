@@ -59,6 +59,8 @@ set(HEADERS
     include/ex/string
     include/ex/version
 )
+    include/ex/interface
+    include/ex/policy/threading
 
 
 # define and export library with name ex
