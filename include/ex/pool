@@ -1,0 +1,138 @@
+#ifndef EX_MEM_POOL_H
+#define EX_MEM_POOL_H
+
+
+#include <cstdint>
+#include <utility>
+
+#include "interface"
+#include "policy/pool"
+#include "policy/threading"
+
+
+namespace ex
+{
+namespace mem
+{
+
+	// TODO: extend policy
+	// TODO: check perf + vector
+#ifdef NDEBUG
+	template < class T >
+	using DefaultDestroyPolicy = policy::AllAllocatedDestroy<T>;
+#else
+	template < class T >
+	using DefaultDestroyPolicy = policy::StrictAllAllocatedDestroy<T>;
+#endif
+
+	template
+	<
+		class T,
+		template <class> class ThreadedModel = policy::SingleThreadedModel,
+		template <class> class DestroyPolicy = DefaultDestroyPolicy
+	>
+	class ObjectPool final : INonCopyable,
+	    public ThreadedModel<ObjectPool<T, ThreadedModel, DestroyPolicy>>,
+        public DestroyPolicy<T>
+
+	{
+		template < typename U >
+		using shared = typename ThreadedModel<T>::template shared<U>;
+	public:
+
+		explicit ObjectPool(uint32_t depth)
+		{
+			if (!depth)
+				throw std::invalid_argument("depth must be not 0");
+
+			reserve(depth);
+		}
+
+
+		~ObjectPool()
+		{
+			this->destroy(m_released_objects);
+		}
+
+
+		// throws
+		T& acquire()
+		{
+			typename ThreadedModel<ObjectPool>::Lock guard(*this);
+
+			T* object;
+
+			if (m_released_objects.empty())
+			{
+				object = &create_object();
+			}
+			else
+			{
+				object = m_released_objects.back();
+				m_released_objects.pop_back();
+			}
+
+			this->acquisition_notice(*object);
+
+			return *object;
+		}
+
+
+		// throws
+		void release(T& t)
+		{
+			typename ThreadedModel<ObjectPool>::Lock guard(*this);
+			m_released_objects.push_back(&t);
+
+			this->releasing_notice(t);
+		}
+
+		// no-throw
+		uint32_t depth() const { return m_depth; }
+
+		// no-throw
+		uint32_t available() const
+		{
+			typename ThreadedModel<ObjectPool>::Lock guard(*this);
+			return uint32_t(m_released_objects.size());
+		}
+
+		// no-throw
+		bool empty() const
+		{
+			typename ThreadedModel<ObjectPool>::Lock guard(*this);
+			return m_released_objects.empty();
+		}
+
+
+		// TODO: check
+		ObjectPool(ObjectPool&&) = default;
+		ObjectPool& operator=(ObjectPool&&) = default;
+	private:
+		T& create_object()
+		{
+			T* object = new T();
+
+			this->creation_notice(*object);
+
+			return *object;
+		}
+
+
+		void reserve(uint32_t count)
+		{
+			// TODO: vector.reserve
+			while (count--)
+				m_released_objects.push_back(&create_object());
+		}
+	private:
+		policy::storage<T*> m_released_objects;
+		shared<uint32_t>    m_depth;
+	};
+
+}
+}
+
+
+
+#endif // EX_MEM_POOL_H

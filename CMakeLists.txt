@@ -17,6 +17,12 @@ set(EX_VERSION_REVISION  4)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/bin)
 
+
+IF(CMAKE_BUILD_TYPE MATCHES Release)
+    add_definitions("-DNDEBUG")
+ENDIF()
+
+
 # Works only with C++11 (-std=c++11)
 # Show all warnings (-Wall)
 # All warnnings MUST be resolved (-pedantic)
@@ -58,9 +64,10 @@ set(HEADERS
     include/ex/scopeguard
     include/ex/string
     include/ex/version
-)
+    include/ex/pool
     include/ex/interface
     include/ex/policy/threading
+    include/ex/policy/pool)
 
 
 # define and export library with name ex

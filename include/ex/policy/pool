@@ -1,0 +1,142 @@
+#ifndef EX_POLICY_POOL_H
+#define EX_POLICY_POOL_H
+
+
+#include <exception>
+#include <cassert>
+#include <deque>
+#include <memory>
+#include <unordered_map>
+
+
+namespace ex
+{
+namespace policy
+{
+
+	template < class T >
+	using storage = std::deque<T>;
+
+
+	// [-][+] doesn't destroy non-released objects (leaks possible)
+	// [-]    double free for double released object
+	// [-][+] allow releasing "foreign" objects (not from pool)
+	// [-]    no asserts on: double free, releasing "foreign" object
+	// [+]    fastest and lightweight
+	template < class T >
+	class ReleasedOnlyDestroy
+	{
+	protected:
+		void creation_notice(T&)    {}
+		void acquisition_notice(T&) {}
+		void releasion_notice(T&)   {}
+
+		void destroy(storage<T*>& free_list)
+		{
+			while (!free_list.empty())
+			{
+				T* object = free_list.back(); // no-throw
+				free_list.pop_back();         // no-throw
+
+				try
+				{
+					delete object;
+				}
+				catch(std::exception& ex)
+				{
+					// T throws exception in destructor ?
+					assert(false);
+				}
+			}
+		}
+	protected:
+		ReleasedOnlyDestroy()  {}
+		~ReleasedOnlyDestroy() {}
+	};
+
+
+	// [+][-] destroy non-released objects (no leaks)
+	// [+]    safe double release (no double free)
+	// [-][+] allow releasing "foreign" objects (not from pool)
+	// [-]    no asserts on: double free, releasing "foreign" object, destroy non-released object
+	template < class T >
+	class AllAllocatedDestroy
+	{
+	protected:
+		void creation_notice(T& object)
+		{
+			m_death_note.emplace_back(&object);
+		}
+
+		void acquisition_notice(T&) {}
+		void releasion_notice(T&)   {}
+		void destroy(storage<T*>& free_list) {}
+	protected:
+		AllAllocatedDestroy()  {}
+		~AllAllocatedDestroy() {}
+	private:
+		storage<std::unique_ptr<T>> m_death_note;
+	};
+
+
+	// [*] same as AllAllocatedDestroy in RELEASE build
+	// [+] has asserts in DEBUG build: double free, releasing "foreign" object, destroy non-released object
+	// [-] heavy
+	template < class T >
+	class StrictAllAllocatedDestroy
+	{
+		enum : bool
+		{
+			kObjectIsInPool = true,
+		};
+
+	protected:
+		void creation_notice(T& object)
+		{
+			auto result = m_death_note.insert(std::make_pair<T*, bool>(&object, kObjectIsInPool));
+			// object with same address already exists
+			assert(result.second);
+		}
+
+
+		void acquisition_notice(T& object)
+		{
+			m_death_note[&object] = !kObjectIsInPool;
+		}
+
+
+		void releasion_notice(T& object)
+		{
+			auto object_pos = m_death_note.find(&object);
+
+			// was released "foreign" object (not from pool)
+			assert(object_pos != m_death_note.end());
+			// check for double free
+			assert(object_pos != m_death_note.end() && object_pos->second == !kObjectIsInPool);
+
+			m_death_note[&object] = kObjectIsInPool;
+		}
+
+
+		void destroy(storage<T*>& free_list)
+		{
+			for (auto& item : m_death_note)
+			{
+				// object wasn't released
+				assert(item.second == kObjectIsInPool);
+
+				delete item.first;
+			}
+		}
+	protected:
+		StrictAllAllocatedDestroy()  {}
+		~StrictAllAllocatedDestroy() {}
+	private:
+		std::unordered_map<T*, bool> m_death_note;
+	};
+
+}
+}
+
+
+#endif // EX_POLICY_POOL_H
