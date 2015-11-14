@@ -17,6 +17,9 @@ namespace policy
 	template < class T >
 	using storage = std::deque<T>;
 
+	template < class T >
+	using creator = std::function<T&()>;
+
 
 	// [-][+] doesn't destroy non-released objects (leaks possible)
 	// [-]    double free for double released object
@@ -31,12 +34,12 @@ namespace policy
 		void acquisition_notice(T&) {}
 		void releasing_notice(T&)   {}
 
-		void destroy(storage<T*>& free_list)
+		void destroy(storage<T*>& released_list)
 		{
-			while (!free_list.empty())
+			while (!released_list.empty())
 			{
-				T* object = free_list.back(); // no-throw
-				free_list.pop_back();         // no-throw
+				T* object = released_list.back(); // no-throw
+				released_list.pop_back();         // no-throw
 
 				try
 				{
@@ -70,7 +73,7 @@ namespace policy
 
 		void acquisition_notice(T&) {}
 		void releasing_notice(T&)   {}
-		void destroy(storage<T*>& free_list) {}
+		void destroy(storage<T*>& released_list) {}
 	protected:
 		AllAllocatedDestroy()  {}
 		~AllAllocatedDestroy() {}
@@ -118,7 +121,7 @@ namespace policy
 		}
 
 
-		void destroy(storage<T*>& free_list)
+		void destroy(storage<T*>& released_list)
 		{
 			for (auto& item : m_death_note)
 			{
@@ -133,6 +136,36 @@ namespace policy
 		~StrictAllAllocatedDestroy() {}
 	private:
 		std::unordered_map<T*, bool> m_death_note;
+	};
+
+
+	template < class T >
+	class FixedSizePool
+	{
+	protected:
+		T& extend_pool(storage<T*>& released_list)
+		{
+			throw std::logic_error("fixed-size pool is empty");
+		}
+	protected:
+		FixedSizePool(creator<T>)  {}
+		~FixedSizePool() {}
+	};
+
+
+	template < class T >
+	class AutoExtendablePool
+	{
+	protected:
+		T& extend_pool(storage<T*>& released_list)
+		{
+			return m_creator();
+		}
+	protected:
+		AutoExtendablePool(creator<T> function) : m_creator(std::move(function)) {}
+		~AutoExtendablePool() {}
+	private:
+		creator<T> m_creator;
 	};
 
 }

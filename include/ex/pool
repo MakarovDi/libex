@@ -28,19 +28,22 @@ namespace mem
 	template
 	<
 		class T,
-		template <class> class ThreadedModel = policy::SingleThreadedModel,
-		template <class> class DestroyPolicy = DefaultDestroyPolicy
+		template <class> class ThreadedModel   = policy::SingleThreadedModel,
+		template <class> class DestroyPolicy   = DefaultDestroyPolicy,
+		template <class> class ExtendingPolicy = policy::AutoExtendablePool
 	>
 	class ObjectPool final : INonCopyable,
 	    public ThreadedModel<ObjectPool<T, ThreadedModel, DestroyPolicy>>,
-        public DestroyPolicy<T>
+        public DestroyPolicy<T>,
+		public ExtendingPolicy<T>
 
 	{
 		template < typename U >
 		using shared = typename ThreadedModel<T>::template shared<U>;
 	public:
 
-		explicit ObjectPool(uint32_t depth)
+		explicit ObjectPool(uint32_t depth) :
+			ExtendingPolicy<T>(std::bind(&ObjectPool::create_object, this))
 		{
 			if (!depth)
 				throw std::invalid_argument("depth must be not 0");
@@ -64,7 +67,7 @@ namespace mem
 
 			if (m_released_objects.empty())
 			{
-				object = &create_object();
+				object = &this->extend_pool(m_released_objects);
 			}
 			else
 			{
