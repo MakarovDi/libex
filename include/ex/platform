@@ -105,10 +105,6 @@
 
 
 
-// TODO: Numbers for definitions -> for easy integration into array
-// TODO: String id for definitions
-
-
 namespace ex
 {
 
@@ -116,20 +112,20 @@ namespace ex
 // run-time checks
 namespace platform
 {
-	bool is_unix();
-	bool is_windows();
+    bool is_unix();
+    bool is_windows();
 
-	bool is_linux();
-	bool is_bsd();
-	bool is_apple();
-	bool is_posix();
-	bool is_android();
+    bool is_linux();
+    bool is_bsd();
+    bool is_apple();
+    bool is_posix();
+    bool is_android();
 
-	bool is_x64();
-	bool is_x86();
+    bool is_x64();
+    bool is_x86();
 
-	String defs();          // check definitions from this module
-	String compiler_defs(); // check platform-dependent definitions for diagnostic needs
+    String defs();          // check definitions from this module
+    String compiler_defs(); // check platform-dependent definitions for diagnostic needs
 }
 
 

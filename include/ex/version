@@ -12,10 +12,10 @@ namespace ex
 
 struct version
 {
-	static const uint8_t kMajor;
-	static const uint8_t kMinor;
-	static const uint8_t kRevision;
-	static const Char*   kString;
+    static const uint8_t kMajor;
+    static const uint8_t kMinor;
+    static const uint8_t kRevision;
+    static const Char*   kString;
 };
 
 

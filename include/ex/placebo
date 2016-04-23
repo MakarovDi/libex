@@ -14,82 +14,88 @@ namespace ex
 class LiveTrace
 {
 public:
-	LiveTrace()
-	{
-		generate_id();
-		m_name = m_id_str;
-		std::cout << m_id_str << ".ctor" << std::endl;
-	}
-
-	LiveTrace(const LiveTrace& obj)
-	{
-		generate_id();
-		m_name = m_id_str + "[" + obj.m_id_str + " copy]";
-		std::cout << m_id_str << ".copy_ctor <- " << obj.m_id_str << std::endl;
-	}
-
-	LiveTrace(LiveTrace&& obj)
-	{
-		generate_id();
-		m_name = m_id_str + "[" + obj.m_id_str + " move]";
-		std::cout << m_id_str << ".move_ctor <- " << obj.m_id_str << std::endl;
-
-		obj.m_name = "{" + obj.m_id_str + ":null -> " + m_id_str + "}";
-	}
-
-	LiveTrace& operator=(const LiveTrace& obj)
-	{
-		if (&obj == this)
-		{
-			std::cout << m_id_str << " .= " << m_id_str << " [!]" << std::endl;
-			return *this;
-		}
-
-		m_name = m_id_str + "[" + obj.m_id_str + " copy]";
-		std::cout << m_id_str << " .= " << obj.m_id_str << std::endl;
-
-		return *this;
-	}
-
-	LiveTrace& operator=(LiveTrace&& obj)
-	{
-		if (&obj == this)
-		{
-			std::cout << m_id_str << " .= &&" << m_id_str << " [!]" << std::endl;
-			return *this;
-		}
-
-		m_name = m_id_str + "[" + obj.m_id_str + " move]";
-		std::cout << m_id_str << " .= &&" << obj.m_id_str << std::endl;
+    LiveTrace()
+    {
+        generate_id();
+        m_name = m_id_str;
+        std::cout << m_id_str << ".ctor" << std::endl;
+    }
 
 
-		obj.m_name = "{" + obj.m_id_str + ":null -> " + m_id_str + "}";
+    LiveTrace(const LiveTrace& obj)
+    {
+        generate_id();
+        m_name = m_id_str + "[" + obj.m_id_str + " copy]";
+        std::cout << m_id_str << ".copy_ctor <- " << obj.m_id_str << std::endl;
+    }
 
-		return *this;
-	}
 
-	~LiveTrace()
-	{
-		std::cout << m_name << ".dtor" << std::endl;
-	}
+    LiveTrace(LiveTrace&& obj)
+    {
+        generate_id();
+        m_name = m_id_str + "[" + obj.m_id_str + " move]";
+        std::cout << m_id_str << ".move_ctor <- " << obj.m_id_str << std::endl;
 
-	operator const std::string&() const { return m_id_str; }
-	operator int ()               const { return m_id;     }
+        obj.m_name = "{" + obj.m_id_str + ":null -> " + m_id_str + "}";
+    }
+
+
+    LiveTrace& operator=(const LiveTrace& obj)
+    {
+        if (&obj == this)
+        {
+            std::cout << m_id_str << " .= " << m_id_str << " [!]" << std::endl;
+            return *this;
+        }
+
+        m_name = m_id_str + "[" + obj.m_id_str + " copy]";
+        std::cout << m_id_str << " .= " << obj.m_id_str << std::endl;
+
+        return *this;
+    }
+
+
+    LiveTrace& operator=(LiveTrace&& obj)
+    {
+        if (&obj == this)
+        {
+            std::cout << m_id_str << " .= &&" << m_id_str << " [!]" << std::endl;
+            return *this;
+        }
+
+        m_name = m_id_str + "[" + obj.m_id_str + " move]";
+        std::cout << m_id_str << " .= &&" << obj.m_id_str << std::endl;
+
+
+        obj.m_name = "{" + obj.m_id_str + ":null -> " + m_id_str + "}";
+
+        return *this;
+    }
+
+
+    ~LiveTrace()
+    {
+        std::cout << m_name << ".dtor" << std::endl;
+    }
+
+
+    operator const std::string&() const { return m_id_str; }
+    operator int ()               const { return m_id;     }
 
 private:
-	void generate_id()
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		m_id = ++m_global_index;
-		m_id_str = "t" + std::to_string(m_id);
-	}
+    void generate_id()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_id = ++m_global_index;
+        m_id_str = "t" + std::to_string(m_id);
+    }
 
-	int         m_id;
-	std::string m_id_str;
-	std::string m_name;
+    int         m_id;
+    std::string m_id_str;
+    std::string m_name;
 private:
-	static std::mutex m_mutex;
-	static int m_global_index;
+    static std::mutex m_mutex;
+    static int m_global_index;
 };
 
 

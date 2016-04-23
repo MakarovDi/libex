@@ -13,13 +13,9 @@
 
 namespace ex
 {
-
-
-const uint8_t version::kMajor    = VERSION_MAJOR;
-const uint8_t version::kMinor    = VERSION_MINOR;
-const uint8_t version::kRevision = VERSION_REVISION;
-const Char*   version::kString   = L("v") LITERAL(VERSION_MAJOR) "." LITERAL(VERSION_MINOR) "." LITERAL(VERSION_REVISION);
-
-
+    const uint8_t version::kMajor    = VERSION_MAJOR;
+    const uint8_t version::kMinor    = VERSION_MINOR;
+    const uint8_t version::kRevision = VERSION_REVISION;
+    const Char*   version::kString   = L("v") LITERAL(VERSION_MAJOR) "." LITERAL(VERSION_MINOR) "." LITERAL(VERSION_REVISION);
 }
 
