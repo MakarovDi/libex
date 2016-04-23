@@ -11,8 +11,7 @@ namespace ex
 namespace policy
 {
 
-	template < class Host >
-	class SingleThreadedModel
+	class SingleThreadModel
 	{
 	public:
 		template < typename U >
@@ -20,17 +19,16 @@ namespace policy
 
 		struct Lock
 		{
-			Lock(Host&) {}
-			~Lock()  {}
+			Lock()  {}
+			~Lock() {}
 		};
 
 	protected:
-		SingleThreadedModel()  {}
-		~SingleThreadedModel() {}
+		SingleThreadModel()  {}
+		~SingleThreadModel() {}
 	};
 
 
-	template < class Host >
 	class MutexLockableModel
 	{
 	public:
@@ -39,8 +37,8 @@ namespace policy
 
 		struct Lock
 		{
-			Lock(Host&) { m_mutex.lock();   }
-			~Lock()  { m_mutex.unlock(); }
+			Lock()  { m_mutex.lock();   }
+			~Lock() { m_mutex.unlock(); }
 		private:
 			std::mutex m_mutex;
 		};

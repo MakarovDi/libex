@@ -4,9 +4,12 @@
 
 #include <exception>
 #include <cassert>
-#include <deque>
-#include <memory>
+#include <vector>
 #include <unordered_map>
+#include <functional>
+
+
+// TODO: assert with message
 
 
 namespace ex
@@ -15,14 +18,11 @@ namespace policy
 {
 
 	template < class T >
-	using storage = std::deque<T>;
-
-	template < class T >
 	using creator = std::function<T&()>;
 
 
 	// [-][+] doesn't destroy non-released objects (leaks possible)
-	// [-]    double free for double released object
+	// [-]    double free possible
 	// [-][+] allow releasing "foreign" objects (not from pool)
 	// [-]    no asserts on: double free, releasing "foreign" object
 	// [+]    fastest and lightweight
@@ -34,7 +34,7 @@ namespace policy
 		void acquisition_notice(T&) {}
 		void releasing_notice(T&)   {}
 
-		void destroy(storage<T*>& released_list)
+		void destroy(std::vector<T*>& released_list)
 		{
 			while (!released_list.empty())
 			{
@@ -45,7 +45,7 @@ namespace policy
 				{
 					delete object;
 				}
-				catch(std::exception& ex)
+				catch(std::exception& ex) // TODO: ...
 				{
 					// T throws exception in destructor ?
 					assert(false);
@@ -53,7 +53,7 @@ namespace policy
 			}
 		}
 	protected:
-		ReleasedOnlyDestroy()  {}
+		ReleasedOnlyDestroy(uint32_t pool_depth)  {}
 		~ReleasedOnlyDestroy() {}
 	};
 
@@ -68,17 +68,31 @@ namespace policy
 	protected:
 		void creation_notice(T& object)
 		{
-			m_death_note.emplace_back(&object);
+			m_death_note.push_back(&object);
 		}
 
 		void acquisition_notice(T&) {}
 		void releasing_notice(T&)   {}
-		void destroy(storage<T*>& released_list) {}
+
+		void destroy(std::vector<T*>& released_list)
+        {
+            for (T* item : m_death_note)
+            {
+                try
+                {
+                    delete item;
+                }
+                catch(...)
+                {
+                    assert(false);
+                }
+            }
+        }
 	protected:
-		AllAllocatedDestroy()  {}
+		AllAllocatedDestroy(uint32_t pool_depth) { m_death_note.reserve(pool_depth); }
 		~AllAllocatedDestroy() {}
 	private:
-		storage<std::unique_ptr<T>> m_death_note;
+		std::vector<T*> m_death_note;
 	};
 
 
@@ -121,18 +135,25 @@ namespace policy
 		}
 
 
-		void destroy(storage<T*>& released_list)
+		void destroy(std::vector<T*>& released_list)
 		{
 			for (auto& item : m_death_note)
 			{
 				// object wasn't released
 				assert(item.second == kObjectIsInPool);
 
-				delete item.first;
+                try
+                {
+                    delete item.first;
+                }
+                catch(...)
+                {
+                    assert(false);
+                }
 			}
 		}
 	protected:
-		StrictAllAllocatedDestroy()  {}
+		StrictAllAllocatedDestroy(uint32_t pool_depth) { m_death_note.reserve(pool_depth); }
 		~StrictAllAllocatedDestroy() {}
 	private:
 		std::unordered_map<T*, bool> m_death_note;
@@ -143,27 +164,27 @@ namespace policy
 	class FixedSizePool
 	{
 	protected:
-		T& extend_pool(storage<T*>& released_list)
+		T& extend_pool()
 		{
 			throw std::logic_error("fixed-size pool is empty");
 		}
 	protected:
 		FixedSizePool(creator<T>)  {}
-		~FixedSizePool() {}
+		~FixedSizePool()           {}
 	};
 
 
 	template < class T >
-	class AutoExtendablePool
+	class ExtendablePool
 	{
 	protected:
-		T& extend_pool(storage<T*>& released_list)
+		T& extend_pool()
 		{
 			return m_creator();
 		}
 	protected:
-		AutoExtendablePool(creator<T> function) : m_creator(std::move(function)) {}
-		~AutoExtendablePool() {}
+		ExtendablePool(creator<T> function) : m_creator(std::move(function)) {}
+		~ExtendablePool() {}
 	private:
 		creator<T> m_creator;
 	};
