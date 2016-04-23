@@ -45,7 +45,7 @@ set(SOURCES
     src/platform.cpp
     src/string.cpp
     src/version.cpp
-)
+    src/cprint.cpp)
 
 # Tell where find headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -67,7 +67,8 @@ set(HEADERS
     include/ex/pool
     include/ex/interface
     include/ex/policy/threading
-    include/ex/policy/pool)
+    include/ex/policy/pool
+    include/ex/cprint)
 
 
 # define and export library with name ex

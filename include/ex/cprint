@@ -1,0 +1,26 @@
+#ifndef EX_CPRINT_H
+#define EX_CPRINT_H
+
+
+#include <cstdarg>
+#include <cstdint>
+
+
+namespace ex
+{
+    bool print(const wchar_t* format, ...) noexcept;
+    bool print(const char* format, ...) noexcept;
+
+    bool vprint(const wchar_t* format, va_list args) noexcept;
+    bool vprint(const char* format, va_list args) noexcept;
+
+
+    bool sprint(wchar_t* buff, size_t buff_size, const wchar_t* format, ...) noexcept;
+    bool sprint(char* buff, size_t buff_size, const char* format, ...) noexcept;
+
+    bool vsprint(wchar_t* buff, size_t buff_size, const wchar_t* format, va_list args) noexcept;
+    bool vsprint(char* buff, size_t buff_size, const char* format, va_list args) noexcept;
+}
+
+
+#endif // EX_CPRINT_H

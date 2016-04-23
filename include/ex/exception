@@ -5,8 +5,6 @@
 #include "ex/string"
 
 
-// TODO: decrease dependencies: remove ex/string
-
 namespace ex
 {
 

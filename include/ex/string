@@ -16,7 +16,14 @@
 #endif
 
 
-#undef L  // TODO: generate warning when L was defined
+#ifdef L
+#   undef L
+#   warning "L macro already defined -> undef"
+#endif
+
+
+
+
 #ifdef UNICODE
 #  define __L(s) L##s
 #else
@@ -27,8 +34,7 @@
 #define L(S)    __L(S)
 
 
-// TODO: Split to string and cio
-// TODO: add print for string
+// TODO: Split function
 
 namespace ex
 {
@@ -60,61 +66,39 @@ using CStringW = std::unique_ptr<wchar_t[]>;
 using CString  = std::unique_ptr<Char   []>;
 
 
-// TODO: move to <ex/cprint> module
-
-// Encoding independent print functions
-// Exception: -
-bool print (const wchar_t* format, ...);
-bool print (const char*    format, ...);
-
-bool vprint(const wchar_t* format, va_list args);
-bool vprint(const char*    format, va_list args);
-
-
-// Encoding independent print to buffer functions
-// Exception: -
-bool sprint (wchar_t* buff, size_t buff_size, const wchar_t* format, ...);
-bool sprint (char*    buff, size_t buff_size, const char*    format, ...);
-
-bool vsprint(wchar_t* buff, size_t buff_size, const wchar_t* format, va_list args);
-bool vsprint(char*    buff, size_t buff_size, const char*    format, va_list args);
-
-
-// TODO: extend std::string and create String class (immutable + string::empty)
-// TODO: type safe format like A. Aleksandresku
 
 namespace string
 {
 
-	extern const size_t kFormatBufferSize; // maximum buffer size which are used in this module
-	extern const Char* empty;              // only semantic for now
+    extern const size_t kFormatBufferSize; // maximum buffer size which are used in this module
+    extern const Char*  empty;             // represent empty string
 
 
-	class FormatException : std::runtime_error
-	{
-	public:
-		explicit FormatException (const std::string& what_arg) : std::runtime_error(what_arg) {}
-		explicit FormatException (const char*        what_arg) : std::runtime_error(what_arg) {}
-	};
+    class FormatException : std::runtime_error
+    {
+    public:
+        explicit FormatException (const std::string& what_arg) : std::runtime_error(what_arg) {}
+        explicit FormatException (const char*        what_arg) : std::runtime_error(what_arg) {}
+    };
 
 
-	// Exception: FormatException
-	StringA FormatA(const char*    format, ...);
-	StringA FormatA(const char*    format, va_list args);
-	StringA FormatA(const StringA& format, ...);
-	StringA FormatA(const StringA& format, va_list args);
+    // Exception: FormatException
+    StringA FormatA(const char*    format, ...);
+    StringA FormatA(const char*    format, va_list args);
+    StringA FormatA(const StringA& format, ...);
+    StringA FormatA(const StringA& format, va_list args);
 
-	// Exception: FormatException
-	StringW FormatW(const wchar_t* format, ...);
-	StringW FormatW(const wchar_t* format, va_list args);
-	StringW FormatW(const StringW& format, ...);
-	StringW FormatW(const StringW& format, va_list args);
+    // Exception: FormatException
+    StringW FormatW(const wchar_t* format, ...);
+    StringW FormatW(const wchar_t* format, va_list args);
+    StringW FormatW(const StringW& format, ...);
+    StringW FormatW(const StringW& format, va_list args);
 
-	// Exception: FormatException
-	String Format(const Char*   format, ...);
-	String Format(const Char*   format, va_list args);
-	String Format(const String& format, ...);
-	String Format(const String& format, va_list args);
+    // Exception: FormatException
+    String Format(const Char*   format, ...);
+    String Format(const Char*   format, va_list args);
+    String Format(const String& format, ...);
+    String Format(const String& format, va_list args);
 }
 
 }

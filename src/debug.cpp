@@ -4,7 +4,7 @@
 
 
 #include "ex/debug"
-#include "ex/string"
+#include "ex/cprint"
 
 
 #ifdef PLATFORM_IS_WINDOWS
@@ -21,30 +21,32 @@ namespace ex
 {
 
 
+
 #ifdef PLATFORM_IS_WINDOWS
 
 
 int OutputDebugStringF(const Char *format, ...)
 {
-	Char buffer[2048];
+    Char buffer[2048];
 
-	va_list args;
-	va_start(args, format);
-	bool result = vsprint(buffer, sizeof(buffer), format, args);
-	va_end(args);
+    va_list args;
+    va_start(args, format);
+    bool result = vsprint(buffer, sizeof(buffer), format, args);
+    va_end(args);
 
-	if (result) OutputDebugString(buffer);
+    if (result) OutputDebugString(buffer);
 
-	return result;
+    return result;
 }
 
 #endif
 
+// TODO: remake all
 
-// TODO: protect calls to DbgHelp with critical section
 
 static void win_trace()
 {
+// TODO: protect calls to DbgHelp with critical section
 //	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
 //	IMAGEHLP_SYMBOL *symbol = PIMAGEHLP_SYMBOL(symbol_buffer);
 //
@@ -94,9 +96,9 @@ static void win_trace()
 void debug::trace()
 {
 #ifdef PLATFORM_IS_WINDOWS
-	win_trace();
+    win_trace();
 #elif defined(PLATFORM_IS_UNIX)
-	unix_trace();
+    unix_trace();
 #else
 #   error Unknown system
 #endif
