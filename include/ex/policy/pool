@@ -8,8 +8,7 @@
 #include <unordered_map>
 #include <functional>
 
-
-// TODO: assert with message
+#include "ex/assert"
 
 
 namespace ex
@@ -45,10 +44,9 @@ namespace policy
 				{
 					delete object;
 				}
-				catch(std::exception& ex) // TODO: ...
+				catch(...)
 				{
-					// T throws exception in destructor ?
-					assert(false);
+                    ASSERT(false, "<T> throws exception in destructor");
 				}
 			}
 		}
@@ -84,7 +82,7 @@ namespace policy
                 }
                 catch(...)
                 {
-                    assert(false);
+                    ASSERT(false, "<T> throws exception in destructor");
                 }
             }
         }
@@ -111,8 +109,8 @@ namespace policy
 		void creation_notice(T& object)
 		{
 			auto result = m_death_note.insert(std::make_pair<T*, bool>(&object, kObjectIsInPool));
-			// object with same address already exists
-			assert(result.second);
+
+            ASSERT(result.second, "Object with same address already exists");
 		}
 
 
@@ -126,10 +124,8 @@ namespace policy
 		{
 			auto object_pos = m_death_note.find(&object);
 
-			// was released "foreign" object (not from pool)
-			assert(object_pos != m_death_note.end());
-			// check for double free
-			assert(object_pos != m_death_note.end() && object_pos->second == !kObjectIsInPool);
+            ASSERT(object_pos != m_death_note.end(), "Was released \"foreign\" object (not from pool)");
+            ASSERT(object_pos->second == !kObjectIsInPool, "Double release");
 
 			m_death_note[&object] = kObjectIsInPool;
 		}
@@ -139,8 +135,7 @@ namespace policy
 		{
 			for (auto& item : m_death_note)
 			{
-				// object wasn't released
-				assert(item.second == kObjectIsInPool);
+                ASSERT(item.second == kObjectIsInPool, "Pool object wasn't released");
 
                 try
                 {
@@ -148,7 +143,7 @@ namespace policy
                 }
                 catch(...)
                 {
-                    assert(false);
+                    ASSERT(false, "<T> throws exception in destructor");
                 }
 			}
 		}

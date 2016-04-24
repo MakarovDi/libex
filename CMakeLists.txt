@@ -68,7 +68,8 @@ set(HEADERS
     include/ex/interface
     include/ex/policy/threading
     include/ex/policy/pool
-    include/ex/cprint)
+    include/ex/cprint
+    include/ex/assert)
 
 
 # define and export library with name ex
