@@ -5,13 +5,13 @@
 #include <typeinfo>
 
 
+#include "ex/iterator"
+#include "ex/cprint"
+#include "ex/debug"
+#include "ex/version"
+
+
 using namespace std;
-
-#include <ex/iterator>
-#include <ex/string>
-#include <ex/debug>
-#include <ex/version>
-
 using namespace ex;
 
 
@@ -47,6 +47,9 @@ void sep()
 	print("---------------------%02d--------------------\n", ++i);
 	DEBUG_MSG("---------------------%02d--------------------\n", i);
 }
+
+
+// TODO: move it to an unit test
 
 int main()
 {
