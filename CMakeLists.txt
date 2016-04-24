@@ -1,6 +1,6 @@
 ## Configurable:
 ##
-##  UNICODE = 1   -> use unicode by default
+##  UNICODE = 1   -> use unicode
 ##  BUILD_SAMPLES -> compile samples
 cmake_minimum_required(VERSION 2.8)
 
@@ -69,7 +69,8 @@ set(HEADERS
     include/ex/policy/threading
     include/ex/policy/pool
     include/ex/cprint
-    include/ex/assert)
+    include/ex/assert
+    include/ex/semantic)
 
 
 # define and export library with name ex
