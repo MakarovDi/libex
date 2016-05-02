@@ -1,10 +1,12 @@
 #ifndef EX_ASSERT_H
 #define EX_ASSERT_H
 
-#include <cassert>
 
+namespace ex
+{
+    void assertm(bool expression, const char* message);
 
-#define ASSERT(expression, message) assert((expression) && message)
-
+    void assertm(const char* message);
+}
 
 #endif

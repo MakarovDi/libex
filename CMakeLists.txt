@@ -45,7 +45,8 @@ set(SOURCES
     src/platform.cpp
     src/string.cpp
     src/version.cpp
-    src/cprint.cpp)
+    src/cprint.cpp
+    src/assert.cpp)
 
 # Tell where find headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
