@@ -1,0 +1,55 @@
+#ifndef EX_POLICY_NOTICE_H
+#define EX_POLICY_NOTICE_H
+
+
+#include <iostream>
+#include "ex/assert"
+
+
+namespace ex
+{
+namespace policy
+{
+
+    template < class TException >
+    struct ThrowNotice
+    {
+        static void notice(const char* message)
+        {
+            throw TException(message);
+        }
+
+    protected:
+        ThrowNotice()  {}
+        ~ThrowNotice() {}
+    };
+
+
+    struct StderrNotice
+    {
+        static void notice(const char* message)
+        {
+            std::cerr << message << std::endl;
+        }
+
+    protected:
+        StderrNotice()  {}
+        ~StderrNotice() {}
+    };
+
+
+    struct AssertNotice
+    {
+        static void notice(const char* message)
+        {
+            ex::failure(message);
+        }
+
+    protected:
+        AssertNotice()  {}
+        ~AssertNotice() {}
+    };
+}
+}
+
+#endif // EX_POLICY_NOTICE_H

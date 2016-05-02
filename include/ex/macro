@@ -16,6 +16,9 @@
 #define CONCATENATE(s1, s2)         CONCATENATE_IMPL(s1, s2) // same as LITERAL_IMPL, but unfold all macro in s1 and s2
 
 
+#define UNUSED(v)   ((void)(v)) // for suppress compiler warning: unused variable/argument
+
+
 // This macro try to define unique variable
 #ifdef __COUNTER__
 #   define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __COUNTER__)

@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <utility>
 
-#include "interface"
-#include "policy/pool"
-#include "policy/threading"
+#include "ex/interface"
+#include "ex/policy/pool"
+#include "ex/policy/threading"
 
 
 namespace ex

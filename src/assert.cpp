@@ -1,18 +1,41 @@
 #include "ex/assert"
-#include <cassert>
+
+#include <iostream>
+#include "ex/macro"
 
 
 namespace ex
 {
+#ifdef NDEBUG
 
-    inline void assertm(bool expression, const char* message)
+    void failure(const char* message)
     {
-        assert(expression && message);
+        UNUSED(message);
+    }
+
+    void failure(const wchar_t* message)
+    {
+        UNUSED(message);
+    }
+
+#else
+
+    void failure(const char* message)
+    {
+        std::cerr << "Assertion failed!" << std::endl << std::endl;
+        std::cerr << "Message: " << message << std::endl;
+
+        abort();
     }
 
 
-    inline void assertm(const char* message)
+    void failure(const wchar_t* message)
     {
-        assert(false && message);
+        std::wcerr << L"Assertion failed!" << std::endl << std::endl;
+        std::wcerr << L"Message: " << message << std::endl;
+
+        abort();
     }
+
+#endif
 }

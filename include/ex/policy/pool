@@ -46,7 +46,7 @@ namespace policy
 				}
 				catch(...)
 				{
-					assertm("<T> throws exception in destructor");
+					FAILURE("<T> throws exception in destructor");
 				}
 			}
 		}
@@ -82,7 +82,7 @@ namespace policy
                 }
                 catch(...)
                 {
-	                assertm("<T> throws exception in destructor");
+	                FAILURE("<T> throws exception in destructor");
                 }
             }
         }
@@ -110,7 +110,7 @@ namespace policy
 		{
 			auto result = m_death_note.insert(std::make_pair<T*, bool>(&object, kObjectIsInPool));
 
-			assertm(result.second, "Object with same address already exists");
+			ASSERT(result.second, "Object with same address already exists");
 		}
 
 
@@ -124,8 +124,8 @@ namespace policy
 		{
 			auto object_pos = m_death_note.find(&object);
 
-			assertm(object_pos != m_death_note.end(), "Was released \"foreign\" object (not from pool)");
-			assertm(object_pos->second == !kObjectIsInPool, "Double release");
+			ASSERT(object_pos != m_death_note.end(), "Was released \"foreign\" object (not from pool)");
+			ASSERT(object_pos->second == !kObjectIsInPool, "Double release");
 
 			m_death_note[&object] = kObjectIsInPool;
 		}
@@ -135,7 +135,7 @@ namespace policy
 		{
 			for (auto& item : m_death_note)
 			{
-				assertm(item.second == kObjectIsInPool, "Pool object wasn't released");
+				ASSERT(item.second == kObjectIsInPool, "Pool object wasn't released");
 
                 try
                 {
@@ -143,7 +143,7 @@ namespace policy
                 }
                 catch(...)
                 {
-	                assertm("<T> throws exception in destructor");
+	                FAILURE("<T> throws exception in destructor");
                 }
 			}
 		}
