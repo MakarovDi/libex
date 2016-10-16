@@ -83,7 +83,71 @@ namespace ex
     namespace string
     {
         extern const Char*  empty;  // represent empty string
+
+        //
+        // Note: compile-time string constant selection based on template parameter
+        //
+        // Usage:
+        //
+        //  void log_message(const Char* message)
+        //  {
+        //      const Char* format = select<Char>("[MSG] %s", L"[MSG] %s");
+        //
+        //      print(format, message);
+        //  }
+        //
+
+        template <typename CharType>
+        constexpr const CharType* select(const char* const_str, const wchar_t* wide_const_str);
+
+        template <>
+        constexpr const char* select<char>(const char* const_str, const wchar_t*)
+        {
+            return const_str;
+        }
+
+        template <>
+        constexpr const wchar_t* select<wchar_t>(const char*, const wchar_t* wide_const_str)
+        {
+            return wide_const_str;
+        }
     }
+
+
+    //
+    // Note: compile-time string constant with selection between wide and usual options
+    //
+    // Usage:
+    //
+    //    static constexpr UniversalConstString exclamation_char("!", L"!");
+    //
+    //    String exclamation(const Char* message)
+    //    {
+    //        String str = String(message) + exclamation_char.select<Char>();
+    //        return str;
+    //    }
+    //
+
+    class UniversalConstString
+    {
+    public:
+        constexpr UniversalConstString(const char* const_str, const wchar_t* wide_const_str) :
+            m_const_str(const_str),
+            m_wide_const_str(wide_const_str)
+        {
+        }
+
+        template <typename CharType>
+        constexpr const CharType* select() const
+        {
+            return string::select<CharType>(m_const_str, m_wide_const_str);
+        }
+
+    private:
+        const char*    m_const_str;
+        const wchar_t* m_wide_const_str;
+    };
+
 
 }
 
