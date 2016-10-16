@@ -25,9 +25,8 @@ ENDIF()
 
 # Works only with C++11 (-std=c++11)
 # Show all warnings (-Wall)
-# All warnnings MUST be resolved (-pedantic)
-# TODO: add -pedantic only on GCC
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wconversion -pedantic")
+# All warnnings MUST be resolved (-Wpedantic)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wconversion -Wpedantic")
 
 # Generate and use config.h file
 configure_file (
@@ -40,7 +39,6 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 
 # Enumerate source files
 set(SOURCES
-    src/debug.cpp
     src/placebo.cpp
     src/platform.cpp
     src/string.cpp
@@ -56,7 +54,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Enumerate header files
 set(HEADERS
     include/ex/algo
-    include/ex/debug
     include/ex/exception
     include/ex/expected
     include/ex/format
