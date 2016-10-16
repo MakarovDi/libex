@@ -2,11 +2,28 @@
 #   define EX_STRING_HEADER
 
 
+//
+// Note: module for maintain encoding-independent projects
+//
+// Using:
+//
+//      const Char* test = L("Some Text");
+//
+//      It will translated in dependent of UNICODE definition.
+//
+//      UNICODE undefined:
+//
+//      ->  const char* test = "Some Text";
+//
+//      UNICODE defined:
+//
+//      ->  const wchar_t* test = L"Some Text";
+//
+
+
 #include <string>
 #include <memory>
-#include <cstdarg>
 #include <sstream>
-#include <stdexcept>
 
 
 // Generates universal unicode defenition
@@ -34,73 +51,41 @@
 #define L(S)    __L(S)
 
 
-// TODO: Split function
-
 namespace ex
 {
 
-
-// Char - char-type which depends on project's encoding
+    // Char - char-type which depends on project's encoding
 #ifdef UNICODE
-using Char = wchar_t;
+    using Char = wchar_t;
 #else
-using Char = char;
+    using Char = char;
 #endif
 
 
-// C++ strings
-using StringA  = std::string;
-using StringW  = std::wstring;
-using String   = std::basic_string<Char>;
+    // C++ strings
+    using StringA  = std::string;
+    using StringW  = std::wstring;
+    using String   = std::basic_string<Char>;
 
 
-// C++ string streams
-using StringStreamA = std::stringstream;
-using StringStreamW = std::wstringstream;
-using StringStream  = std::basic_stringstream<Char>;
+    // C++ string streams
+    using StringStreamA = std::stringstream;
+    using StringStreamW = std::wstringstream;
+    using StringStream  = std::basic_stringstream<Char>;
 
 
-// C-like safe strings
-using CStringA = std::unique_ptr<char   []>;
-using CStringW = std::unique_ptr<wchar_t[]>;
-using CString  = std::unique_ptr<Char   []>;
+    // C-like safe strings
+    using CStringA = std::unique_ptr<char[]>;
+    using CStringW = std::unique_ptr<wchar_t[]>;
+    using CString  = std::unique_ptr<Char[]>;
 
 
-
-namespace string
-{
-
-    extern const size_t kFormatBufferSize; // maximum buffer size which are used in this module
-    extern const Char*  empty;             // represent empty string
-
-
-    class FormatException : std::runtime_error
+    namespace string
     {
-    public:
-        explicit FormatException (const std::string& what_arg) : std::runtime_error(what_arg) {}
-        explicit FormatException (const char*        what_arg) : std::runtime_error(what_arg) {}
-    };
-
-
-    // Exception: FormatException
-    StringA FormatA(const char*    format, ...);
-    StringA FormatA(const char*    format, va_list args);
-    StringA FormatA(const StringA& format, ...);
-    StringA FormatA(const StringA& format, va_list args);
-
-    // Exception: FormatException
-    StringW FormatW(const wchar_t* format, ...);
-    StringW FormatW(const wchar_t* format, va_list args);
-    StringW FormatW(const StringW& format, ...);
-    StringW FormatW(const StringW& format, va_list args);
-
-    // Exception: FormatException
-    String Format(const Char*   format, ...);
-    String Format(const Char*   format, va_list args);
-    String Format(const String& format, ...);
-    String Format(const String& format, va_list args);
-}
+        extern const Char*  empty;  // represent empty string
+    }
 
 }
+
 
 #endif

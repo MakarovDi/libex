@@ -46,7 +46,8 @@ set(SOURCES
     src/string.cpp
     src/version.cpp
     src/cprint.cpp
-    src/assert.cpp)
+    src/assert.cpp
+    src/format.cc)
 
 # Tell where find headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -58,6 +59,7 @@ set(HEADERS
     include/ex/debug
     include/ex/exception
     include/ex/expected
+    include/ex/format
     include/ex/iterator
     include/ex/macro
     include/ex/placebo
@@ -83,12 +85,12 @@ add_library(ex STATIC ${SOURCES} ${HEADERS})
 set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX)
 
 # Some debug settings
-if (WIN32)
-    # debug namespace use imagehlp and pdb on Windows
-    target_link_libraries(ex imagehlp)
-    # use debug symbols for pdb-generation
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-endif()
+#if (WIN32)
+#    # debug namespace use imagehlp and pdb on Windows
+#    target_link_libraries(ex imagehlp)
+#    # use debug symbols for pdb-generation
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+#endif()
 
 
 # Check for unicode build
