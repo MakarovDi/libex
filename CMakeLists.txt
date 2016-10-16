@@ -72,7 +72,8 @@ set(HEADERS
     include/ex/assert
     include/ex/semantic
     include/ex/policy/notice
-    include/ex/range_check)
+    include/ex/range_check
+    include/ex/ct)
 
 
 # define and export library with name ex
