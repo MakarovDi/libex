@@ -65,7 +65,7 @@ namespace ex
 
             if (m_pool_objects.empty())
             {
-                object = &this->extend_pool();
+                object = this->extend_pool();
                 ++m_depth;
             }
             else
@@ -113,13 +113,13 @@ namespace ex
         ObjectPool(ObjectPool&&) = default;
         ObjectPool& operator=(ObjectPool&&) = default;
     private:
-        T& create_object()
+        T* create_object()
         {
             T* object = new T();
 
             this->creation_notice(*object);
 
-            return *object;
+            return object;
         }
 
 

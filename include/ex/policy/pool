@@ -159,7 +159,7 @@ namespace policy
 	class FixedSizePool
 	{
 	protected:
-		T& extend_pool()
+		T* extend_pool()
 		{
 			throw std::logic_error("fixed-size pool is empty");
 		}
@@ -173,7 +173,7 @@ namespace policy
 	class ExtendablePool
 	{
 	protected:
-		T& extend_pool()
+		T* extend_pool()
 		{
 			return m_creator();
 		}
