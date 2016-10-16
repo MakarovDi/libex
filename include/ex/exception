@@ -2,7 +2,20 @@
 #   define EX_EXCEPTION_HEADER
 
 
+//
+// Usage:
+//
+//      throwf<std::logic_error>("Somthing wrong with [{}] on line: {}", __FUNCTION__, __LINE__);
+//
+// See also:
+//
+//      {fmt} library    : http://fmtlib.net/latest/index.html
+//      Python formatting: https://docs.python.org/3.6/library/string.html
+
+#include <stdexcept>
+
 #include "ex/string"
+#include "ex/format"
 
 
 namespace ex
@@ -10,18 +23,16 @@ namespace ex
 
 
 template <class E, typename... Args>
-void throw_formatted(const char* format, Args... args)
+void throwf(const char* format, Args... args)
 {
-	char buff[string::kFormatBufferSize];
-	throw E(sprint(buff, sizeof(buff), format, args...) ? buff : (char*)format);
+	throw E(fmt::format(format, args ... ));
 }
 
 
 template <class E, typename... Args>
-void throw_formatted(const StringA& format, Args... args)
+void throwf(const StringA& format, Args... args)
 {
-	char buff[string::kFormatBufferSize];
-	throw E(sprint(buff, sizeof(buff), format.c_str(), args...) ? buff : (char*)format.c_str());
+	throw E(fmt::format(format, args ... ));
 }
 
 
