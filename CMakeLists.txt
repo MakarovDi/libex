@@ -41,8 +41,7 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 set(SOURCES
     src/placebo.cpp
     src/platform.cpp
-    src/string.cpp
-    src/version.cpp
+        src/version.cpp
     src/cprint.cpp
     src/assert.cpp
     src/format.cc)

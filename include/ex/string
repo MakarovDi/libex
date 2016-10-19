@@ -82,7 +82,7 @@ namespace ex
 
     namespace string
     {
-        extern const Char*  empty;  // represent empty string
+        constexpr const Char* empty = L("");  // represent empty string
 
         //
         // Note: compile-time string constant selection based on template parameter
