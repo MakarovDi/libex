@@ -2,7 +2,7 @@
 #	define EX_CONST_FUNC_HEADER
 
 
-#include <exception>
+#include <stdexcept>
 
 //
 // Note: this functions can be used as compile-time constants:
@@ -13,6 +13,7 @@
 // References: 
 //   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
 //   docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//   docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
 //
 
 namespace ex

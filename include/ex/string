@@ -2,6 +2,10 @@
 #   define EX_STRING_HEADER
 
 
+#include <string>
+#include <memory>
+#include <sstream>
+
 //
 // Note: module for maintain encoding-independent projects
 //
@@ -19,11 +23,10 @@
 //
 //      ->  const wchar_t* test = L"Some Text";
 //
-
-
-#include <string>
-#include <memory>
-#include <sstream>
+//  References:
+//      docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//      docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
+//
 
 
 // Generates universal unicode defenition
@@ -149,6 +152,17 @@ namespace ex
     };
 
 
+    // unit tests
+
+    //    static constexpr ex::UniversalConstString exclamation_char("!", L"!");
+    //
+    //    // correctness
+    //    static_assert(std::is_same<decltype(exclamation_char.select<wchar_t>()), const wchar_t*>::value, "failed");
+    //    static_assert(std::is_same<decltype(exclamation_char.select<char>()), const char*>::value, "failed");
+    //
+    //    // compile-time work
+    //    static_assert(exclamation_char.select<wchar_t>() != nullptr, "failed");
+    //    static_assert(exclamation_char.select<char>()    != nullptr, "failed");
 }
 
 
