@@ -3,12 +3,13 @@
 
 
 #include <stdexcept>
+#include <cstdint>
 
 //
 // Note: this functions can be used as compile-time constants:
 //
 //      static_assert(contains_char(__FILE__), '.');
-//      std::array<int, const_fun::factorial(10)> data;
+//      std::array<int, ct::factorial(10)> data;
 //
 // References: 
 //   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
@@ -18,6 +19,7 @@
 
 namespace ex
 {
+    // TODO: split -> str, math
 namespace ct // compile-time
 {
 
@@ -136,9 +138,35 @@ namespace ct // compile-time
     }
 
 
+    template <typename CharType>
+    constexpr size_t strlen(const CharType* str)
+    {
+        return require::notnull(str),
+               *str ? strlen(str + 1) + 1 : 0;
+    }
+
+
+    template <size_t index, typename CharType>
+    constexpr CharType char_at(const CharType* str)
+    {
+        return require::notnull(str), str[index];
+    }
+
+
 //    // unit tests
+
 //    inline void _unit_tests()
 //    {
+
+//        static_assert(char_at<2>("123") == '3', "char_at failure");
+//        static_assert(char_at<2>(L"123") == L'3', "char_at failure");
+
+//        static_assert(strlen("123") == 3, "failure");
+//        static_assert(strlen(L"123") == 3, "failure");
+//
+//        static_assert(ct::const_string<char>("Test Str").length() == 8, "length() failure");
+//        static_assert(ct::const_string<wchar_t>(L"Test Str").length() == 8, "length() failure");
+
 //        // check compile-time mode
 //        static_assert(const_fun::strlchr("test", 't') != nullptr, "");
 //        static_assert(const_fun::strlchr(L"test", L't') != nullptr, "");
