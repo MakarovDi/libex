@@ -122,7 +122,7 @@ namespace ex
     //
     // Usage:
     //
-    //    static constexpr UniversalConstString exclamation_char("!", L"!");
+    //    static constexpr VariantConstString exclamation_char("!", L"!");
     //
     //    String exclamation(const Char* message)
     //    {
@@ -131,10 +131,10 @@ namespace ex
     //    }
     //
 
-    class UniversalConstString
+    class VariantConstString
     {
     public:
-        constexpr UniversalConstString(const char* const_str, const wchar_t* wide_const_str) :
+        constexpr VariantConstString(const char* const_str, const wchar_t* wide_const_str) :
             m_const_str(const_str),
             m_wide_const_str(wide_const_str)
         {
@@ -154,7 +154,7 @@ namespace ex
 
     // unit tests
 
-    //    static constexpr ex::UniversalConstString exclamation_char("!", L"!");
+    //    static constexpr ex::VariantConstString exclamation_char("!", L"!");
     //
     //    // correctness
     //    static_assert(std::is_same<decltype(exclamation_char.select<wchar_t>()), const wchar_t*>::value, "failed");
