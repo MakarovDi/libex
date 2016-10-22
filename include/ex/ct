@@ -64,6 +64,7 @@ namespace ct // compile-time
         {
             return (i > 1) ? i * unsafe::factorial(i - 1) : 1;
         }
+
     }
 
 
@@ -79,12 +80,6 @@ namespace ct // compile-time
             return (i >= 0) ? i : throw std::logic_error("must be non negative");
         }
 
-
-        template <typename Type>
-        constexpr const Type* notnull(const Type* value)
-        {
-            return (value != nullptr) ? value : throw std::logic_error("must be not null");
-        }
     }
 
 
@@ -105,24 +100,21 @@ namespace ct // compile-time
     template <typename CharType>
     constexpr const CharType* strrchr(const CharType* str, CharType c)
     {
-        return require::notnull(str),
-               unsafe::strlchr(str, c) == nullptr ? nullptr : unsafe::strrchr(str, c) - 1;
+        return unsafe::strlchr(str, c) == nullptr ? nullptr : unsafe::strrchr(str, c) - 1;
     }
 
 
     template <typename CharType>
     constexpr bool contains_char(const CharType* str, CharType c)
     {
-        return require::notnull(str),
-               c == 0 ? true : unsafe::contains_char(str, c);
+        return c == 0 ? true : unsafe::contains_char(str, c);
     }
 
 
     template <typename CharType>
     constexpr const CharType* basename(const CharType* path, CharType sep1, CharType sep2)
     {
-        return require::notnull(path),
-               ct::strrchr(path, sep1) != nullptr ? ct::strrchr(path, sep1) + 1 :
+        return ct::strrchr(path, sep1) != nullptr ? ct::strrchr(path, sep1) + 1 :
                ct::strrchr(path, sep2) != nullptr ? ct::strrchr(path, sep2) + 1 :
                path;
     }
@@ -141,15 +133,14 @@ namespace ct // compile-time
     template <typename CharType>
     constexpr size_t strlen(const CharType* str)
     {
-        return require::notnull(str),
-               *str ? strlen(str + 1) + 1 : 0;
+        return *str ? strlen(str + 1) + 1 : 0;
     }
 
 
     template <size_t index, typename CharType>
     constexpr CharType char_at(const CharType* str)
     {
-        return require::notnull(str), str[index];
+        return str[index];
     }
 
 
@@ -158,11 +149,16 @@ namespace ct // compile-time
 //    inline void _unit_tests()
 //    {
 
+//        static_assert(ct::const_string<char>("Test Str")[2] == 's', "operator[] failure");
+//        static_assert(ct::const_string<wchar_t>(L"Test Str")[2] == L's', "operator[] failure");
+
 //        static_assert(char_at<2>("123") == '3', "char_at failure");
 //        static_assert(char_at<2>(L"123") == L'3', "char_at failure");
 
 //        static_assert(strlen("123") == 3, "failure");
+//        static_assert(strlen("") == 0, "failure");
 //        static_assert(strlen(L"123") == 3, "failure");
+//        static_assert(strlen(L"") == 0, "failure");
 //
 //        static_assert(ct::const_string<char>("Test Str").length() == 8, "length() failure");
 //        static_assert(ct::const_string<wchar_t>(L"Test Str").length() == 8, "length() failure");
