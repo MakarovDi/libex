@@ -1,0 +1,45 @@
+#ifndef     EX_MTP_H
+#   define  EX_MTP_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace mp // template meta programming
+{
+
+    //
+    // Note: since C++14 use std::integer_sequence and std::make_integer_sequence
+    //
+
+
+    template <size_t...>
+    struct integer_sequence
+    {
+        using type = integer_sequence;
+    };
+
+
+    template<size_t N, size_t... Is>
+    struct make_integer_seq : make_integer_seq<N-1, N-1, Is...>
+    {
+    };
+
+
+    template<size_t... Is>
+    struct make_integer_seq<0, Is...> : integer_sequence<Is...>
+    {
+    };
+
+
+    template <size_t N>
+    using make_integer_sequence = typename make_integer_seq<N>::type;
+
+
+}
+}
+
+
+#endif
