@@ -1,0 +1,79 @@
+#ifndef     EX_MP_H
+#   define  EX_MP_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace meta // template meta programming
+{
+
+    //
+    // Note: since C++14 use std::integer_sequence and std::make_integer_sequence
+    //
+    // Usage:
+    //
+    //  template <size_t K, size_t N>
+    //  constexpr const char* get_first_k(const char (&str)[N])
+    //  {
+    //      return get_first_k_impl(str, make_integer_sequence<K>{});
+    //  }
+    //
+    //
+    //  template <size_t... indexes, size_t N>
+    //  constexpr const char* get_first_k_implconst char (&str)[N], integer_sequence<indexe...>)
+    //  {
+    //      return { str[indexes]... };
+    //  }
+    //
+    //
+
+    template <size_t...>
+    struct integer_sequence
+    {
+        using type = integer_sequence;
+    };
+
+
+    template<size_t N, size_t... Is>
+    struct make_integer_seq : make_integer_seq<N-1, N-1, Is...>
+    {
+    };
+
+
+    template<size_t... Is>
+    struct make_integer_seq<0, Is...> : integer_sequence<Is...>
+    {
+    };
+
+
+    template <size_t N>
+    using make_integer_sequence = typename make_integer_seq<N>::type;
+
+
+    //
+    // Usage:
+    //
+    //  You can't do
+    //
+    //      void do_smth(char... char)
+    //
+    //
+    //  but you can do this
+    //
+    //      template <size_t... indexes>
+    //      void do_smth<pack<char, indexes>... chars>
+    //
+    //
+
+
+    template<typename T, size_t index>
+    using pack = T;
+
+}
+}
+
+
+#endif

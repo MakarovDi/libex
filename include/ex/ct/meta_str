@@ -1,0 +1,137 @@
+#ifndef     EX_META_STR_H
+#   define  EX_META_STR_H
+
+
+#include <cstdint>
+
+#include "ex/ct/tools"
+#include "ex/meta"
+
+
+namespace ex
+{
+namespace ct
+{
+
+    //
+    // Usage
+    //
+    //  * for compile-time string concatenation:
+    //
+    //      static constexpr auto str = ct::create_meta_str("File: ") + ct::create_meta_str(__FILE__);
+    //      ...
+    //      std::cout << str << std::endl;
+    //      std::printf(str);
+    //
+    //  * for return compile-time string which can be used in compile-time function:
+    //
+    //       template <size_t N>
+    //       constexpr size_t strlen(const char (&str)[N])
+    //       {
+    //            return N - 1;
+    //       }
+    //
+    //
+    //       template <size_t N>
+    //       constexpr const char* strdup1(const char (&str)[N])
+    //       {
+    //           return str;
+    //       }
+    //
+    //
+    //       template <size_t N>
+    //       constexpr auto strdup2(const char (&str)[N])
+    //          -> decltype (ct::create_meta_str(str))
+    //       {
+    //          return ct::create_meta_str(str);
+    //       }
+    //
+    //
+    //       std::array<char, strlen(strdup1("Test"))>       a; // compilation error
+    //       std::array<char, strlen(strdup2("Test").c_str)> a; // ok
+    //
+    //
+
+
+    template<size_t... indexes>
+    struct meta_str
+    {
+        const char c_str[sizeof...(indexes) + 1];
+
+
+        template <size_t N>
+        constexpr meta_str(const char (&str)[N]) :
+            c_str{ char_at<indexes>(str)..., 0 }
+        {
+        }
+
+
+        constexpr meta_str(meta::pack<char, indexes>... chars) :
+            c_str{ chars..., 0 }
+        {
+        }
+
+
+        constexpr meta_str(const meta_str& str) :
+            c_str{ str.c_str[indexes]..., 0 }
+        {
+        }
+
+
+        static constexpr size_t length = sizeof...(indexes);
+
+        constexpr operator const char* () const { return c_str; }
+    };
+
+
+    template <size_t... indexes>
+    std::ostream& operator<<(std::basic_ostream<char>& stream, const meta_str<indexes...>& str)
+    {
+        return stream << str.c_str;
+    }
+
+
+    template<size_t N, size_t... indexes>
+    constexpr auto create_meta_str(const char (&str)[N], meta::integer_sequence<indexes...>)
+        -> meta_str<indexes...>
+    {
+        return meta_str<indexes...>(str);
+    }
+
+
+    template<size_t N>
+    constexpr auto create_meta_str(const char (& str)[N])
+        -> decltype(create_meta_str(str, meta::make_integer_sequence<N - 1>{}))
+    {
+        return create_meta_str(str, meta::make_integer_sequence<N - 1>{});
+    }
+
+
+    template<size_t... indexes1, size_t... indexes2>
+    constexpr auto operator+(meta_str<indexes1...> a, meta_str<indexes2...> b)
+        -> meta_str<indexes1..., sizeof...(indexes1) + indexes2...>
+    {
+        return { a.c_str[indexes1]..., b.c_str[indexes2]... };
+    }
+
+
+    template<size_t... indexes, size_t N>
+    constexpr auto operator+(meta_str<indexes...> metastr, const char (&str)[N])
+        -> decltype(metastr + create_meta_str(str))
+    {
+        return metastr + create_meta_str(str);
+    }
+
+
+    template<size_t... indexes, size_t N>
+    constexpr auto operator+(const char (&str)[N], meta_str<indexes...> metastr)
+        -> decltype(metastr + create_meta_str(str))
+    {
+        return create_meta_str(str) + metastr;
+    }
+
+}
+}
+
+
+#endif
