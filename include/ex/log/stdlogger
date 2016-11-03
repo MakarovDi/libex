@@ -1,0 +1,56 @@
+#ifndef     EX_STDLOGGER_H
+#   define  EX_STDLOGGER_H
+
+
+#include <iostream>
+#include "ex/log/abstract"
+
+
+namespace ex
+{
+
+    class StdLogger final : public ILogger
+    {
+    public:
+        explicit StdLogger(LoggingLevel logging_level = WARNINGS) : ILogger(logging_level)
+        {
+        }
+
+    protected:
+        virtual void output(MessageType type, const char* message) override
+        {
+            switch (type)
+            {
+                case MessageType::ERROR:
+                case MessageType::WARNING:
+                    std::cerr << message << std::endl;
+                    break;
+                case MessageType::INFO:
+                case MessageType::TRACE:
+                default:
+                    std::cout << message << std::endl;
+                    break;
+            }
+        }
+
+
+        virtual void output(MessageType type, const wchar_t* message) override
+        {
+            switch (type)
+            {
+                case MessageType::ERROR:
+                case MessageType::WARNING:
+                    std::wcerr << message << std::endl;
+                    break;
+                case MessageType::INFO:
+                case MessageType::TRACE:
+                default:
+                    std::wcout << message << std::endl;
+                    break;
+            }
+        }
+    };
+
+}
+
+#endif
