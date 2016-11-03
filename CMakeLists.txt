@@ -41,7 +41,7 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 set(SOURCES
     src/placebo.cpp
     src/platform.cpp
-        src/version.cpp
+    src/version.cpp
     src/cprint.cpp
     src/assert.cpp
     src/format.cc)
@@ -72,7 +72,8 @@ set(HEADERS
     include/ex/semantic
     include/ex/policy/notice
     include/ex/range_check
-    include/ex/ct)
+    include/ex/ct
+    include/ex/log/abstract)
 
 
 # define and export library with name ex
