@@ -52,6 +52,8 @@ namespace ct
     //
     //
 
+    // TODO: use decltype(auto) from C++14
+
 
     template<size_t... indexes>
     struct meta_str
@@ -132,6 +134,31 @@ namespace ct
 
 }
 }
+
+// [unit tests]
+
+//    template <size_t N>
+//    constexpr size_t len(const char (&str)[N])
+//    {
+//        return N - 1;
+//    }
+//
+//
+//    template <size_t N>
+//    constexpr auto process_str(const char (&str)[N])
+//    -> decltype(ct::create_meta_str(str))
+//    {
+//        return ct::create_meta_str(str);
+//    }
+
+//    static constexpr auto str =  "test" + ct::create_meta_str("test2");
+//    static constexpr auto str1 =  ct::create_meta_str("test") + "test";
+//    static constexpr auto str2 =  "test" + ct::create_meta_str("test") + "test";
+//
+//    static_assert(str.length == 9);
+//    static_assert(str.c_str != nullptr);
+//    static_assert(len(str.c_str) == 9);                 // use of compile-time functions with meta_str
+//    static_assert(len(process_str("Test").c_str) == 4); // return compile-time string
 
 
 #endif
