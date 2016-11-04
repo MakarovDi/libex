@@ -73,8 +73,8 @@ set(HEADERS
     include/ex/policy/notice
     include/ex/range_check
     include/ex/ct
-    include/ex/log/abstract
-    include/ex/log/stdlogger)
+    include/ex/log/logger
+    include/ex/log/stdstream)
 
 
 # define and export library with name ex

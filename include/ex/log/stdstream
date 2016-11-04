@@ -3,21 +3,16 @@
 
 
 #include <iostream>
-#include "ex/log/abstract"
+#include "ex/log/logger"
 
 
 namespace ex
 {
 
-    class StdLogger final : public ILogger
+    class StdLogStream final : public ILogStream
     {
     public:
-        explicit StdLogger(LoggingLevel logging_level = WARNINGS) : ILogger(logging_level)
-        {
-        }
-
-    protected:
-        virtual void output(MessageType type, const char* message) override
+        virtual void write(MessageType type, const char* message) override
         {
             switch (type)
             {
@@ -34,7 +29,7 @@ namespace ex
         }
 
 
-        virtual void output(MessageType type, const wchar_t* message) override
+        virtual void write(MessageType type, const wchar_t* message) override
         {
             switch (type)
             {

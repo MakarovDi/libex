@@ -2,6 +2,7 @@
 #   define EX_ABSTRACT_HEADER
 
 
+#include <atomic>
 #include "ex/format"
 
 //
@@ -11,14 +12,14 @@
 //
 //          namespace module
 //          {
-//          	extern std::unique_ptr<ILogger> logger;
+//          	extern ex::Logger logger;
 //              ...
 //
 //      module.cpp:
 //
 //          namespace module
 //          {
-//          	std::unique_ptr<ILogger> logger(new NullLogger());
+//          	ex::Logger logger(ex::Logger::LoggingLevel::ERRORS);
 //              ...
 //
 //
@@ -26,16 +27,63 @@
 //
 //          #include "module.hpp"
 //
+//          class MyFileLogger : public ILogStream
+//
 //          ...
 //
-//          module.logger.reset(new MyFileLogger());  // class MyFileLogger : public ILogger
+//          MyFileLogger my_file_logger('log.txt');
+//
+//          ...
+//
+//          module::kigger.set_logging_level(Logger::LoggingLevel::PARANOID);
+//          module::logger.redirect(my_file_logger);
 //
 //
 
 namespace ex
 {
 
-    class ILogger
+    class ILogStream
+    {
+    public:
+        enum MessageType
+        {
+            ERROR   = 1,
+            WARNING = 2,
+            INFO    = 3,
+            TRACE   = 4,  // DEBUG
+
+            TYPE_COUNT,
+        };
+
+
+        virtual ~ILogStream() {}
+
+
+        virtual void write(MessageType, const char*    message) = 0;
+        virtual void write(MessageType, const wchar_t* message) = 0;
+    };
+
+
+
+    class NullLogStream final : public ILogStream
+    {
+    public:
+        static NullLogStream& get_stream()
+        {
+            static NullLogStream singletone;
+
+            return singletone;
+        }
+
+
+        virtual void write(MessageType, const char*    message) override {};
+        virtual void write(MessageType, const wchar_t* message) override {};
+    };
+
+
+
+    class Logger final
     {
     public:
         enum LoggingLevel : int
@@ -48,59 +96,56 @@ namespace ex
         };
 
 
-        virtual ~ILogger() {};
-
-
-        explicit ILogger(LoggingLevel logging_level = WARNINGS) :
-            m_logging_level(logging_level)
+        explicit Logger(LoggingLevel logging_level = WARNINGS,
+                        ILogStream&  log_stream    = NullLogStream::get_stream()) :
+            m_logging_level(logging_level),
+            m_log_stream(&log_stream)
         {
+        }
+
+
+        void redirect(ILogStream& log_stream)
+        {
+            m_log_stream = &log_stream;
+        }
+
+
+        void set_logging_level(LoggingLevel level)
+        {
+            m_logging_level = level;
         }
 
 
         template <typename CharType, typename... ArgTypes>
         void error(const CharType* tag, const CharType* format, const ArgTypes& ... args)
         {
-            log_message(MessageType::ERROR, tag, format, args...);
+            log_message(ILogStream::MessageType::ERROR, tag, format, args...);
         }
 
 
         template <typename CharType, typename... ArgTypes>
         void warning(const CharType* tag, const CharType* format, const ArgTypes& ... args)
         {
-            log_message(MessageType::WARNING, tag, format, args...);
+            log_message(ILogStream::MessageType::WARNING, tag, format, args...);
         }
 
 
         template <typename CharType, typename... ArgTypes>
         void info(const CharType* tag, const CharType* format, const ArgTypes& ... args)
         {
-            log_message(MessageType::INFO, tag, format, args...);
+            log_message(ILogStream::MessageType::INFO, tag, format, args...);
         }
 
 
         template <typename CharType, typename... ArgTypes>
         void trace(const CharType* tag, const CharType* format, const ArgTypes& ... args)
         {
-            log_message(MessageType::TRACE, tag, format, args...);
+            log_message(ILogStream::MessageType::TRACE, tag, format, args...);
         }
-
-    protected:
-        enum MessageType
-        {
-            ERROR   = 1,
-            WARNING = 2,
-            INFO    = 3,
-            TRACE   = 4,  // DEBUG
-
-            TYPE_COUNT,
-        };
-
-        virtual void output(MessageType, const char*    message) = 0;
-        virtual void output(MessageType, const wchar_t* message) = 0;
 
     private:
         template <typename CharType, typename... ArgTypes>
-        void log_message(MessageType type, const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        void log_message(ILogStream::MessageType type, const CharType* tag, const CharType* format, const ArgTypes& ... args)
         {
             char_type_assert<CharType>();
 
@@ -113,7 +158,7 @@ namespace ex
             writer.write(prefix, tag);
             writer.write(format, args ...);
 
-            output(type, writer.c_str());
+            m_log_stream.load()->write(type, writer.c_str());
 
             writer.clear();
         }
@@ -154,9 +199,9 @@ namespace ex
 
 
         template <typename CharType>
-        static const CharType* select_prefix(MessageType type)
+        static const CharType* select_prefix(ILogStream::MessageType type)
         {
-            static const void* prefixes[MessageType::TYPE_COUNT][2] =
+            static const void* prefixes[ILogStream::MessageType::TYPE_COUNT][2] =
             {
                  { "",     L""     }, // 0 index isn't used
                  { "E {}", L"E {}" },
@@ -169,20 +214,13 @@ namespace ex
         }
 
     private:
-        int m_logging_level;
+        std::atomic<int>         m_logging_level;
+        std::atomic<ILogStream*> m_log_stream;
 
         fmt::MemoryWriter  m_writer_a;
         fmt::WMemoryWriter m_writer_w;
     };
 
-
-
-    class NullLogger final : public ILogger
-    {
-    protected:
-        virtual void output(MessageType, const char*    message) override { }
-        virtual void output(MessageType, const wchar_t* message) override { }
-    };
 
 }
 
