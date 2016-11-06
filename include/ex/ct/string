@@ -82,6 +82,14 @@ namespace ct // compile-time
     }
 
 
+    template <size_t K, typename CharType, size_t N>
+    constexpr auto substr(const CharType (&str)[N])
+    -> decltype( ct::create_meta_str(str, meta::make_integer_sequence<N-1, K>{}) )
+    {
+        return ct::create_meta_str(str, meta::make_integer_sequence<N-1, K>{});
+    }
+
+
 //    // unit tests
 
 //    inline void _unit_tests()
@@ -124,8 +132,12 @@ namespace ct // compile-time
 //        assert(const_fun::strrchr(test2, L't') == test2 + 3);
 //        assert(const_fun::strrchr(test1, 'd') == nullptr);
 //        assert(const_fun::strrchr(test1, '\0') == nullptr);
-//
 
+
+
+//        static_assert(substr<2>("Test") == "st");
+//        static_assert(substr<2>(L"Test") == L"st");
+//
 //        static_assert(ct::streq("Test", "Test"));
 //        static_assert(!ct::streq("Test", "Tost"));
 //        static_assert(!ct::streq("Test", "Tst"));
@@ -135,13 +147,13 @@ namespace ct // compile-time
 //        static_assert(!ct::streq(L"Test", L"Tost"));
 //        static_assert(!ct::streq(L"Test", L"Tst"));
 //        static_assert(ct::streq(L"", L""));
-
+//
 //        static_assert(const_fun::contains_char("test", 'e'), "");
 //        static_assert(const_fun::contains_char(L"test", L'e'), "");
-
+//
 //        static_assert(char_at<2>("123") == '3', "char_at failure");
 //        static_assert(char_at<2>(L"123") == L'3', "char_at failure");
-
+//
 //        static_assert(strlen("123") == 3, "failure");
 //        static_assert(strlen("") == 0, "failure");
 //        static_assert(strlen(L"123") == 3, "failure");
