@@ -1,9 +1,14 @@
-#ifndef	   EX_CONST_FUNC_HEADER
-#	define EX_CONST_FUNC_HEADER
+#ifndef	   EX_CT_STRING_H
+#	define EX_CT_STRING_H
 
 
 #include <stdexcept>
 #include <cstdint>
+#include <limits>
+
+#include "ex/ct/meta_str"
+#include "ex/meta"
+
 
 //
 // Note: this functions can be used as compile-time constants:
@@ -21,6 +26,8 @@ namespace ex
 {
 namespace ct // compile-time
 {
+    constexpr static const size_t npos = std::numeric_limits<size_t>::max();
+
 
     namespace unsafe
     {
@@ -84,9 +91,26 @@ namespace ct // compile-time
 
     template <size_t K, typename CharType, size_t N>
     constexpr auto substr(const CharType (&str)[N])
-    -> decltype( ct::create_meta_str(str, meta::make_integer_sequence<N-1, K>{}) )
+        -> decltype( create_meta_str(str, meta::make_integer_sequence<N-1, K>{}) )
     {
-        return ct::create_meta_str(str, meta::make_integer_sequence<N-1, K>{});
+        return create_meta_str(str, meta::make_integer_sequence<N-1, K>{});
+    }
+
+
+    template <typename CharType, size_t N>
+    constexpr size_t strrchr(const CharType (&str)[N], CharType c, size_t offset = N - 1)
+    {
+        return offset == 0      ? ct::npos :
+               str[offset] == c ? offset   : strrchr(str, c, offset - 1);
+
+    }
+
+
+    template <typename CharType, size_t N>
+    constexpr size_t strlchr(const CharType (&str)[N], CharType c, size_t offset = 0)
+    {
+        return offset == N - 1  ? ct::npos :
+               str[offset] == c ? offset   : strlchr(str, c, offset + 1);
     }
 
 
@@ -96,45 +120,22 @@ namespace ct // compile-time
 //    {
 
 //
-//        // check compile-time mode
-//        static_assert(const_fun::strlchr("test", 't') != nullptr, "");
-//        static_assert(const_fun::strlchr(L"test", L't') != nullptr, "");
+//        static_assert(strlchr("test", 't') == 0);
+//        static_assert(strlchr("test", 'a') == ct::npos);
+//        static_assert(strlchr("", 'a') == ct::npos);
 //
-//        static_assert(const_fun::strrchr("test", 't') != nullptr, "");
-//        static_assert(const_fun::strrchr(L"test", L't') != nullptr, "");
+//        static_assert(strlchr(L"test", L't') == 0);
+//        static_assert(strlchr(L"test", L'a') == ct::npos);
+//        static_assert(strlchr(L"", L'a') == ct::npos);
 //
-//        static_assert(const_fun::basename("dev/test/base.cpp"), "");
-//        static_assert(const_fun::basename(L"dev\\test\\base.cpp"), "");
+//        static_assert(strrchr("test", 't') == 3);
+//        static_assert(strrchr("test", 'a') == ct::npos);
+//        static_assert(strrchr("", 'a') == ct::npos);
 //
+//        static_assert(strrchr(L"test", L't') == 3);
+//        static_assert(strrchr(L"test", L'a') == ct::npos);
+//        static_assert(strrchr(L"", L'a') == ct::npos);
 //
-//        const char* path1 = "dev/test/base.cpp";
-//        const wchar_t* path11 = L"dev/test/base.cpp";
-//        const char* path2 = "D:\\dev\\test\\base.cpp";
-//        const wchar_t* path21 = L"D:\\dev\\test\\base.cpp";
-//        const char* path3 = "base.cpp";
-//        assert(const_fun::basename(path1) == path1 + 9);
-//        assert(const_fun::basename(path11) == path11 + 9);
-//        assert(const_fun::basename(path2) == path2 + 12);
-//        assert(const_fun::basename(path21) == path21 + 12);
-//        assert(const_fun::basename(path3) == path3);
-//
-//
-//        // check semantic
-//        const char* test1 = "test";
-//        const wchar_t* test2 = L"test";
-//
-//        assert(const_fun::strlchr(test1, 't') == test1);
-//        assert(const_fun::strlchr(test2, L't') == test2);
-//        assert(const_fun::strlchr(test1, 'd') == nullptr);
-//        assert(const_fun::strlchr(test1, '\0') == nullptr);
-//
-//        assert(const_fun::strrchr(test1, 't') == test1 + 3);
-//        assert(const_fun::strrchr(test2, L't') == test2 + 3);
-//        assert(const_fun::strrchr(test1, 'd') == nullptr);
-//        assert(const_fun::strrchr(test1, '\0') == nullptr);
-
-
-
 //        static_assert(substr<2>("Test") == "st");
 //        static_assert(substr<2>(L"Test") == L"st");
 //
