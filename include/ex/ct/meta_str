@@ -136,6 +136,25 @@ namespace ct
         return create_meta_str(str) + metastr;
     }
 
+
+    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    constexpr bool operator==(meta_str<CharType, indexes1...> metastr1, meta_str<CharType, indexes2...> metastr2)
+    {
+        return ct::streq(metastr1.c_str, metastr2.c_str);
+    }
+
+    template<typename CharType, size_t... indexes, size_t N>
+    constexpr bool operator==(const CharType (&str)[N], meta_str<CharType, indexes...> metastr)
+    {
+        return ct::streq(str, metastr.c_str);
+    }
+
+    template<typename CharType, size_t... indexes, size_t N>
+    constexpr bool operator==(meta_str<CharType, indexes...> metastr, const CharType (&str)[N])
+    {
+        return ct::streq(str, metastr.c_str);
+    }
+
 }
 }
 
@@ -172,6 +191,14 @@ namespace ct
 //    static_assert(len(str4_a.c_str) == len(str4_w.c_str)); // use of compile-time functions with meta_str
 //    static_assert(len(process_str("Test").c_str) == 4);
 //    static_assert(len(process_str(L"Test").c_str) == 4);
+
+//    static_assert(ct::create_meta_str("Test") == "Test");
+//    static_assert("Test" == ct::create_meta_str("Test"));
+//    static_assert(ct::create_meta_str("Test") == ct::create_meta_str("Test"));
+//
+//    static_assert(ct::create_meta_str(L"Test") == L"Test");
+//    static_assert(L"Test" == ct::create_meta_str(L"Test"));
+//    static_assert(ct::create_meta_str(L"Test") == ct::create_meta_str(L"Test"));
 
 
 #endif
