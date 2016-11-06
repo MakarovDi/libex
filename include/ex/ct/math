@@ -1,0 +1,70 @@
+#ifndef     EX_CT_MATH_H
+#   define  EX_CT_MATH_H
+
+
+#include <stdexcept>
+
+
+namespace ex
+{
+namespace ct
+{
+    namespace require
+    {
+        //
+        // Note: functions throws logic_exceptions, use for eliminate ambiguity
+        //
+
+        template <typename NumType>
+        constexpr NumType nonnegative(NumType i)
+        {
+            return (i >= 0) ? i : throw std::logic_error("must be non negative");
+        }
+
+    }
+
+
+    namespace unsafe
+    {
+        // unsafe: unsafe::factorial(-4) -> 1
+        template <typename NumType>
+        constexpr NumType factorial(NumType i)
+        {
+            return (i > 1) ? i * unsafe::factorial(i - 1) : 1;
+        }
+    }
+
+
+
+    template <typename NumType>
+    constexpr NumType factorial(NumType i)
+    {
+        return require::nonnegative(i), unsafe::factorial(i);
+    }
+
+
+    template <typename NumType>
+    constexpr NumType abs(NumType x)
+    {
+        return x < 0 ? -x : x;
+    }
+
+
+//  [unit tests]
+
+//    static_assert(ct::abs(-1) == 1);
+//    static_assert(ct::abs(1) == 1);
+//    static_assert(ct::abs(1.0) == 1.0);
+//    static_assert(ct::abs(-1.0) == 1.0);
+//
+//    static_assert(ct::factorial(0) == 1);
+//    static_assert(ct::factorial(1) == 1);
+//    static_assert(ct::factorial(2) == 2);
+//    static_assert(ct::factorial(4) == 2*3*4);
+//    static_assert(ct::factorial(4.0) == 2.0*3.0*4.0);
+
+}
+}
+
+
+#endif

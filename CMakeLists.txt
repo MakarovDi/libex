@@ -73,8 +73,9 @@ set(HEADERS
     include/ex/policy/notice
     include/ex/range_check
     include/ex/meta
-    include/ex/ct/tools
-    include/ex/ct/meta_str)
+    include/ex/ct/string
+    include/ex/ct/meta_str
+    include/ex/ct/math)
 
 
 # define and export library with name ex
