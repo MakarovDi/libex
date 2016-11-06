@@ -19,7 +19,6 @@
 
 namespace ex
 {
-    // TODO: split -> str, math
 namespace ct // compile-time
 {
 
@@ -31,84 +30,31 @@ namespace ct // compile-time
 
         // unsafe: contains_char("abc", 0) -> false (wrong semantic)
         //         contains_char(nullptr, <any>) -> crash
-        template <typename CharType>
-        constexpr bool contains_char(const CharType* str, CharType c)
+        template <typename CharType, size_t N>
+        constexpr bool contains_char(const CharType (&str)[N], CharType c)
         {
             return *str == 0 ? false :
                    *str == c ? true  : unsafe::contains_char(str + 1, c);
         }
-
-
-        // unsafe: strlchr(nullptr, <any>) -> crash
-        template <typename CharType>
-        constexpr const CharType* strlchr(const CharType* path, CharType c)
-        {
-            return *path == 0 ? nullptr :
-                   *path == c ? path    : unsafe::strlchr(path + 1, c);
-        }
-
-
-        // unsafe: strrchr("abc", '*') -> "abc" (wrong semantic)
-        //         strrchr("abc", 'b') -> "c"   (wrong semantic)
-        template <typename CharType>
-        constexpr const CharType* strrchr(const CharType* path, CharType c)
-        {
-            return unsafe::strlchr(path, c) == nullptr ? path :
-                   unsafe::strrchr(unsafe::strlchr(path, c) + 1, c);
-        }
-
     }
 
 
-    template <typename CharType>
-    constexpr const CharType* strlchr(const CharType* str, CharType c)
-    {
-        return str == nullptr ? nullptr : unsafe::strlchr(str, c);
-    }
-
-
-    template <typename CharType>
-    constexpr const CharType* strrchr(const CharType* str, CharType c)
-    {
-        return unsafe::strlchr(str, c) == nullptr ? nullptr : unsafe::strrchr(str, c) - 1;
-    }
-
-
-    template <typename CharType>
-    constexpr bool contains_char(const CharType* str, CharType c)
+    template <typename CharType, size_t N>
+    constexpr bool contains_char(const CharType (&str)[N], CharType c)
     {
         return c == 0 ? true : unsafe::contains_char(str, c);
     }
 
 
-    template <typename CharType>
-    constexpr const CharType* basename(const CharType* path, CharType sep1, CharType sep2)
+    template <typename CharType, size_t N>
+    constexpr size_t strlen(const CharType (&str)[N])
     {
-        return ct::strrchr(path, sep1) != nullptr ? ct::strrchr(path, sep1) + 1 :
-               ct::strrchr(path, sep2) != nullptr ? ct::strrchr(path, sep2) + 1 :
-               path;
-    }
-
-    constexpr const char* basename(const char* path)
-    {
-        return basename(path, '\\', '/');
-    }
-
-    constexpr const wchar_t* basename(const wchar_t* path)
-    {
-        return basename(path, L'\\', L'/');
+        return N - 1;
     }
 
 
-    template <typename CharType>
-    constexpr size_t strlen(const CharType* str)
-    {
-        return *str ? strlen(str + 1) + 1 : 0;
-    }
-
-
-    template <size_t index, typename CharType>
-    constexpr CharType char_at(const CharType* str)
+    template <size_t index, typename CharType, size_t N>
+    constexpr CharType char_at(const CharType (&str)[N])
     {
         return str[index];
     }
@@ -158,8 +104,6 @@ namespace ct // compile-time
 //        assert(const_fun::basename(path21) == path21 + 12);
 //        assert(const_fun::basename(path3) == path3);
 //
-//
-////        std::array<int, const_fun::factorial(3)> test;
 //
 //        // check semantic
 //        const char* test1 = "test";
