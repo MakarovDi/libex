@@ -11,8 +11,6 @@ namespace meta // template meta programming
 {
 
     //
-    // Note: since C++14 use std::integer_sequence and std::make_integer_sequence
-    //
     // Usage:
     //
     //  template <size_t K, size_t N>
@@ -37,20 +35,20 @@ namespace meta // template meta programming
     };
 
 
-    template<size_t N, size_t... Is>
-    struct make_integer_seq : make_integer_seq<N-1, N-1, Is...>
+    template<size_t N, size_t offset, size_t... Is>
+    struct make_integer_seq : make_integer_seq<N-1, offset, N-1, Is...>
     {
     };
 
 
-    template<size_t... Is>
-    struct make_integer_seq<0, Is...> : integer_sequence<Is...>
+    template<size_t offset, size_t... Is>
+    struct make_integer_seq<offset, offset, Is...> : integer_sequence<Is...>
     {
     };
 
 
-    template <size_t N>
-    using make_integer_sequence = typename make_integer_seq<N>::type;
+    template <size_t N, size_t offset = 0>
+    using make_integer_sequence = typename make_integer_seq<N, offset>::type;
 
 
     //
