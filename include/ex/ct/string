@@ -2,19 +2,16 @@
 #	define EX_CT_STRING_H
 
 
-#include <stdexcept>
-#include <cstdint>
-#include <limits>
-
-#include "ex/meta"
 #include "ex/ct/meta_str"
+#include "ex/ct/char"
+#include "ex/ct/strcat"
+#include "ex/ct/streq"
 
 
 //
-// Note: this functions can be used as compile-time constants:
+// Note: compile-time string operations
 //
 //      static_assert(contains_char(__FILE__, '.'));
-//      std::array<int, ct::factorial(10)> c_str;
 //
 // References: 
 //   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
@@ -26,44 +23,6 @@ namespace ex
 {
 namespace ct // compile-time
 {
-    constexpr static const size_t npos = std::numeric_limits<size_t>::max();
-
-
-    // string related functions //
-
-
-    namespace unsafe
-    {
-        //
-        // Note: functions with some using limitations or ambiguity
-        //
-
-        // unsafe: contains_char("abc", 0) -> false (wrong semantic)
-        //         contains_char(nullptr, <any>) -> crash
-        template <typename CharType, size_t N>
-        constexpr bool contains_char(const CharType (&str)[N], CharType c)
-        {
-            return *str == 0 ? false :
-                   *str == c ? true  : unsafe::contains_char(str + 1, c);
-        }
-
-        // unsafe: streq("Test", "Tst", 0) -> compilation error, streq("Test", "Test", 100) -> true
-        template <typename CharType, size_t N>
-        constexpr bool streq(const CharType (&str1)[N], const CharType (&str2)[N], size_t char_ofs)
-        {
-            return char_ofs >= N                    ? true  :
-                   str1[char_ofs] != str2[char_ofs] ? false :
-                   unsafe::streq<CharType>(str1, str2, char_ofs + 1);
-        }
-    }
-
-
-    template <typename CharType, size_t N>
-    constexpr bool contains_char(const CharType (&str)[N], CharType c)
-    {
-        return c == 0 ? true : unsafe::contains_char(str, c);
-    }
-
 
     template <typename CharType, size_t N>
     constexpr size_t strlen(const CharType (&str)[N])
@@ -72,49 +31,13 @@ namespace ct // compile-time
     }
 
 
-    template <size_t index, typename CharType, size_t N>
-    constexpr CharType char_at(const CharType (&str)[N])
-    {
-        return str[index];
-    }
 
-
-    template <typename CharType, size_t N>
-    constexpr bool streq(const CharType (&str1)[N], const CharType (&str2)[N])
-    {
-        return unsafe::streq<CharType>(str1, str2, 0);
-    }
-
-    template <typename CharType, size_t N1, size_t N2>
-    constexpr bool streq(const CharType (&str1)[N1], const CharType (&str2)[N2])
-    {
-        return false;
-    }
-
-
-    template <typename CharType, size_t N>
-    constexpr size_t strrchr(const CharType (&str)[N], CharType c, size_t offset = N - 1)
-    {
-        return offset == 0      ? ct::npos :
-               str[offset] == c ? offset   : strrchr(str, c, offset - 1);
-
-    }
-
-
-    template <typename CharType, size_t N>
-    constexpr size_t strlchr(const CharType (&str)[N], CharType c, size_t offset = 0)
-    {
-        return offset == N - 1  ? ct::npos :
-               str[offset] == c ? offset   : strlchr(str, c, offset + 1);
-    }
-
-
-    template <size_t offset, typename CharType, size_t N>
-    constexpr auto substr(const CharType (&str)[N])
-        -> decltype( create_meta_str(str, meta::make_integer_sequence<N-1, offset>{}) )
-    {
-        return ct::create_meta_str(str, meta::make_integer_sequence<N-1, offset>{});
-    }
+//    template <size_t offset, typename CharType, size_t N>
+//    constexpr auto substr(const CharType (&str)[N])
+//        -> decltype( ct::create_meta_str(str, meta::make_integer_sequence<N-1, offset>{}) )
+//    {
+//        return ct::create_meta_str(str, meta::make_integer_sequence<N-1, offset>{});
+//    }
 
 
 
@@ -169,6 +92,50 @@ namespace ct // compile-time
 //        assert(const_fun::contains_char(test1, '\0'));
 //    }
 
+
+// [unit tests] meta-str
+
+//    template <typename CharType, size_t N>
+//    constexpr size_t len(const CharType (&str)[N])
+//    {
+//        return N - 1;
+//    }
+//
+//
+//    template <typename CharType, size_t N>
+//    constexpr auto process_str(const CharType (&str)[N])
+//    -> decltype(ct::create_meta_str(str))
+//    {
+//        return ct::create_meta_str(str);
+//    }
+
+//    static constexpr auto str_a  =  ct::create_meta_str("test");
+//    static constexpr auto str_w  =  ct::create_meta_str(L"test");
+//    static constexpr auto str1_a =  ct::create_meta_str("test1") + ct::create_meta_str("test2");
+//    static constexpr auto str1_w =  ct::create_meta_str(L"test1") + ct::create_meta_str(L"test2");
+//    static constexpr auto str2_a =  ct::create_meta_str("test1") + "test2";
+//    static constexpr auto str2_w =  ct::create_meta_str(L"test1") + L"test2";
+//    static constexpr auto str3_a =  "test2" + ct::create_meta_str("test1");
+//    static constexpr auto str3_w =  L"test2" + ct::create_meta_str(L"test1");
+//    static constexpr auto str4_a =  "test1" + ct::create_meta_str("test2") + "test3";
+//    static constexpr auto str4_w =  L"test1" + ct::create_meta_str(L"test2") + L"test3";
+//
+//    static_assert(str_a.length == 4);
+//    static_assert(str_a.c_str != nullptr);
+//    static_assert(str4_a.length == str4_w.length);
+//    static_assert(len(str4_a.c_str) == len(str4_w.c_str)); // use of compile-time functions with meta_str
+//    static_assert(len(process_str("Test").c_str) == 4);
+//    static_assert(len(process_str(L"Test").c_str) == 4);
+
+//    static_assert(ct::create_meta_str("Test") == "Test");
+//    static_assert("Test" == ct::create_meta_str("Test"));
+//    static_assert(ct::create_meta_str("Test") == ct::create_meta_str("Test"));
+//
+//    static_assert(ct::create_meta_str(L"Test") == L"Test");
+//    static_assert(L"Test" == ct::create_meta_str(L"Test"));
+//    static_assert(ct::create_meta_str(L"Test") == ct::create_meta_str(L"Test"));
+
+//    static_assert(ct::create_meta_str("Test")[2] == 's');
 
 }
 }

@@ -75,7 +75,10 @@ set(HEADERS
     include/ex/meta
     include/ex/ct/string
     include/ex/ct/math
-    include/ex/ct/meta_str)
+    include/ex/ct/meta_str
+    include/ex/ct/char
+    include/ex/ct/streq
+    include/ex/ct/strcat)
 
 
 # define and export library with name ex
