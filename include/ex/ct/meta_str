@@ -134,11 +134,13 @@ namespace ct
         }
 
 
-    //        constexpr auto substr(size_t offset)
-    //            -> decltype(substr<>())
-    //        {
-    //
-    //        }
+        template <size_t offset>
+        constexpr auto substr()
+            -> decltype(internal::substr<offset>(c_str))
+        {
+            return internal::substr<offset>(c_str);
+        }
+
 
         static constexpr size_t length = sizeof...(indexes);
 
@@ -174,11 +176,35 @@ namespace ct
     }
 
 
-    template<typename CharType, size_t... indexes1, size_t... indexes2>
-    constexpr auto operator+(meta_str<CharType, indexes1...> a, meta_str<CharType, indexes2...> b)
+    template<typename CharType, size_t N1, size_t N2, size_t... indexes1, size_t... indexes2>
+    constexpr auto strcat(const CharType (&str1)[N1],
+                          const CharType (&str2)[N2],
+                          meta::integer_sequence<indexes1...>,
+                          meta::integer_sequence<indexes2...>)
         -> meta_str<CharType, indexes1..., sizeof...(indexes1) + indexes2...>
     {
-        return { a.c_str[indexes1]..., b.c_str[indexes2]... };
+        return { str1[indexes1]..., str2[indexes2]... };
+    }
+
+
+    template<typename CharType, size_t N1, size_t N2>
+    constexpr auto strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
+        -> decltype(strcat(str1, str2,
+                           meta::make_integer_sequence<N1 - 1>(),
+                           meta::make_integer_sequence<N2 - 1>()))
+    {
+        return strcat(str1, str2,
+                      meta::make_integer_sequence<N1-1>(),
+                      meta::make_integer_sequence<N2-1>());
+    }
+
+
+    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    constexpr auto operator+(meta_str<CharType, indexes1...> a,
+                             meta_str<CharType, indexes2...> b)
+        -> decltype(strcat(a.c_str, b.c_str))
+    {
+        return strcat(a.c_str, b.c_str);
     }
 
 
