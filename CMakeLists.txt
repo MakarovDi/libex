@@ -74,8 +74,8 @@ set(HEADERS
     include/ex/range_check
     include/ex/meta
     include/ex/ct/string
-    include/ex/ct/meta_str
-    include/ex/ct/math)
+    include/ex/ct/math
+    include/ex/ct/meta_str)
 
 
 # define and export library with name ex

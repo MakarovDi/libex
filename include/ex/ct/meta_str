@@ -1,11 +1,55 @@
-#ifndef     EX_META_STR_H
-#   define  EX_META_STR_H
+#ifndef    EX_CT_META_STR_H
+#   define EX_CT_META_STR_H
 
 
+#include <iostream>
 #include <cstdint>
-
-#include "ex/ct/string"
 #include "ex/meta"
+
+
+//
+// Usage (meta_str)
+//
+//  * for compile-time string concatenation:
+//
+//      static constexpr auto str = ct::create_meta_str("File: ") + ct::create_meta_str(__FILE__);
+//      ...
+//      std::cout << str << std::endl;
+//      std::printf(str);
+//
+//  * for return compile-time string which can be used in compile-time function:
+//
+//       template <size_t N>
+//       constexpr size_t strlen(const char (&str)[N])
+//       {
+//            return N - 1;
+//       }
+//
+//
+//       template <size_t N>
+//       constexpr const char* strdup1(const char (&str)[N])
+//       {
+//           return str;
+//       }
+//
+//
+//       template <size_t N>
+//       constexpr auto strdup2(const char (&str)[N])
+//          -> decltype (ct::create_meta_str(str))
+//       {
+//          return ct::create_meta_str(str);
+//       }
+//
+//
+//       std::array<char, strlen(strdup1("Test"))>       a; // compilation error
+//       std::array<char, strlen(strdup2("Test").c_str)> a; // ok
+//
+//
+//  References:
+//      doc/schurr_cpp11_tools_for_class_authors.pdf
+//
+
+// TODO: use decltype(auto) from C++14
 
 
 namespace ex
@@ -13,49 +57,56 @@ namespace ex
 namespace ct
 {
 
-    //
-    // Usage
-    //
-    //  * for compile-time string concatenation:
-    //
-    //      static constexpr auto str = ct::create_meta_str("File: ") + ct::create_meta_str(__FILE__);
-    //      ...
-    //      std::cout << str << std::endl;
-    //      std::printf(str);
-    //
-    //  * for return compile-time string which can be used in compile-time function:
-    //
-    //       template <size_t N>
-    //       constexpr size_t strlen(const char (&str)[N])
-    //       {
-    //            return N - 1;
-    //       }
-    //
-    //
-    //       template <size_t N>
-    //       constexpr const char* strdup1(const char (&str)[N])
-    //       {
-    //           return str;
-    //       }
-    //
-    //
-    //       template <size_t N>
-    //       constexpr auto strdup2(const char (&str)[N])
-    //          -> decltype (ct::create_meta_str(str))
-    //       {
-    //          return ct::create_meta_str(str);
-    //       }
-    //
-    //
-    //       std::array<char, strlen(strdup1("Test"))>       a; // compilation error
-    //       std::array<char, strlen(strdup2("Test").c_str)> a; // ok
-    //
-    //
-    //  References:
-    //      doc/schurr_cpp11_tools_for_class_authors.pdf
-    //
+    template<typename CharType, size_t... indexes>
+    struct meta_str;
 
-    // TODO: use decltype(auto) from C++14
+
+    template<typename CharType, size_t N, size_t... indexes>
+    constexpr auto create_meta_str(const CharType (&str)[N], meta::integer_sequence<indexes...>)
+        -> meta_str<CharType, indexes...>;
+
+
+    namespace internal
+    {
+        template <size_t index, typename CharType, size_t N>
+        constexpr CharType char_at(const CharType (&str)[N])
+        {
+            return str[index];
+        }
+
+
+        // unsafe: streq("Test", "Tst", 0) -> compilation error, streq("Test", "Test", 100) -> true
+        template <typename CharType, size_t N>
+        constexpr bool streq(const CharType (&str1)[N], const CharType (&str2)[N], size_t char_ofs)
+        {
+            return char_ofs >= N                    ? true  :
+                   str1[char_ofs] != str2[char_ofs] ? false :
+                   streq<CharType>(str1, str2, char_ofs + 1);
+        }
+
+
+        template <typename CharType, size_t N>
+        constexpr bool streq(const CharType (&str1)[N], const CharType (&str2)[N])
+        {
+            return streq<CharType>(str1, str2, 0);
+        }
+
+
+        template <typename CharType, size_t N1, size_t N2>
+        constexpr bool streq(const CharType (&str1)[N1], const CharType (&str2)[N2])
+        {
+            return false;
+        }
+
+
+        template <size_t offset, typename CharType, size_t N>
+        constexpr auto substr(const CharType (&str)[N])
+            -> decltype( create_meta_str(str, meta::make_integer_sequence<N-1, offset>{}) )
+        {
+            return create_meta_str(str, meta::make_integer_sequence<N-1, offset>{});
+        }
+    }
+
 
 
     template<typename CharType, size_t... indexes>
@@ -66,7 +117,7 @@ namespace ct
 
         template <size_t N>
         constexpr meta_str(const CharType (&str)[N]) :
-            c_str{ char_at<indexes>(str)..., 0 }
+            c_str{ internal::char_at<indexes>(str)..., 0 }
         {
         }
 
@@ -83,6 +134,12 @@ namespace ct
         }
 
 
+    //        constexpr auto substr(size_t offset)
+    //            -> decltype(substr<>())
+    //        {
+    //
+    //        }
+
         static constexpr size_t length = sizeof...(indexes);
 
         constexpr CharType operator[](size_t index) const { return c_str[index]; }
@@ -90,12 +147,7 @@ namespace ct
     };
 
 
-    template <typename CharType, size_t... indexes>
-    std::basic_ostream<CharType>& operator<<(std::basic_ostream<CharType>& stream,
-                                             const meta_str<CharType, indexes...>& str)
-    {
-        return stream << str.c_str;
-    }
+    // meta_str operators //
 
 
     template<typename CharType, size_t N, size_t... indexes>
@@ -111,6 +163,14 @@ namespace ct
         -> decltype(create_meta_str(str, meta::make_integer_sequence<N - 1>{}))
     {
         return create_meta_str(str, meta::make_integer_sequence<N - 1>{});
+    }
+
+
+    template <typename CharType, size_t... indexes>
+    std::basic_ostream<CharType>& operator<<(std::basic_ostream<CharType>& stream,
+                                             const meta_str<CharType, indexes...>& str)
+    {
+        return stream << str.c_str;
     }
 
 
@@ -141,25 +201,25 @@ namespace ct
     template<typename CharType, size_t... indexes1, size_t... indexes2>
     constexpr bool operator==(meta_str<CharType, indexes1...> metastr1, meta_str<CharType, indexes2...> metastr2)
     {
-        return ct::streq(metastr1.c_str, metastr2.c_str);
+        return internal::streq(metastr1.c_str, metastr2.c_str);
     }
 
     template<typename CharType, size_t... indexes, size_t N>
     constexpr bool operator==(const CharType (&str)[N], meta_str<CharType, indexes...> metastr)
     {
-        return ct::streq(str, metastr.c_str);
+        return internal::streq(str, metastr.c_str);
     }
 
     template<typename CharType, size_t... indexes, size_t N>
     constexpr bool operator==(meta_str<CharType, indexes...> metastr, const CharType (&str)[N])
     {
-        return ct::streq(str, metastr.c_str);
+        return internal::streq(str, metastr.c_str);
     }
 
 }
 }
 
-// [unit tests]
+// [unit tests] meta-str
 
 //    template <typename CharType, size_t N>
 //    constexpr size_t len(const CharType (&str)[N])
@@ -202,7 +262,6 @@ namespace ct
 //    static_assert(ct::create_meta_str(L"Test") == ct::create_meta_str(L"Test"));
 
 //    static_assert(ct::create_meta_str("Test")[2] == 's');
-//    static_assert(ct::create_meta_str(L"Test")[2] == L's');
 
 
 #endif
