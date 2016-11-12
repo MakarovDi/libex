@@ -11,7 +11,17 @@
 //
 // Note: compile-time string operations
 //
-//      static_assert(contains_char(__FILE__, '.'));
+//
+// Usage:
+//
+//     1. static_assert(contains_char(__FILE__, '.'));
+//
+//     2. constexpr static const auto kModuleTag = "[" + ct::basename(__FILE__) + "]";
+//                ...
+//        log.warning(kModuleTag, "warning: ", ...);
+//
+//     3. constexpr static const auto kString = ct::meta_str("qwerty") + "1234567890" + ...;
+//
 //
 // References: 
 //   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
@@ -31,15 +41,8 @@ namespace ct // compile-time
     }
 
 
-
-//    template <size_t offset, typename CharType, size_t N>
-//    constexpr auto substr(const CharType (&str)[N])
-//        -> decltype( ct::create_meta_str(str, meta::make_integer_sequence<N-1, offset>{}) )
-//    {
-//        return ct::create_meta_str(str, meta::make_integer_sequence<N-1, offset>{});
-//    }
-
-
+}
+}
 
 //    // unit tests
 
@@ -104,21 +107,21 @@ namespace ct // compile-time
 //
 //    template <typename CharType, size_t N>
 //    constexpr auto process_str(const CharType (&str)[N])
-//    -> decltype(ct::create_meta_str(str))
+//    -> decltype(ct::meta_str(str))
 //    {
-//        return ct::create_meta_str(str);
+//        return ct::meta_str(str);
 //    }
 
-//    static constexpr auto str_a  =  ct::create_meta_str("test");
-//    static constexpr auto str_w  =  ct::create_meta_str(L"test");
-//    static constexpr auto str1_a =  ct::create_meta_str("test1") + ct::create_meta_str("test2");
-//    static constexpr auto str1_w =  ct::create_meta_str(L"test1") + ct::create_meta_str(L"test2");
-//    static constexpr auto str2_a =  ct::create_meta_str("test1") + "test2";
-//    static constexpr auto str2_w =  ct::create_meta_str(L"test1") + L"test2";
-//    static constexpr auto str3_a =  "test2" + ct::create_meta_str("test1");
-//    static constexpr auto str3_w =  L"test2" + ct::create_meta_str(L"test1");
-//    static constexpr auto str4_a =  "test1" + ct::create_meta_str("test2") + "test3";
-//    static constexpr auto str4_w =  L"test1" + ct::create_meta_str(L"test2") + L"test3";
+//    static constexpr auto str_a  =  ct::meta_str("test");
+//    static constexpr auto str_w  =  ct::meta_str(L"test");
+//    static constexpr auto str1_a =  ct::create_meta_str("test1") + ct::meta_str("test2");
+//    static constexpr auto str1_w =  ct::create_meta_str(L"test1") + ct::meta_str(L"test2");
+//    static constexpr auto str2_a =  ct::meta_str("test1") + "test2";
+//    static constexpr auto str2_w =  ct::meta_str(L"test1") + L"test2";
+//    static constexpr auto str3_a =  "test2" + ct::meta_str("test1");
+//    static constexpr auto str3_w =  L"test2" + ct::meta_str(L"test1");
+//    static constexpr auto str4_a =  "test1" + ct::meta_str("test2") + "test3";
+//    static constexpr auto str4_w =  L"test1" + ct::meta_str(L"test2") + L"test3";
 //
 //    static_assert(str_a.length == 4);
 //    static_assert(str_a.c_str != nullptr);
@@ -127,18 +130,14 @@ namespace ct // compile-time
 //    static_assert(len(process_str("Test").c_str) == 4);
 //    static_assert(len(process_str(L"Test").c_str) == 4);
 
-//    static_assert(ct::create_meta_str("Test") == "Test");
-//    static_assert("Test" == ct::create_meta_str("Test"));
-//    static_assert(ct::create_meta_str("Test") == ct::create_meta_str("Test"));
+//    static_assert(ct::meta_str("Test") == "Test");
+//    static_assert("Test" == ct::meta_str("Test"));
+//    static_assert(ct::create_meta_str("Test") == ct::meta_str("Test"));
 //
-//    static_assert(ct::create_meta_str(L"Test") == L"Test");
-//    static_assert(L"Test" == ct::create_meta_str(L"Test"));
-//    static_assert(ct::create_meta_str(L"Test") == ct::create_meta_str(L"Test"));
+//    static_assert(ct::meta_str(L"Test") == L"Test");
+//    static_assert(L"Test" == ct::meta_str(L"Test"));
+//    static_assert(ct::create_meta_str(L"Test") == ct::meta_str(L"Test"));
 
-//    static_assert(ct::create_meta_str("Test")[2] == 's');
-
-}
-}
-
+//    static_assert(ct::meta_str("Test")[2] == 's');
 
 #endif

@@ -16,7 +16,7 @@
 //
 //  * for compile-time string concatenation:
 //
-//      static constexpr auto str = ct::create_meta_str("File: ") + ct::create_meta_str(__FILE__);
+//      static constexpr auto str = ct::create_meta_str("File: ") + ct::meta_str(__FILE__);
 //      ...
 //      std::cout << str << std::endl;
 //      std::printf(str);
@@ -39,9 +39,9 @@
 //
 //       template <size_t N>
 //       constexpr auto strdup2(const char (&str)[N])
-//          -> decltype (ct::create_meta_str(str))
+//          -> decltype (ct::meta_str(str))
 //       {
-//          return ct::create_meta_str(str);
+//          return ct::meta_str(str);
 //       }
 //
 //
@@ -61,43 +61,43 @@ namespace ex
 namespace ct
 {
     template<typename CharType, size_t... indexes>
-    struct meta_str;
+    struct meta_str_type;
 
 
     template<typename CharType, size_t N, size_t... indexes>
-    constexpr auto create_meta_str(const CharType (&str)[N], meta::integer_sequence<indexes...>)
-        -> meta_str<CharType, indexes...>;
+    constexpr auto meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
+        -> meta_str_type<CharType, indexes...>;
 
 
 
     template <size_t offset, typename CharType, size_t N>
     constexpr auto substr(const CharType (&str)[N])
-        -> decltype( create_meta_str(str, meta::make_integer_sequence<N-1, offset>()) )
+        -> decltype(meta_str(str, meta::make_integer_sequence<N - 1, offset>()) )
     {
-        return create_meta_str(str, meta::make_integer_sequence<N-1, offset>());
+        return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
     }
 
 
     template<typename CharType, size_t... indexes>
-    struct meta_str
+    struct meta_str_type
     {
         const CharType c_str[sizeof...(indexes) + 1];
 
 
         template <size_t N>
-        constexpr meta_str(const CharType (&str)[N]) :
+        constexpr meta_str_type(const CharType (&str)[N]) :
             c_str{ ct::char_at<indexes>(str)..., 0 }
         {
         }
 
 
-        constexpr meta_str(meta::pack<CharType, indexes>... chars) :
+        constexpr meta_str_type(meta::pack<CharType, indexes>... chars) :
             c_str{ chars..., 0 }
         {
         }
 
 
-        constexpr meta_str(const meta_str& str) :
+        constexpr meta_str_type(const meta_str_type& str) :
             c_str{ str.c_str[indexes]..., 0 }
         {
         }
@@ -120,25 +120,25 @@ namespace ct
 
     template <typename CharType, size_t... indexes>
     std::basic_ostream<CharType>& operator<<(std::basic_ostream<CharType>& stream,
-                                             const meta_str<CharType, indexes...>& str)
+                                             const meta_str_type<CharType, indexes...>& str)
     {
         return stream << str.c_str;
     }
 
 
     template<typename CharType, size_t N, size_t... indexes>
-    constexpr auto create_meta_str(const CharType (&str)[N], meta::integer_sequence<indexes...>)
-        -> meta_str<CharType, indexes...>
+    constexpr auto meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
+        -> meta_str_type<CharType, indexes...>
     {
-        return meta_str<CharType, indexes...>(str);
+        return meta_str_type<CharType, indexes...>(str);
     }
 
 
     template<typename CharType, size_t N>
-    constexpr auto create_meta_str(const CharType (& str)[N])
-        -> decltype(create_meta_str(str, meta::make_integer_sequence<N - 1>()))
+    constexpr auto meta_str(const CharType (& str)[N])
+        -> decltype(meta_str(str, meta::make_integer_sequence<N - 1>()))
     {
-        return create_meta_str(str, meta::make_integer_sequence<N - 1>());
+        return meta_str(str, meta::make_integer_sequence<N - 1>());
     }
 }
 }

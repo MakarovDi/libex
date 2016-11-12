@@ -52,19 +52,19 @@ namespace ct
 
 
     template<typename CharType, size_t... indexes1, size_t... indexes2>
-    constexpr bool operator==(meta_str<CharType, indexes1...> metastr1, meta_str<CharType, indexes2...> metastr2)
+    constexpr bool operator==(meta_str_type<CharType, indexes1...> metastr1, meta_str_type<CharType, indexes2...> metastr2)
     {
         return streq(metastr1.c_str, metastr2.c_str);
     }
 
     template<typename CharType, size_t... indexes, size_t N>
-    constexpr bool operator==(const CharType (&str)[N], meta_str<CharType, indexes...> metastr)
+    constexpr bool operator==(const CharType (&str)[N], meta_str_type<CharType, indexes...> metastr)
     {
         return streq(str, metastr.c_str);
     }
 
     template<typename CharType, size_t... indexes, size_t N>
-    constexpr bool operator==(meta_str<CharType, indexes...> metastr, const CharType (&str)[N])
+    constexpr bool operator==(meta_str_type<CharType, indexes...> metastr, const CharType (&str)[N])
     {
         return streq(str, metastr.c_str);
     }
