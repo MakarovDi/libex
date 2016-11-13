@@ -51,6 +51,35 @@ namespace meta // template meta programming
     using make_integer_sequence = typename make_integer_seq<N, offset>::type;
 
 
+
+    //
+    // Usage: same as [make_integer_sequence] but for [char...]
+    //
+
+    template <typename CharType, CharType...>
+    struct char_sequence
+    {
+        using type = char_sequence;
+    };
+
+
+
+    template<typename CharType, size_t N, CharType c, size_t... Is>
+    struct make_char_seq : make_char_seq<CharType, N-1, c, c, Is...>
+    {
+    };
+
+
+    template<typename CharType, CharType c, size_t... Is>
+    struct make_char_seq<CharType, 0, c, c, Is...> : char_sequence<CharType, c, Is...>
+    {
+    };
+
+
+    template <typename CharType, size_t N, CharType c>
+    using make_char_sequence = typename make_char_seq<CharType, N, c>::type;
+
+
     //
     // Usage:
     //
