@@ -33,8 +33,8 @@ namespace ct
                            meta::make_integer_sequence<N2 - 1>()))
     {
         return strcat(str1, str2,
-                      meta::make_integer_sequence<N1-1>(),
-                      meta::make_integer_sequence<N2-1>());
+                      meta::make_integer_sequence<N1 - 1>(),
+                      meta::make_integer_sequence<N2 - 1>());
     }
 
 
@@ -51,7 +51,7 @@ namespace ct
     constexpr auto operator+(meta_str_type<CharType, indexes...> metastr, const CharType (&str)[N])
         -> decltype(metastr + meta_str(str))
     {
-        return metastr + meta_str(str);
+        return strcat(metastr.c_str, str);
     }
 
 
@@ -59,7 +59,7 @@ namespace ct
     constexpr auto operator+(const CharType (&str)[N], meta_str_type<CharType, indexes...> metastr)
         -> decltype(metastr + meta_str(str))
     {
-        return meta_str(str) + metastr;
+        return strcat(str, metastr.c_str);
     }
 
 }

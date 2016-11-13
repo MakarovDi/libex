@@ -45,7 +45,7 @@ namespace ct // compile-time
 }
 }
 
-//    // unit tests
+//    [unit tests]
 
 //    inline void _unit_tests()
 //    {
