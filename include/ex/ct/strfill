@@ -38,6 +38,38 @@ namespace ct
                                  meta::make_char_sequence<CharType, N, c>());
     }
 
+
+    //
+    // Note: strpad - generate padding string which is filled with '\0'
+    //
+
+
+    template <size_t N>
+    constexpr auto strpad(meta::TypeHolder<char>)
+        -> decltype(strfill<char>(meta::make_integer_sequence<N>(),
+                                  meta::make_char_sequence<char, N, '\0'>()))
+    {
+        return strfill<char>(meta::make_integer_sequence<N>(),
+                             meta::make_char_sequence<char, N, '\0'>());
+    }
+
+
+    template <size_t N>
+    constexpr auto strpad(meta::TypeHolder<wchar_t>)
+        -> decltype(strfill<wchar_t>(meta::make_integer_sequence<N>(),
+                                     meta::make_char_sequence<wchar_t, N, L'\0'>()))
+    {
+        return strfill<wchar_t>(meta::make_integer_sequence<N>(),
+                                meta::make_char_sequence<wchar_t, N, L'\0'>());
+    }
+
+
+    template <typename CharType, size_t N>
+    constexpr auto strpad()
+        -> decltype(ct::strpad<N>(meta::TypeHolder<CharType>()))
+    {
+        return ct::strpad<N>(meta::TypeHolder<CharType>());
+    }
 }
 }
 
