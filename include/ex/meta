@@ -99,6 +99,60 @@ namespace meta // template meta programming
     template<typename T, size_t index>
     using pack = T;
 
+
+    //
+    // Usage:
+    //
+    //  You can't do this (explicit specialization in non-namespace scope):
+    //
+    //        struct test
+    //        {
+    //            template < typename T >
+    //            static T get_char();
+    //
+    //
+    //            template <>
+    //            static char get_char<char>()
+    //            {
+    //                return 'a';
+    //            }
+    //
+    //            template <>
+    //            static wchar_t get_char<wchar_t>()
+    //            {
+    //                return L'a';
+    //            }
+    //        };
+    //
+    //  But you can do this:
+    //
+    //        struct test
+    //        {
+    //            template < typename T >
+    //            static T get_char()
+    //            {
+    //                return get_char(TypeHolder<T>());
+    //            }
+    //
+    //
+    //            static char get_char(TypeHolder<char>)
+    //            {
+    //                return 'a';
+    //            }
+    //
+    //            static wchar_t get_char(TypeHolder<wchar_t>)
+    //            {
+    //                return L'a';
+    //            }
+    //        };
+
+    template <typename T>
+    struct TypeHolder
+    {
+        using type = T;
+    };
+
+
 }
 }
 
