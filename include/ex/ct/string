@@ -52,23 +52,6 @@ namespace ct // compile-time
 //        static_assert(substr<2>("Test") == "st");
 //        static_assert(substr<2>(L"Test") == L"st");
 //
-//        static_assert(strlchr("test", 't') == 0);
-//        static_assert(strlchr("test", 'a') == ct::npos);
-//        static_assert(strlchr("", 'a') == ct::npos);
-//
-//        static_assert(strlchr(L"test", L't') == 0);
-//        static_assert(strlchr(L"test", L'a') == ct::npos);
-//        static_assert(strlchr(L"", L'a') == ct::npos);
-//
-//        static_assert(strrchr("test", 't') == 3);
-//        static_assert(strrchr("test", 'a') == ct::npos);
-//        static_assert(strrchr("", 'a') == ct::npos);
-//
-//        static_assert(strrchr(L"test", L't') == 3);
-//        static_assert(strrchr(L"test", L'a') == ct::npos);
-//        static_assert(strrchr(L"", L'a') == ct::npos);
-//
-//
 //        static_assert(ct::streq("Test", "Test"));
 //        static_assert(!ct::streq("Test", "Tost"));
 //        static_assert(!ct::streq("Test", "Tst"));
@@ -79,21 +62,10 @@ namespace ct // compile-time
 //        static_assert(!ct::streq(L"Test", L"Tst"));
 //        static_assert(ct::streq(L"", L""));
 //
-//        static_assert(const_fun::contains_char("test", 'e'), "");
-//        static_assert(const_fun::contains_char(L"test", L'e'), "");
-//
-//        static_assert(char_at<2>("123") == '3', "char_at failure");
-//        static_assert(char_at<2>(L"123") == L'3', "char_at failure");
-//
 //        static_assert(strlen("123") == 3, "failure");
 //        static_assert(strlen("") == 0, "failure");
 //        static_assert(strlen(L"123") == 3, "failure");
 //        static_assert(strlen(L"") == 0, "failure");
-//
-//        assert(const_fun::contains_char(test1, 't'));
-//        assert(const_fun::contains_char(test2, L't'));
-//        assert(!const_fun::contains_char(test1, 'd'));
-//        assert(const_fun::contains_char(test1, '\0'));
 //    }
 
 
