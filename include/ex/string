@@ -134,6 +134,8 @@ namespace ex
     //    }
     //
 
+    // TODO: make it for more than 2 variants
+
     class VariantConstString
     {
     public:

@@ -79,7 +79,8 @@ set(HEADERS
     include/ex/ct/char
     include/ex/ct/streq
     include/ex/ct/strcat
-    include/ex/ct/strfill)
+    include/ex/ct/strfill
+    include/ex/ct/charset)
 
 
 # define and export library with name ex
