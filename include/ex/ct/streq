@@ -29,7 +29,7 @@ namespace ct
         }
     }
 
-
+    // TODO: fix for strpad'ed string
 
     template <typename CharType, size_t N>
     constexpr bool streq(const CharType (&str1)[N], const CharType (&str2)[N])

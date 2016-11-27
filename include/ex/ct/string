@@ -35,6 +35,7 @@ namespace ex
 {
 namespace ct // compile-time
 {
+    // TODO: fix for strpad'ed string
 
     template <typename CharType, size_t N>
     constexpr size_t strlen(const CharType (&str)[N])
