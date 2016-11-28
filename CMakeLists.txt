@@ -80,7 +80,8 @@ set(HEADERS
     include/ex/ct/streq
     include/ex/ct/strcat
     include/ex/ct/strfill
-    include/ex/ct/charset)
+    include/ex/ct/charset
+    include/ex/ct/strlen)
 
 
 # define and export library with name ex

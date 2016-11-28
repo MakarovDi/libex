@@ -8,6 +8,7 @@
 #include "ex/ct/strcat"
 #include "ex/ct/streq"
 #include "ex/ct/strfill"
+#include "ex/ct/strlen"
 
 
 //
@@ -35,14 +36,6 @@ namespace ex
 {
 namespace ct // compile-time
 {
-    // TODO: fix for strpad'ed string
-
-    template <typename CharType, size_t N>
-    constexpr size_t strlen(const CharType (&str)[N])
-    {
-        return N - 1;
-    }
-
 
     namespace internal
     {
@@ -157,10 +150,7 @@ namespace ct // compile-time
 //        static_assert(!ct::streq(L"Test", L"Tst"));
 //        static_assert(ct::streq(L"", L""));
 //
-//        static_assert(strlen("123") == 3, "failure");
-//        static_assert(strlen("") == 0, "failure");
-//        static_assert(strlen(L"123") == 3, "failure");
-//        static_assert(strlen(L"") == 0, "failure");
+
 //    }
 
 
