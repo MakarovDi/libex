@@ -69,6 +69,24 @@ namespace ct
         return streq(str, metastr.c_str);
     }
 
+//        static_assert(ct::streq("Test", "Test"));
+//        static_assert(!ct::streq("Test", "Tost"));
+//        static_assert(!ct::streq("Test", "Tst"));
+//        static_assert(ct::streq("", ""));
+//
+//        static_assert(ct::streq(L"Test", L"Test"));
+//        static_assert(!ct::streq(L"Test", L"Tost"));
+//        static_assert(!ct::streq(L"Test", L"Tst"));
+//        static_assert(ct::streq(L"", L""));
+
+//        static_assert(ct::streq(meta_str("123") == meta_str("123"));
+//        static_assert(ct::streq(meta_str("123") == "123");
+//        static_assert(ct::streq("123" == meta_str("123"));
+
+//        static_assert(ct::streq(meta_str(L"123") == meta_str(L"123"));
+//        static_assert(ct::streq(meta_str(L"123") == L"123");
+//        static_assert(ct::streq(L"123" == meta_str(L"123"));
+
 }
 }
 

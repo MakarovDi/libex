@@ -140,6 +140,51 @@ namespace ct
     {
         return meta_str(str, meta::make_integer_sequence<N - 1>());
     }
+
+//    [unit tests]
+
+//        static_assert(substr<2>("Test") == "st");
+//        static_assert(substr<2>(L"Test") == L"st");
+//
+
+// [unit tests] meta-str
+
+//    template <typename CharType, size_t N>
+//    constexpr size_t len(const CharType (&str)[N])
+//    {
+//        return N - 1;
+//    }
+//
+//
+//    template <typename CharType, size_t N>
+//    constexpr auto process_str(const CharType (&str)[N])
+//    -> decltype(ct::meta_str(str))
+//    {
+//        return ct::meta_str(str);
+//    }
+
+//    static constexpr auto str_a  =  ct::meta_str("test");
+//    static constexpr auto str_w  =  ct::meta_str(L"test");
+//    static constexpr auto str1_a =  ct::create_meta_str("test1") + ct::meta_str("test2");
+//    static constexpr auto str1_w =  ct::create_meta_str(L"test1") + ct::meta_str(L"test2");
+//    static constexpr auto str2_a =  ct::meta_str("test1") + "test2";
+//    static constexpr auto str2_w =  ct::meta_str(L"test1") + L"test2";
+//    static constexpr auto str3_a =  "test2" + ct::meta_str("test1");
+//    static constexpr auto str3_w =  L"test2" + ct::meta_str(L"test1");
+//    static constexpr auto str4_a =  "test1" + ct::meta_str("test2") + "test3";
+//    static constexpr auto str4_w =  L"test1" + ct::meta_str(L"test2") + L"test3";
+//
+//    static_assert(str_a.length == 4);
+//    static_assert(str_a.c_str != nullptr);
+//    static_assert(str4_a.length == str4_w.length);
+//    static_assert(len(str4_a.c_str) == len(str4_w.c_str)); // use of compile-time functions with meta_str
+//    static_assert(len(process_str("Test").c_str) == 4);
+//    static_assert(len(process_str(L"Test").c_str) == 4);
+
+//    static_assert(ct::meta_str("Test")[2] == 's');
+
+
+
 }
 }
 
