@@ -1,0 +1,91 @@
+#ifndef    EX_CT_STREQ_H
+#   define EX_CT_STREQ_H
+
+
+#include "ex/ct/meta_str"
+#include "ex/ct/strlen"
+#include "ex/ct/math"
+
+//
+// Note: compile-time string comparison
+//
+
+namespace ex
+{
+namespace ct
+{
+
+    namespace internal
+    {
+        //
+        // Note: functions with some using limitations or ambiguity
+        //
+
+        // unsafe: streq("Test", "Tst", 0) -> compilation error, streq("Test", "Test", 100) -> true
+        template <typename CharType, size_t N1, size_t N2, size_t N = ct::min(N1, N2)>
+        constexpr bool streq(const CharType (&str1)[N1], const CharType (&str2)[N2], size_t char_ofs)
+        {
+            return char_ofs >= N                    ? true  :
+                   str1[char_ofs] != str2[char_ofs] ? false :
+                   internal::streq<CharType>(str1, str2, char_ofs + 1);
+        }
+    }
+
+
+    template <typename CharType, size_t N1, size_t N2>
+    constexpr bool streq(const CharType (&str1)[N1], const CharType (&str2)[N2])
+    {
+        return ct::strlen(str1) != ct::strlen(str2) ? false :
+               internal::streq<CharType>(str1, str2, 0);
+    }
+
+
+    // TODO: add strcmp ?
+
+
+    // meta_str operator //
+
+
+    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    constexpr bool operator==(meta_str_type<CharType, indexes1...> metastr1, meta_str_type<CharType, indexes2...> metastr2)
+    {
+        return streq(metastr1.c_str, metastr2.c_str);
+    }
+
+    template<typename CharType, size_t... indexes, size_t N>
+    constexpr bool operator==(const CharType (&str)[N], meta_str_type<CharType, indexes...> metastr)
+    {
+        return streq(str, metastr.c_str);
+    }
+
+    template<typename CharType, size_t... indexes, size_t N>
+    constexpr bool operator==(meta_str_type<CharType, indexes...> metastr, const CharType (&str)[N])
+    {
+        return streq(str, metastr.c_str);
+    }
+
+//        static_assert(ct::streq("Test", "Test"));
+//        static_assert(ct::streq("Test", "Test\0\0\0\0\0\0\0"));
+//        static_assert(!ct::streq("Test", "Tost"));
+//        static_assert(!ct::streq("Test", "Tst"));
+//        static_assert(ct::streq("", ""));
+//
+//        static_assert(ct::streq(L"Test", L"Test"));
+//        static_assert(ct::streq(L"Test", L"Test\0\0\0\0\0\0\0"));
+//        static_assert(!ct::streq(L"Test", L"Tost"));
+//        static_assert(!ct::streq(L"Test", L"Tst"));
+//        static_assert(ct::streq(L"", L""));
+
+//        static_assert(meta_str("123") == meta_str("123"));
+//        static_assert(meta_str("123") == "123");
+//        static_assert("123" == meta_str("123"));
+
+//        static_assert(meta_str(L"123") == meta_str(L"123"));
+//        static_assert(meta_str(L"123") == L"123"));
+//        static_assert(L"123" == meta_str(L"123"));
+
+}
+}
+
+
+#endif

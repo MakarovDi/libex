@@ -1,0 +1,38 @@
+#ifndef	   EX_CT_STRING_H
+#	define EX_CT_STRING_H
+
+
+#include "ex/ct/meta_str"
+#include "ex/ct/char"
+#include "ex/ct/charset"
+#include "ex/ct/strcat"
+#include "ex/ct/streq"
+#include "ex/ct/strfill"
+#include "ex/ct/strlen"
+#include "ex/ct/basename"
+
+
+//
+// Note: compile-time string operations
+//
+//
+// Usage:
+//
+//     1. static_assert(contains_char(__FILE__, '.'));
+//
+//     2. constexpr static const auto kModuleTag = "[" + ct::basename(__FILE__) + "]";
+//                ...
+//        log.warning(kModuleTag, "warning: ", ...);
+//
+//     3. constexpr static const auto kString = ct::meta_str("qwerty") + "1234567890" + ...;
+//
+//
+// References: 
+//   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
+//   docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//   docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
+//
+
+
+
+#endif

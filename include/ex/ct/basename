@@ -1,0 +1,130 @@
+#ifndef    EX_CT_BASENAME_H
+#   define EX_CT_BASENAME_H
+
+
+#include "ex/ct/charset"
+#include "ex/ct/meta_str"
+#include "ex/ct/strfill"
+
+
+namespace ex
+{
+namespace ct // compile-time
+{
+
+    namespace internal
+    {
+
+        template <size_t index>
+        struct basename_iterator
+        {
+            // TODO: handle_char in C++14 without strpad
+            // TODO: C++14 decltype(auto)
+
+
+            template <typename CharType, size_t N>
+            constexpr static auto handle_char(const CharType (& path)[N])
+                -> decltype(ct::meta_str(path))
+            {
+                return path[index] == ct::charset::slash<CharType>()               ||
+                       path[index] == ct::charset::back_slash<CharType>()           ?
+                       ct::substr<index+1>(path) + ct::strpad<CharType, index+1>()  :
+                       basename_iterator<index - 1>::handle_char(path);
+            }
+
+        };
+
+        template <>
+        struct basename_iterator<size_t(-1)>
+        {
+            template <typename CharType, size_t N>
+            constexpr static auto handle_char(const CharType (&path)[N])
+                -> decltype(ct::meta_str(path))
+            {
+                return ct::meta_str(path);
+            }
+        };
+
+    }
+
+
+    //
+    // Usage:
+    //
+    //      static constexpr auto fname = ct::basename("test/file.c");
+    //
+    //      std::cout << fname;
+    //      std::printf(fname);
+    //
+    // WARN: please use it as template argument or as [static] only!
+    //
+    //      0. static constexpr auto fname = ct::basename("test/file.c")
+    //
+    //                lea     rcx, _ZZ4mainE5fname ; "file.c"
+    //                call    _ZL6printfPKcz_constprop_2 ; printf(char const*,...) [clone]
+    //                mov     rcx, cs:_refptr__ZSt4cout
+    //                lea     rdx, _ZZ4mainE5fname ; "file.c"
+    //                call    _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc ; std::operator<<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,char const*)
+    //
+    //
+    //      1. constexpr auto fname = ct::basename("test/file.c")  !!! BEWARE !!!
+    //
+    //                lea     rbx, [rsp+38h+var_18]
+    //                mov     rcx, rbx
+    //                mov     [rsp+38h+var_18], 66h
+    //                mov     [rsp+38h+var_17], 69h
+    //                mov     [rsp+38h+var_16], 6Ch
+    //                mov     [rsp+38h+var_15], 65h
+    //                mov     [rsp+38h+var_14], 2Eh
+    //                mov     [rsp+38h+var_13], 63h
+    //                mov     [rsp+38h+var_12], 0
+    //                mov     [rsp+38h+var_11], 0
+    //                mov     [rsp+38h+var_10], 0
+    //                mov     [rsp+38h+var_F], 0
+    //                mov     [rsp+38h+var_E], 0
+    //                mov     [rsp+38h+var_D], 0
+    //                call    __printf ; printf(char const*,...)
+    //
+    //      2. std::cout << ct::basename("Test/main.cpp")   !!! BEWARE !!!
+    //
+    //                lea     rdx, aTestMain_cpp ; "Test/main.cpp"
+    //                mov     rcx, rbx
+    //                call    _ex_internal__basename_iterator__test_charILy14EEEDTcl8meta_strfp_EERAT__Kc  ; RECURSION!!!
+    //                mov     rcx, cs:_refptr__ZSt4cout
+    //                mov     rdx, rbx
+    //                call    _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc ; std::operator<<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,char const*)
+    //
+    //
+
+    template <typename CharType, size_t N>
+    constexpr auto basename(const CharType (&path)[N])
+        -> decltype(ct::meta_str<CharType>(path))
+    {
+        return internal::basename_iterator<N - 2>::handle_char(path);
+    }
+
+
+// unit-tests
+
+//    static_assert( ct::basename("test\\file.c") == "file.c");
+//    static_assert( ct::basename("test/file.c") == "file.c");
+//    static_assert( ct::basename("./file.c") == "file.c");
+//    static_assert( ct::basename("./file.c") == "file.c");
+//    static_assert( ct::basename("") == "");
+//    static_assert( ct::basename("/") == "");
+//    static_assert( ct::basename("\\") == "");
+//
+//
+//    static_assert( ct::basename(L"test\\file.c") == L"file.c");
+//    static_assert( ct::basename(L"test/file.c") == L"file.c");
+//    static_assert( ct::basename(L"./file.c") == L"file.c");
+//    static_assert( ct::basename(L"./file.c") == L"file.c");
+//    static_assert( ct::basename(L"") == L"");
+//    static_assert( ct::basename(L"/") == L"");
+//    static_assert( ct::basename(L"\\") == L"");
+
+}
+}
+
+
+#endif

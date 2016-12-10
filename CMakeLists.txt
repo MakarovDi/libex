@@ -74,7 +74,18 @@ set(HEADERS
     include/ex/range_check
     include/ex/ct
     include/ex/log/logger
-    include/ex/log/stdstream)
+    include/ex/log/stdstream
+    include/ex/meta
+    include/ex/ct/string
+    include/ex/ct/math
+    include/ex/ct/meta_str
+    include/ex/ct/char
+    include/ex/ct/streq
+    include/ex/ct/strcat
+    include/ex/ct/strfill
+    include/ex/ct/charset
+    include/ex/ct/strlen
+    include/ex/ct/basename)
 
 
 # define and export library with name ex

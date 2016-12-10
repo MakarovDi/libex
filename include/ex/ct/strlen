@@ -1,0 +1,43 @@
+#ifndef EX_CT_STRLEN_H
+#define EX_CT_STRLEN_H
+
+
+#include "ex/ct/charset"
+#include "ex/ct/meta_str"
+
+
+namespace ex
+{
+namespace ct
+{
+
+    template <typename CharType, size_t N>
+    constexpr size_t strlen(const CharType (&str)[N], size_t idx = N)
+    {
+        return idx == 0                                    ? 0 :
+               str[idx-1] == ct::charset::zero<CharType>() ? strlen(str, idx - 1) : idx;
+    }
+
+
+    template <typename CharType, size_t... indexes>
+    constexpr size_t strlen(meta_str_type<CharType, indexes...> str)
+    {
+        return strlen(str.c_str);
+    }
+
+
+    // unit-test
+
+//        static_assert(strlen("123") == 3, "failure");
+//        static_assert(strlen("") == 0, "failure");
+//        static_assert(strlen("1") == 1, "failure");
+//        static_assert(strlen(L"123") == 3, "failure");
+//        static_assert(strlen(L"") == 0, "failure");
+//        static_assert(strlen(L"1") == 1, "failure");
+//        static_assert(ct::strlen(ct::strpad<char, 4>()) == 0);
+//        static_assert(ct::strlen(ct::strpad<wchar_t, 4>()) == 0);
+
+}
+}
+
+#endif
