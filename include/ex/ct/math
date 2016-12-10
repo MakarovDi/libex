@@ -36,30 +36,12 @@ namespace ct
     }
 
 
-    namespace unsafe
-    {
-        // unsafe: unsafe::factorial(-4) -> 1
-        template <typename NumType>
-        constexpr NumType factorial(NumType i)
-        {
-            return (i > 1) ? i * unsafe::factorial(i - 1) : 1;
-        }
-    }
-
-
-
-    template <typename NumType>
-    constexpr NumType factorial(NumType i)
-    {
-        return require::nonnegative(i), unsafe::factorial(i);
-    }
-
-
     template <typename NumType>
     constexpr NumType abs(NumType x)
     {
         return x < 0 ? -x : x;
     }
+
 
 
     template <typename NumType>
@@ -76,6 +58,39 @@ namespace ct
     }
 
 
+    namespace internal
+    {
+        // unsafe: unsafe::factorial(-4) -> 1
+        template <typename NumType>
+        constexpr NumType factorial(NumType i)
+        {
+            return (i > 1) ? i * internal::factorial(i - 1) : 1;
+        }
+
+
+        // unsafe: sqrt(0) -> 1, sqrt(-5) -> crash
+        constexpr double sqrt(double x, double x0, double x1, double eps)
+        {
+            return ct::abs(x1 - x0) <= eps ? x1 : internal::sqrt(x, x1, x1 - (x1*x1 - x) / (2*x1), eps );
+        }
+    }
+
+
+    template <typename NumType>
+    constexpr NumType factorial(NumType i)
+    {
+        return require::nonnegative(i), internal::factorial(i);
+    }
+
+
+    template <typename NumType>
+    constexpr NumType sqrt(NumType x, double eps=1e-8)
+    {
+        return ct::require::nonnegative(x),
+            x < eps ? NumType(0) : NumType(internal::sqrt(double(x), 1.0, 2.0, eps));
+    }
+
+
 
 //  [unit tests]
 
@@ -89,6 +104,11 @@ namespace ct
 //    static_assert(ct::factorial(2) == 2);
 //    static_assert(ct::factorial(4) == 2*3*4);
 //    static_assert(ct::factorial(4.0) == 2.0*3.0*4.0);
+
+//    static_assert(ct::sqrt(4) == 2);
+//    static_assert(ct::sqrt(16) == 4);
+//    static_assert(ct::abs(ct::sqrt(15.0) - 3.87298334) < 1e-8);
+//    static_assert(ct::sqrt(15) == 3);
 
 }
 }
