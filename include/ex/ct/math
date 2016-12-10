@@ -4,6 +4,18 @@
 
 #include <stdexcept>
 
+//
+// Note: this functions can be used as compile-time constants:
+//
+//      static_assert(contains_char(__FILE__, '.'));
+//      std::array<int, ct::factorial(10)> c_str;
+//
+// References:
+//   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
+//   docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//   docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
+//
+
 
 namespace ex
 {
@@ -48,6 +60,21 @@ namespace ct
     {
         return x < 0 ? -x : x;
     }
+
+
+    template <typename NumType>
+    constexpr NumType min(NumType a, NumType b)
+    {
+        return a < b ? a : b;
+    }
+
+
+    template <typename NumType>
+    constexpr NumType max(NumType a, NumType b)
+    {
+        return a > b ? a : b;
+    }
+
 
 
 //  [unit tests]
