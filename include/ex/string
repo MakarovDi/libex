@@ -4,9 +4,29 @@
 
 #include <string>
 #include <memory>
-#include <cstdarg>
 #include <sstream>
-#include <stdexcept>
+
+//
+// Note: module for maintain encoding-independent projects
+//
+// Using:
+//
+//      const Char* test = L("Some Text");
+//
+//      It will translated in dependent of UNICODE definition.
+//
+//      UNICODE undefined:
+//
+//      ->  const char* test = "Some Text";
+//
+//      UNICODE defined:
+//
+//      ->  const wchar_t* test = L"Some Text";
+//
+//  References:
+//      docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//      docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
+//
 
 
 // Generates universal unicode defenition
@@ -16,7 +36,14 @@
 #endif
 
 
-#undef L  // TODO: generate warning when L was defined
+#ifdef L
+#   undef L
+#   warning "L macro already defined -> undef"
+#endif
+
+
+
+
 #ifdef UNICODE
 #  define __L(s) L##s
 #else
@@ -27,94 +54,121 @@
 #define L(S)    __L(S)
 
 
-// TODO: Split to string and cio
-// TODO: add print for string
-
 namespace ex
 {
 
-
-// Char - char-type which depends on project's encoding
+    // Char - char-type which depends on project's encoding
 #ifdef UNICODE
-using Char = wchar_t;
+    using Char = wchar_t;
 #else
-using Char = char;
+    using Char = char;
 #endif
 
 
-// C++ strings
-using StringA  = std::string;
-using StringW  = std::wstring;
-using String   = std::basic_string<Char>;
+    // C++ strings
+    using StringA  = std::string;
+    using StringW  = std::wstring;
+    using String   = std::basic_string<Char>;
 
 
-// C++ string streams
-using StringStreamA = std::stringstream;
-using StringStreamW = std::wstringstream;
-using StringStream  = std::basic_stringstream<Char>;
+    // C++ string streams
+    using StringStreamA = std::stringstream;
+    using StringStreamW = std::wstringstream;
+    using StringStream  = std::basic_stringstream<Char>;
 
 
-// C-like safe strings
-using CStringA = std::unique_ptr<char   []>;
-using CStringW = std::unique_ptr<wchar_t[]>;
-using CString  = std::unique_ptr<Char   []>;
+    // C-like safe strings
+    using CStringA = std::unique_ptr<char[]>;
+    using CStringW = std::unique_ptr<wchar_t[]>;
+    using CString  = std::unique_ptr<Char[]>;
 
 
-// Encoding independent print functions
-// Exception: -
-bool print (const wchar_t* format, ...);
-bool print (const char*    format, ...);
+    namespace string
+    {
+        static constexpr const Char* empty = L("");  // represent empty string
 
-bool vprint(const wchar_t* format, va_list args);
-bool vprint(const char*    format, va_list args);
+        //
+        // Note: compile-time string constant selection based on template parameter
+        //
+        // Usage:
+        //
+        //  void log_message(const Char* message)
+        //  {
+        //      const Char* format = select<Char>("[MSG] %s", L"[MSG] %s");
+        //
+        //      print(format, message);
+        //  }
+        //
+
+        // TODO: move to ct
+        // TODO: make it for all str types
+
+        template <typename CharType>
+        constexpr const CharType* select(const char* const_str, const wchar_t* wide_const_str);
+
+        template <>
+        constexpr const char* select<char>(const char* const_str, const wchar_t*)
+        {
+            return const_str;
+        }
+
+        template <>
+        constexpr const wchar_t* select<wchar_t>(const char*, const wchar_t* wide_const_str)
+        {
+            return wide_const_str;
+        }
+    }
 
 
-// Encoding independent print to buffer functions
-// Exception: -
-bool sprint (wchar_t* buff, size_t buff_size, const wchar_t* format, ...);
-bool sprint (char*    buff, size_t buff_size, const char*    format, ...);
+    //
+    // Note: compile-time string constant with selection between wide and usual options
+    //
+    // Usage:
+    //
+    //    static constexpr VariantConstString exclamation_char("!", L"!");
+    //
+    //    String exclamation(const Char* message)
+    //    {
+    //        String str = String(message) + exclamation_char.select<Char>();
+    //        return str;
+    //    }
+    //
 
-bool vsprint(wchar_t* buff, size_t buff_size, const wchar_t* format, va_list args);
-bool vsprint(char*    buff, size_t buff_size, const char*    format, va_list args);
+    // TODO: make it for more than 2 variants
+
+    class VariantConstString
+    {
+    public:
+        constexpr VariantConstString(const char* const_str, const wchar_t* wide_const_str) :
+            m_const_str(const_str),
+            m_wide_const_str(wide_const_str)
+        {
+        }
+
+        template <typename CharType>
+        constexpr const CharType* select() const
+        {
+            return string::select<CharType>(m_const_str, m_wide_const_str);
+        }
+
+    private:
+        const char*    m_const_str;
+        const wchar_t* m_wide_const_str;
+    };
 
 
-// TODO: extend std::string and create String class (immutable + string::empty)
-// TODO: type safe format like A. Aleksandresku
+    // unit tests
 
-namespace string
-{
-
-	extern const size_t kFormatBufferSize; // maximum buffer size which are used in this module
-	extern const Char* empty;              // only semantic for now
-
-
-	class FormatException : std::runtime_error
-	{
-	public:
-		explicit FormatException (const std::string& what_arg) : std::runtime_error(what_arg) {}
-		explicit FormatException (const char*        what_arg) : std::runtime_error(what_arg) {}
-	};
-
-
-	// Exception: FormatException
-	StringA FormatA(const char*    format, ...);
-	StringA FormatA(const char*    format, va_list args);
-	StringA FormatA(const StringA& format, ...);
-	StringA FormatA(const StringA& format, va_list args);
-
-	// Exception: FormatException
-	StringW FormatW(const wchar_t* format, ...);
-	StringW FormatW(const wchar_t* format, va_list args);
-	StringW FormatW(const StringW& format, ...);
-	StringW FormatW(const StringW& format, va_list args);
-
-	// Exception: FormatException
-	String Format(const Char*   format, ...);
-	String Format(const Char*   format, va_list args);
-	String Format(const String& format, ...);
-	String Format(const String& format, va_list args);
+    //    static constexpr ex::VariantConstString exclamation_char("!", L"!");
+    //
+    //    // correctness
+    //    static_assert(std::is_same<decltype(exclamation_char.select<wchar_t>()), const wchar_t*>::value, "failed");
+    //    static_assert(std::is_same<decltype(exclamation_char.select<char>()), const char*>::value, "failed");
+    //
+    //    // compile-time work
+    //    static_assert(exclamation_char.select<wchar_t>() != nullptr, "failed");
+    //    static_assert(exclamation_char.select<char>()    != nullptr, "failed");
 }
 
-}
 
 #endif

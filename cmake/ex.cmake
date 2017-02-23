@@ -10,10 +10,10 @@ include(pdb) # load add_pdb function
 
 # Override standart 'add_executable' function
 # for auto PDB-generating on MinGW in DEBUG mode
-function (add_executable EXE_NAME)
-	_add_executable(${EXE_NAME} ${ARGN})
-	add_pdb(${EXE_NAME})
-endfunction()
+#function (add_executable EXE_NAME)
+#	_add_executable(${EXE_NAME} ${ARGN})
+#	add_pdb(${EXE_NAME})
+#endfunction()
 
 
 # Passing include directory to compiler

@@ -1,0 +1,20 @@
+#ifndef EX_INTERFACE_H
+#define EX_INTERFACE_H
+
+
+namespace ex
+{
+
+    class INonCopyable
+    {
+    protected:
+        INonCopyable()  {}
+        ~INonCopyable()	{}
+    private:
+        INonCopyable(const INonCopyable&);
+        INonCopyable& operator=(const INonCopyable&);
+    };
+
+}
+
+#endif // EX_INTERFACE_H

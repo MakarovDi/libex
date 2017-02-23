@@ -1,0 +1,160 @@
+#ifndef     EX_MP_H
+#   define  EX_MP_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace meta // template meta programming
+{
+
+    //
+    // Usage:
+    //
+    //  template <size_t K, size_t N>
+    //  constexpr const char* get_first_k(const char (&str)[N])
+    //  {
+    //      return get_first_k_impl(str, make_integer_sequence<K>{});
+    //  }
+    //
+    //
+    //  template <size_t... indexes, size_t N>
+    //  constexpr const char* get_first_k_implconst char (&str)[N], integer_sequence<indexe...>)
+    //  {
+    //      return { str[indexes]... };
+    //  }
+    //
+    //
+
+    template <size_t...>
+    struct integer_sequence
+    {
+        using type = integer_sequence;
+    };
+
+
+    template<size_t N, size_t offset, size_t... Is>
+    struct make_integer_seq : make_integer_seq<N-1, offset, N-1, Is...>
+    {
+    };
+
+
+    template<size_t offset, size_t... Is>
+    struct make_integer_seq<offset, offset, Is...> : integer_sequence<Is...>
+    {
+    };
+
+
+    template <size_t N, size_t offset = 0>
+    using make_integer_sequence = typename make_integer_seq<N, offset>::type;
+
+
+
+    //
+    // Usage: same as [make_integer_sequence] but for [char...]
+    //
+
+    template <typename CharType, CharType...>
+    struct char_sequence
+    {
+        using type = char_sequence;
+    };
+
+
+
+    template<typename CharType, size_t N, CharType c, size_t... Is>
+    struct make_char_seq : make_char_seq<CharType, N-1, c, c, Is...>
+    {
+    };
+
+
+    template<typename CharType, CharType c, size_t... Is>
+    struct make_char_seq<CharType, 0, c, c, Is...> : char_sequence<CharType, c, Is...>
+    {
+    };
+
+
+    template <typename CharType, size_t N, CharType c>
+    using make_char_sequence = typename make_char_seq<CharType, N, c>::type;
+
+
+    //
+    // Usage:
+    //
+    //  You can't do
+    //
+    //      void do_smth(char... char)
+    //
+    //
+    //  but you can do this
+    //
+    //      template <size_t... indexes>
+    //      void do_smth<pack<char, indexes>... chars>
+    //
+    //
+
+
+    template<typename T, size_t index>
+    using pack = T;
+
+
+    //
+    // Usage:
+    //
+    //  You can't do this (explicit specialization in non-namespace scope):
+    //
+    //        struct test
+    //        {
+    //            template < typename T >
+    //            static T get_char();
+    //
+    //
+    //            template <>
+    //            static char get_char<char>()
+    //            {
+    //                return 'a';
+    //            }
+    //
+    //            template <>
+    //            static wchar_t get_char<wchar_t>()
+    //            {
+    //                return L'a';
+    //            }
+    //        };
+    //
+    //  But you can do this:
+    //
+    //        struct test
+    //        {
+    //            template < typename T >
+    //            static T get_char()
+    //            {
+    //                return get_char(TypeHolder<T>());
+    //            }
+    //
+    //
+    //            static char get_char(TypeHolder<char>)
+    //            {
+    //                return 'a';
+    //            }
+    //
+    //            static wchar_t get_char(TypeHolder<wchar_t>)
+    //            {
+    //                return L'a';
+    //            }
+    //        };
+
+    template <typename T>
+    struct TypeHolder
+    {
+        using type = T;
+    };
+
+
+}
+}
+
+
+#endif

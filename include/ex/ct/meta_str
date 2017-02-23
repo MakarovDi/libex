@@ -1,0 +1,162 @@
+#ifndef    EX_CT_META_STR_H
+#   define EX_CT_META_STR_H
+
+
+#include <iostream>
+#include <cstdint>
+
+#include "ex/ct/char"
+#include "ex/meta"
+
+
+//
+// Note: meta_str_base is a container for a compile-time string
+//
+// Usage (meta_str)
+//
+//  * for compile-time string concatenation:
+//
+//      static constexpr auto str = ct::create_meta_str("File: ") + ct::meta_str(__FILE__);
+//      ...
+//      std::cout << str << std::endl;
+//      std::printf(str);
+//
+//  * for return compile-time string which can be used in compile-time function:
+//
+//       template <size_t N>
+//       constexpr size_t strlen(const char (&str)[N])
+//       {
+//            return N - 1;
+//       }
+//
+//
+//       template <size_t N>
+//       constexpr const char* strdup1(const char (&str)[N])
+//       {
+//           return str;
+//       }
+//
+//
+//       template <size_t N>
+//       constexpr auto strdup2(const char (&str)[N])
+//          -> decltype (ct::meta_str(str))
+//       {
+//          return ct::meta_str(str);
+//       }
+//
+//
+//       std::array<char, strlen(strdup1("Test"))>       a; // compilation error
+//       std::array<char, strlen(strdup2("Test").c_str)> a; // ok
+//
+//
+//  References:
+//      doc/schurr_cpp11_tools_for_class_authors.pdf
+//
+
+namespace ex
+{
+namespace ct
+{
+
+    template<typename CharType, size_t... indexes>
+    struct meta_str_type
+    {
+        const CharType c_str[sizeof...(indexes) + 1];
+
+
+        template <size_t N>
+        constexpr meta_str_type(const CharType (&str)[N]) :
+            c_str{ ct::char_at<indexes>(str)..., 0 }
+        {
+        }
+
+
+        constexpr meta_str_type(meta::pack<CharType, indexes>... chars) :
+            c_str{ chars..., 0 }
+        {
+        }
+
+
+        constexpr meta_str_type(const meta_str_type& str) :
+            c_str{ str.c_str[indexes]..., 0 }
+        {
+        }
+
+
+        static constexpr size_t length = sizeof...(indexes);
+
+        constexpr CharType operator[](size_t index) const { return c_str[index]; }
+        constexpr operator const CharType* ()       const { return c_str;        }
+    };
+
+
+    template <typename CharType, size_t... indexes>
+    std::basic_ostream<CharType>& operator<<(std::basic_ostream<CharType>& stream,
+                                             const meta_str_type<CharType, indexes...>& str)
+    {
+        return stream << str.c_str;
+    }
+
+
+    template<typename CharType, size_t N, size_t... indexes>
+    constexpr decltype(auto) meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
+    {
+        return meta_str_type<CharType, indexes...>(str);
+    }
+
+
+    template<typename CharType, size_t N>
+    constexpr decltype(auto) meta_str(const CharType (& str)[N])
+    {
+        return meta_str(str, meta::make_integer_sequence<N - 1>());
+    }
+
+
+//    [unit tests]
+
+//        static_assert(substr<2>("Test") == "st");
+//        static_assert(substr<2>(L"Test") == L"st");
+//
+
+// [unit tests] meta-str
+
+//    template <typename CharType, size_t N>
+//    constexpr size_t len(const CharType (&str)[N])
+//    {
+//        return N - 1;
+//    }
+//
+//
+//    template <typename CharType, size_t N>
+//    constexpr auto process_str(const CharType (&str)[N])
+//    -> decltype(ct::meta_str(str))
+//    {
+//        return ct::meta_str(str);
+//    }
+
+//    static constexpr auto str_a  =  ct::meta_str("test");
+//    static constexpr auto str_w  =  ct::meta_str(L"test");
+//    static constexpr auto str1_a =  ct::create_meta_str("test1") + ct::meta_str("test2");
+//    static constexpr auto str1_w =  ct::create_meta_str(L"test1") + ct::meta_str(L"test2");
+//    static constexpr auto str2_a =  ct::meta_str("test1") + "test2";
+//    static constexpr auto str2_w =  ct::meta_str(L"test1") + L"test2";
+//    static constexpr auto str3_a =  "test2" + ct::meta_str("test1");
+//    static constexpr auto str3_w =  L"test2" + ct::meta_str(L"test1");
+//    static constexpr auto str4_a =  "test1" + ct::meta_str("test2") + "test3";
+//    static constexpr auto str4_w =  L"test1" + ct::meta_str(L"test2") + L"test3";
+//
+//    static_assert(str_a.length == 4);
+//    static_assert(str_a.c_str != nullptr);
+//    static_assert(str4_a.length == str4_w.length);
+//    static_assert(len(str4_a.c_str) == len(str4_w.c_str)); // use of compile-time functions with meta_str
+//    static_assert(len(process_str("Test").c_str) == 4);
+//    static_assert(len(process_str(L"Test").c_str) == 4);
+
+//    static_assert(ct::meta_str("Test")[2] == 's');
+
+
+
+}
+}
+
+#endif

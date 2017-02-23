@@ -1,0 +1,23 @@
+#ifndef    EX_CT_SUBSTR_H
+#   define EX_CT_SUBSTR_H
+
+
+#include "ex/ct/meta_str"
+#include "ex/meta"
+
+
+namespace ex
+{
+namespace ct
+{
+
+    template <size_t offset, typename CharType, size_t N>
+    constexpr decltype(auto) substr(const CharType (&str)[N])
+    {
+        return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
+    }
+
+}
+}
+
+#endif

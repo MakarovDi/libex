@@ -1,0 +1,17 @@
+#ifndef EX_ASSERT_H
+#define EX_ASSERT_H
+
+#include <cassert>
+
+
+#define ASSERT(expression, message) assert((expression) && (message))
+#define FAILURE(message)            assert(false && (message))
+
+
+namespace ex
+{
+    void failure(const char*    message);
+    void failure(const wchar_t* message);
+}
+
+#endif

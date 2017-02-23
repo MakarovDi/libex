@@ -1,0 +1,195 @@
+#ifndef    EX_EXPECTED_HEADER
+#   define EX_EXPECTED_HEADER
+
+
+#include <exception>
+#include <stdexcept>
+#include <utility>
+#include <typeinfo>
+
+
+//
+// see: ex/doc/Alexandrescu - Systematic Error Handling in C++
+//
+
+namespace ex
+{
+
+
+template<class T>
+class Expected final
+{
+    union
+    {
+        T m_value;
+        std::exception_ptr m_exception;
+    };
+
+    bool m_have_value;
+
+    Expected() {}
+
+public:
+    Expected(const T& rhs) : m_value(rhs), m_have_value(true) {}
+
+
+    Expected(T&& rhs) : m_value(std::move(rhs)), m_have_value(true) {}
+
+
+    Expected(const Expected& rhs) : m_have_value(rhs.m_have_value)
+    {
+        if(m_have_value)
+            new(&m_value) T(rhs.m_value);
+        else
+            new(&m_exception) std::exception_ptr(rhs.m_exception);
+    }
+
+
+    Expected(Expected&& rhs) : m_have_value(rhs.m_have_value)
+    {
+        if(m_have_value)
+            new(&m_value) T(std::move(rhs.m_value));
+        else
+            new(&m_exception) std::exception_ptr(std::move(rhs.m_exception));
+    }
+
+
+    template<class E>
+    Expected(const E &exception) : m_have_value(false)
+    {
+        if(typeid(exception) != typeid(E))
+        {
+            throw std::invalid_argument("slicing detected");
+        }
+
+        new(&m_exception) std::exception_ptr(std::move(std::make_exception_ptr(exception)));
+    }
+
+
+    ~Expected()
+    {
+        using std::exception_ptr;
+
+        if (m_have_value)
+            m_value.~T();
+        else
+            m_exception.~exception_ptr();
+    }
+
+
+    void swap(Expected& rhs)
+    {
+        if(m_have_value)
+        {
+            if(rhs.m_have_value)
+            {
+                using std::swap;
+                swap(m_value, rhs.m_value);
+            }
+            else
+            {
+                auto tmp = std::move(rhs.m_exception);
+                new(&rhs.m_value) T(std::move(m_value));
+                new(&m_exception) std::exception_ptr(tmp);
+
+                std::swap(m_have_value, rhs.m_have_value);
+            }
+        }
+        else
+        {
+            if(rhs.m_have_value)
+            {
+                rhs.swap(*this);
+            }
+            else
+            {
+                m_exception.swap(rhs.m_exception);
+                std::swap(m_have_value, rhs.m_have_value);
+            }
+        }
+    }
+
+
+    template<class E>
+    static Expected<T> from_exception(const E &exception)
+    {
+        if(typeid(exception) != typeid(E))
+        {
+            throw std::invalid_argument("slicing detected");
+        }
+
+        return from_exception(std::make_exception_ptr(exception));
+    }
+
+
+    static Expected<T> from_exception(std::exception_ptr p)
+    {
+        Expected<T> result;
+
+        result.m_have_value = false;
+        new(&result.m_exception) std::exception_ptr(std::move(p));
+
+        return result;
+    }
+
+
+    static Expected<T> from_exception()
+    {
+        return from_exception(std::current_exception());
+    }
+
+
+    operator bool() const { return is_valid();   }
+
+    bool is_valid() const { return m_have_value; }
+
+
+    T& get()
+    {
+        if(!m_have_value) std::rethrow_exception(m_exception);
+        return m_value;
+    }
+
+
+    const T& get() const
+    {
+        if(!m_have_value) std::rethrow_exception(m_exception);
+        return m_value;
+    }
+
+
+    template<class E>
+    bool has_exception() const
+    {
+        try
+        {
+            if(!m_have_value) std::rethrow_exception(m_exception);
+        }
+        catch(const E &object)
+        {
+            return true;
+        }
+        catch(...) {}
+
+        return false;
+    }
+
+
+    template<class F>
+    static Expected from_code(F fun)
+    {
+        try
+        {
+            return Expected(fun());
+        }
+        catch(...)
+        {
+            return from_exception();
+        }
+    }
+};
+
+
+}
+
+#endif

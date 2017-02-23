@@ -1,0 +1,57 @@
+#ifndef    EX_CT_CHARSET_H
+#   define EX_CT_CHARSET_H
+
+
+#include "ex/ct/char"
+
+
+// Note: predefined set of common characters in all encodings
+//
+// Usage:
+//
+//    template <typename CharType>
+//    std::basic_string<CharType> append_slash(const CharType* path)
+//    {
+//        std::basic_string<CharType> str_msg = path;
+//
+//        str_msg += ex::ct::charset::slash<CharType>();
+//
+//        return str_msg;
+//    };
+//
+//
+
+
+namespace ex
+{
+namespace ct
+{
+namespace charset
+{
+
+    template <typename CharType>
+    constexpr CharType slash()
+    {
+        return ct::select_char<CharType>('/', L'/', u'/', U'/');
+    }
+
+
+    template <typename CharType>
+    constexpr CharType back_slash()
+    {
+        return ct::select_char<CharType>('\\', L'\\', u'\\', U'\\');
+    }
+
+
+    template <typename CharType>
+    constexpr CharType zero()
+    {
+        return ct::select_char<CharType>('\0', L'\0', u'\0', U'\0');
+    }
+
+}
+}
+}
+
+
+#endif

@@ -61,12 +61,10 @@ class IteratorAdapter final
 	public:
 		explicit ConcreteIterator(const Iterator &i) : m_iterator(i)
 		{
-			DEBUG_MSG(".concr.ctor.copy\n");
 		}
 
 		explicit ConcreteIterator(Iterator &&i) : m_iterator(std::move(i))
 		{
-			DEBUG_MSG(".concr.ctor.move\n");
 		}
 
 		virtual void inc()             override { ++m_iterator;                             }
@@ -96,8 +94,6 @@ public:
 	template<class Iterator> // const -> cancel reference collapsing rules
 	IteratorAdapter& operator=(const Iterator &&i)
 	{
-		DEBUG_MSG(".assign.move.templ: %s\n", typeid(i).name());
-
 		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))));
 		return *this;
 	}
@@ -105,53 +101,43 @@ public:
 	template<class Iterator>
 	IteratorAdapter& operator=(const Iterator &i)
 	{
-		DEBUG_MSG(".assign.copy.templ: %s\n", typeid(i).name());
-
 		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(i));
 		return *this;
 	}
 
 	IteratorAdapter& operator=(const IteratorAdapter &i)
 	{
-		DEBUG_MSG(".assign.copy\n");
-
 		m_faceless_iterator = std::move(i.m_faceless_iterator->clone());
 		return *this;
 	}
 
 	IteratorAdapter& operator=(IteratorAdapter &&i)
 	{
-		DEBUG_MSG(".assign.move\n");
-
 		m_faceless_iterator = std::move(i.m_faceless_iterator);
 		return *this;
 	}
 
 	template<class Iterator> // const -> cancel reference collapsing rules
 	IteratorAdapter(const Iterator &&i) :
-			m_faceless_iterator(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))))
+		m_faceless_iterator(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))))
 	{
-		DEBUG_MSG(".ctor.move.templ: %s\n", typeid(i).name());
 	}
 
 	template<class Iterator>
 	IteratorAdapter(const Iterator &i) :
-			m_faceless_iterator(new ConcreteIterator<Iterator>(i))
+		m_faceless_iterator(new ConcreteIterator<Iterator>(i))
 	{
-		DEBUG_MSG(".ctor.copy.templ: %s\n", typeid(i).name());
 	}
 
 	//IteratorAdapter(IteratorAdapter &&ia) = default;
 	IteratorAdapter(IteratorAdapter &&i) :
-			m_faceless_iterator(std::move(i.m_faceless_iterator))
+		m_faceless_iterator(std::move(i.m_faceless_iterator))
 	{
-		DEBUG_MSG(".ctor.move\n");
 	}
 
 	IteratorAdapter(const IteratorAdapter &i) :
-			m_faceless_iterator(i.m_faceless_iterator->clone())
+		m_faceless_iterator(i.m_faceless_iterator->clone())
 	{
-		DEBUG_MSG(".ctor.copy\n");
 	}
 
 	IteratorAdapter& operator++()

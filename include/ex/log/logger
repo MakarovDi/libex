@@ -1,0 +1,227 @@
+#ifndef    EX_ABSTRACT_HEADER
+#   define EX_ABSTRACT_HEADER
+
+
+#include <atomic>
+#include "ex/format"
+
+//
+// Usage:
+//
+//      module.hpp:
+//
+//          namespace module
+//          {
+//          	extern ex::Logger logger;
+//              ...
+//
+//      module.cpp:
+//
+//          namespace module
+//          {
+//          	ex::Logger logger(ex::Logger::LoggingLevel::ERRORS);
+//              ...
+//
+//
+//      main.cpp:
+//
+//          #include "module.hpp"
+//
+//          class MyFileLogger : public ILogStream
+//
+//          ...
+//
+//          MyFileLogger my_file_logger('log.txt');
+//
+//          ...
+//
+//          module::kigger.set_logging_level(Logger::LoggingLevel::PARANOID);
+//          module::logger.redirect(my_file_logger);
+//
+//
+
+namespace ex
+{
+
+    class ILogStream
+    {
+    public:
+        enum MessageType
+        {
+            ERROR   = 1,
+            WARNING = 2,
+            INFO    = 3,
+            TRACE   = 4,  // DEBUG
+
+            TYPE_COUNT,
+        };
+
+
+        virtual ~ILogStream() {}
+
+
+        virtual void write(MessageType, const char*    message) = 0;
+        virtual void write(MessageType, const wchar_t* message) = 0;
+    };
+
+
+
+    class NullLogStream final : public ILogStream
+    {
+    public:
+        static NullLogStream& get_stream()
+        {
+            static NullLogStream singletone;
+
+            return singletone;
+        }
+
+
+        virtual void write(MessageType, const char*    message) override {};
+        virtual void write(MessageType, const wchar_t* message) override {};
+    };
+
+
+
+    class Logger final
+    {
+    public:
+        enum LoggingLevel : int
+        {
+            SILENT    = 0,
+            ERRORS    = 1,
+            WARNINGS  = 2,
+            VERBOSE   = 3, // ERRORS + WARNINGS + INFO
+            PARANOID  = 4, // ALL
+        };
+
+
+        explicit Logger(LoggingLevel logging_level = WARNINGS,
+                        ILogStream&  log_stream    = NullLogStream::get_stream()) :
+            m_logging_level(logging_level),
+            m_log_stream(&log_stream)
+        {
+        }
+
+
+        void redirect(ILogStream& log_stream)
+        {
+            m_log_stream = &log_stream;
+        }
+
+
+        void set_logging_level(LoggingLevel level)
+        {
+            m_logging_level = level;
+        }
+
+
+        template <typename CharType, typename... ArgTypes>
+        void error(const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        {
+            log_message(ILogStream::MessageType::ERROR, tag, format, args...);
+        }
+
+
+        template <typename CharType, typename... ArgTypes>
+        void warning(const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        {
+            log_message(ILogStream::MessageType::WARNING, tag, format, args...);
+        }
+
+
+        template <typename CharType, typename... ArgTypes>
+        void info(const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        {
+            log_message(ILogStream::MessageType::INFO, tag, format, args...);
+        }
+
+
+        template <typename CharType, typename... ArgTypes>
+        void trace(const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        {
+            log_message(ILogStream::MessageType::TRACE, tag, format, args...);
+        }
+
+    private:
+        template <typename CharType, typename... ArgTypes>
+        void log_message(ILogStream::MessageType type, const CharType* tag, const CharType* format, const ArgTypes& ... args)
+        {
+            char_type_assert<CharType>();
+
+            if (m_logging_level < LoggingLevel(type)) return;
+
+            auto& writer = select_writer<CharType>();
+
+            const CharType* prefix = select_prefix<CharType>(type);
+
+            writer.write(prefix, tag);
+            writer.write(format, args ...);
+
+            m_log_stream.load()->write(type, writer.c_str());
+
+            writer.clear();
+        }
+
+
+        template <typename CharType>
+        static void char_type_assert()
+        {
+            static_assert(std::is_same<CharType, char>::value || std::is_same<CharType, wchar_t>::value,
+                          "Only [char] or [wchar_t] allowed as CharType");
+        }
+
+
+
+        template <typename T>
+        struct TypeHolder { typedef T type; };
+
+
+        template <typename CharType>
+        fmt::BasicMemoryWriter<CharType>& select_writer()
+        {
+            return select_writer(TypeHolder<CharType>());
+        }
+
+        fmt::BasicMemoryWriter<char>&    select_writer(TypeHolder<char>)    { return m_writer_a; }
+        fmt::BasicMemoryWriter<wchar_t>& select_writer(TypeHolder<wchar_t>) { return m_writer_w; }
+
+
+
+        template <typename CharType, class Dummy=int>
+        struct TypeOrder;
+
+        template <class Dummy>
+        struct TypeOrder<char, Dummy>    { constexpr static int index = 0; };
+
+        template <class Dummy>
+        struct TypeOrder<wchar_t, Dummy> { constexpr static int index = 1; };
+
+
+        template <typename CharType>
+        static const CharType* select_prefix(ILogStream::MessageType type)
+        {
+            static const void* prefixes[ILogStream::MessageType::TYPE_COUNT][2] =
+            {
+                 { "",     L""     }, // 0 index isn't used
+                 { "E {}", L"E {}" },
+                 { "W {}", L"W {}" },
+                 { "I {}", L"I {}" },
+                 { "T {}", L"T {}" },
+            };
+
+            return static_cast<const CharType*>( prefixes[int(type)][TypeOrder<CharType>::index] );
+        }
+
+    private:
+        std::atomic<int>         m_logging_level;
+        std::atomic<ILogStream*> m_log_stream;
+
+        fmt::MemoryWriter  m_writer_a;
+        fmt::WMemoryWriter m_writer_w;
+    };
+
+
+}
+
+#endif

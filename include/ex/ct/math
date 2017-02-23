@@ -1,0 +1,117 @@
+#ifndef     EX_CT_MATH_H
+#   define  EX_CT_MATH_H
+
+
+#include <stdexcept>
+
+//
+// Note: this functions can be used as compile-time constants:
+//
+//      static_assert(contains_char(__FILE__, '.'));
+//      std::array<int, ct::factorial(10)> c_str;
+//
+// References:
+//   https://akrzemi1.wordpress.com/2011/05/06/compile-time-computations
+//   docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
+//   docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
+//
+
+
+namespace ex
+{
+namespace ct
+{
+    namespace require
+    {
+        //
+        // Note: functions throws logic_exceptions, use for eliminate ambiguity
+        //
+
+        template <typename NumType>
+        constexpr NumType nonnegative(NumType i)
+        {
+            return (i >= 0) ? i : throw std::logic_error("must be non negative");
+        }
+
+    }
+
+
+    template <typename NumType>
+    constexpr NumType abs(NumType x)
+    {
+        return x < 0 ? -x : x;
+    }
+
+
+
+    template <typename NumType>
+    constexpr NumType min(NumType a, NumType b)
+    {
+        return a < b ? a : b;
+    }
+
+
+    template <typename NumType>
+    constexpr NumType max(NumType a, NumType b)
+    {
+        return a > b ? a : b;
+    }
+
+
+    namespace internal
+    {
+        // unsafe: unsafe::factorial(-4) -> 1
+        template <typename NumType>
+        constexpr NumType factorial(NumType i)
+        {
+            return (i > 1) ? i * internal::factorial(i - 1) : 1;
+        }
+
+
+        // unsafe: sqrt(0) -> 1, sqrt(-5) -> crash
+        constexpr double sqrt(double x, double x0, double x1, double eps)
+        {
+            return ct::abs(x1 - x0) <= eps ? x1 : internal::sqrt(x, x1, x1 - (x1*x1 - x) / (2*x1), eps );
+        }
+    }
+
+
+    template <typename NumType>
+    constexpr NumType factorial(NumType i)
+    {
+        return require::nonnegative(i), internal::factorial(i);
+    }
+
+
+    template <typename NumType>
+    constexpr NumType sqrt(NumType x, double eps=1e-8)
+    {
+        return ct::require::nonnegative(x),
+            x < eps ? NumType(0) : NumType(internal::sqrt(double(x), 1.0, 2.0, eps));
+    }
+
+
+
+//  [unit tests]
+
+//    static_assert(ct::abs(-1) == 1);
+//    static_assert(ct::abs(1) == 1);
+//    static_assert(ct::abs(1.0) == 1.0);
+//    static_assert(ct::abs(-1.0) == 1.0);
+//
+//    static_assert(ct::factorial(0) == 1);
+//    static_assert(ct::factorial(1) == 1);
+//    static_assert(ct::factorial(2) == 2);
+//    static_assert(ct::factorial(4) == 2*3*4);
+//    static_assert(ct::factorial(4.0) == 2.0*3.0*4.0);
+
+//    static_assert(ct::sqrt(4) == 2);
+//    static_assert(ct::sqrt(16) == 4);
+//    static_assert(ct::abs(ct::sqrt(15.0) - 3.87298334) < 1e-8);
+//    static_assert(ct::sqrt(15) == 3);
+
+}
+}
+
+
+#endif
