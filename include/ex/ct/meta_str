@@ -57,21 +57,6 @@ namespace ex
 {
 namespace ct
 {
-    template<typename CharType, size_t... indexes>
-    struct meta_str_type;
-
-
-    template<typename CharType, size_t N, size_t... indexes>
-    constexpr decltype(auto) meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>);
-
-
-
-    template <size_t offset, typename CharType, size_t N>
-    constexpr decltype(auto) substr(const CharType (&str)[N])
-    {
-        return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
-    }
-
 
     template<typename CharType, size_t... indexes>
     struct meta_str_type
@@ -95,13 +80,6 @@ namespace ct
         constexpr meta_str_type(const meta_str_type& str) :
             c_str{ str.c_str[indexes]..., 0 }
         {
-        }
-
-
-        template <size_t offset>
-        constexpr decltype(auto) substr()
-        {
-            return ct::substr<offset>(c_str);
         }
 
 
@@ -132,6 +110,7 @@ namespace ct
     {
         return meta_str(str, meta::make_integer_sequence<N - 1>());
     }
+
 
 //    [unit tests]
 

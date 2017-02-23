@@ -10,6 +10,7 @@
 #include "ex/ct/streq"
 #include "ex/ct/strfill"
 #include "ex/ct/strlen"
+#include "ex/ct/substr"
 #include "ex/ct/basename"
 
 

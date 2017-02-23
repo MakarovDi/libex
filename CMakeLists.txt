@@ -85,6 +85,7 @@ set(HEADERS
     include/ex/ct/strcat
     include/ex/ct/strfill
     include/ex/ct/charset
+    include/ex/ct/substr
     include/ex/ct/strlen
     include/ex/ct/basename)
 
