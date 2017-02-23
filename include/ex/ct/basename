@@ -18,9 +18,7 @@ namespace ct // compile-time
         template <size_t index>
         struct basename_iterator
         {
-            // TODO: handle_char in C++14 without strpad
-            // TODO: C++14 decltype(auto)
-
+            // TODO: C++17 remake with one function
 
             template <typename CharType, size_t N>
             constexpr static auto handle_char(const CharType (& path)[N])

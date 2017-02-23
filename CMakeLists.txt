@@ -2,12 +2,13 @@
 ##
 ##  UNICODE = 1   -> use unicode
 ##  BUILD_SAMPLES -> compile samples
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0)
 
 # Define library name and version
 set(PARENT_PROJECT ${PROJECT_NAME})
 
 project(ex) # Initialize PROJECT_xxx variables
+
 
 set(EX_VERSION_MAJOR     0)
 set(EX_VERSION_MINOR     1)
@@ -23,10 +24,9 @@ IF(CMAKE_BUILD_TYPE MATCHES Release)
 ENDIF()
 
 
-# Works only with C++11 (-std=c++11)
-# Show all warnings (-Wall)
-# All warnnings MUST be resolved (-Wpedantic)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wconversion -Wpedantic")
+# TODO: use [add_compile_warnings] in new CMake
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -Wpedantic")
+
 
 # Generate and use config.h file
 configure_file (
@@ -80,10 +80,12 @@ set(HEADERS
     include/ex/ct/math
     include/ex/ct/meta_str
     include/ex/ct/char
+    include/ex/ct/set_char
     include/ex/ct/streq
     include/ex/ct/strcat
     include/ex/ct/strfill
     include/ex/ct/charset
+    include/ex/ct/substr
     include/ex/ct/strlen
     include/ex/ct/basename)
 
@@ -92,7 +94,10 @@ set(HEADERS
 add_library(ex STATIC ${SOURCES} ${HEADERS})
 
 # use linker for C++ (CXX)
-set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
+                                    CXX_STANDARD 14
+                                    CXX_STANDARD_REQUIRED ON)
+
 
 # Some debug settings
 #if (WIN32)

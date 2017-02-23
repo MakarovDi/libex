@@ -87,7 +87,7 @@ namespace ct
     //
     // Usage:
     //
-    //    select_char<wchar_t>(L'c', L'w', u'6', U'3') => L'w'
+    //    select_char<wchar_t>('c', L'w', u'6', U'3') => L'w'
     //
 
     template <typename TNeed, typename TChar, typename... TRest>

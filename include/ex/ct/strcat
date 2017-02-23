@@ -3,6 +3,9 @@
 
 
 #include "ex/ct/meta_str"
+#include "ex/ct/strlen"
+#include "ex/ct/set_char"
+#include "ex/ct/strfill"
 
 //
 // Note: compile-time string concatenation
@@ -13,35 +16,98 @@ namespace ex
 {
 namespace ct
 {
+    //
+    //  There is a simple solution, but it doesn't work with string like "test\0\0\0" and strpad'ed:
+    //
+    //
+    //    template<typename CharType, size_t N1, size_t N2, size_t... indexes1, size_t... indexes2>
+    //    constexpr auto strcat(const CharType (&str1)[N1],
+    //                          const CharType (&str2)[N2],
+    //                          meta::integer_sequence<indexes1...>,
+    //                          meta::integer_sequence<indexes2...>)
+    //        -> meta_str_type<CharType, indexes1..., sizeof...(indexes1) + indexes2...>
+    //    {
+    //        return { str1[indexes1]..., str2[indexes2]... };
+    //    }
+    //
+    //
+    //    template<typename CharType, size_t N1, size_t N2>
+    //    constexpr decltype(auto) strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
+    //    {
+    //        return strcat(str1, str2,
+    //                      meta::make_integer_sequence<N1 - 1>(),
+    //                      meta::make_integer_sequence<N2 - 1>());
+    //    }
 
-
-    template<typename CharType, size_t N1, size_t N2, size_t... indexes1, size_t... indexes2>
-    constexpr auto strcat(const CharType (&str1)[N1],
-                          const CharType (&str2)[N2],
-                          meta::integer_sequence<indexes1...>,
-                          meta::integer_sequence<indexes2...>)
-        -> meta_str_type<CharType, indexes1..., sizeof...(indexes1) + indexes2...>
+    namespace internal
     {
-        return { str1[indexes1]..., str2[indexes2]... };
+
+        template <size_t idx, size_t N, size_t offset = 0>
+        struct strcat_iterator
+        {
+            // TODO: C++17 remake
+
+            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            constexpr static auto cat_left(const CharType (&str1)[N1],
+                                           const CharType (&str2)[N2],
+                                           ct::meta_str_type<CharType, indexes...> result)
+                -> ct::meta_str_type<CharType, indexes...>
+            {
+                return str1[idx] == 0 ? strcat_iterator<idx,   N, idx>::cat_right(str1, str2, result) :
+                                        strcat_iterator<idx+1, N, 0  >::cat_left(str1, str2, ct::set_char<idx>(result, str1[idx]));
+            }
+
+
+            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            constexpr static auto cat_right(const CharType (&str1)[N1],
+                                            const CharType (&str2)[N2],
+                                            ct::meta_str_type<CharType, indexes...> result)
+                -> ct::meta_str_type<CharType, indexes...>
+            {
+                return str2[idx-offset] == 0 ? result :
+                                               strcat_iterator<idx+1, N, offset>::cat_right(str1, str2, ct::set_char<idx>(result, str2[idx-offset]));
+            }
+
+        };
+
+
+        template <size_t N, size_t offset>
+        struct strcat_iterator<N, N, offset>
+        {
+
+            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            constexpr static auto cat_left(const CharType (&str1)[N1],
+                                           const CharType (&str2)[N2],
+                                           ct::meta_str_type<CharType, indexes...> result)
+                -> ct::meta_str_type<CharType, indexes...>
+            {
+                return result;
+            }
+
+
+            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            constexpr static auto cat_right(const CharType (&str1)[N1],
+                                            const CharType (&str2)[N2],
+                                            ct::meta_str_type<CharType, indexes...> result)
+                -> ct::meta_str_type<CharType, indexes...>
+            {
+                return result;
+            }
+        };
     }
 
 
+
     template<typename CharType, size_t N1, size_t N2>
-    constexpr auto strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
-        -> decltype(strcat(str1, str2,
-                           meta::make_integer_sequence<N1 - 1>(),
-                           meta::make_integer_sequence<N2 - 1>()))
+    constexpr decltype(auto) strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
     {
-        return strcat(str1, str2,
-                      meta::make_integer_sequence<N1 - 1>(),
-                      meta::make_integer_sequence<N2 - 1>());
+        return internal::strcat_iterator<0, N1+N2-2>::cat_left(str1, str2, ct::strpad<CharType, N1+N2-2>());
     }
 
 
     template<typename CharType, size_t... indexes1, size_t... indexes2>
-    constexpr auto operator+(meta_str_type<CharType, indexes1...> a,
-                             meta_str_type<CharType, indexes2...> b)
-        -> decltype(strcat(a.c_str, b.c_str))
+    constexpr decltype(auto) operator+(meta_str_type<CharType, indexes1...> a,
+                                       meta_str_type<CharType, indexes2...> b)
     {
         return strcat(a.c_str, b.c_str);
     }

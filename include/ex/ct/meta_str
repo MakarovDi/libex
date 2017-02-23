@@ -53,30 +53,10 @@
 //      doc/schurr_cpp11_tools_for_class_authors.pdf
 //
 
-// TODO: use decltype(auto) from C++14
-
-
 namespace ex
 {
 namespace ct
 {
-    template<typename CharType, size_t... indexes>
-    struct meta_str_type;
-
-
-    template<typename CharType, size_t N, size_t... indexes>
-    constexpr auto meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
-        -> meta_str_type<CharType, indexes...>;
-
-
-
-    template <size_t offset, typename CharType, size_t N>
-    constexpr auto substr(const CharType (&str)[N])
-        -> decltype(meta_str(str, meta::make_integer_sequence<N - 1, offset>()) )
-    {
-        return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
-    }
-
 
     template<typename CharType, size_t... indexes>
     struct meta_str_type
@@ -103,14 +83,6 @@ namespace ct
         }
 
 
-        template <size_t offset>
-        constexpr auto substr()
-            -> decltype(ct::substr<offset>(c_str))
-        {
-            return ct::substr<offset>(c_str);
-        }
-
-
         static constexpr size_t length = sizeof...(indexes);
 
         constexpr CharType operator[](size_t index) const { return c_str[index]; }
@@ -127,19 +99,18 @@ namespace ct
 
 
     template<typename CharType, size_t N, size_t... indexes>
-    constexpr auto meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
-        -> meta_str_type<CharType, indexes...>
+    constexpr decltype(auto) meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
     {
         return meta_str_type<CharType, indexes...>(str);
     }
 
 
     template<typename CharType, size_t N>
-    constexpr auto meta_str(const CharType (& str)[N])
-        -> decltype(meta_str(str, meta::make_integer_sequence<N - 1>()))
+    constexpr decltype(auto) meta_str(const CharType (& str)[N])
     {
         return meta_str(str, meta::make_integer_sequence<N - 1>());
     }
+
 
 //    [unit tests]
 
