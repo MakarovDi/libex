@@ -11,8 +11,8 @@ project(ex) # Initialize PROJECT_xxx variables
 
 
 set(EX_VERSION_MAJOR     0)
-set(EX_VERSION_MINOR     1)
-set(EX_VERSION_REVISION  4)
+set(EX_VERSION_MINOR     2)
+set(EX_VERSION_REVISION  0)
 
 # Configure output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)

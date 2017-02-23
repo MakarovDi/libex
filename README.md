@@ -10,13 +10,13 @@ No.
 
 #### Linux/MinGW/Cygwin ####
 
- * CMake >= 2.8
+ * CMake >= 3.1
  * Make
  * GCC (with C++11 support) / Clang
  
 #### Windows ####
 
- * CMake >= 2.8
+ * CMake >= 3.1
  * Microsoft Visual Studio 2013 Toolchain
 
 ## Build
@@ -37,7 +37,7 @@ Link it with your project:
 
 ``` cmake 
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(your_project)
 
@@ -62,12 +62,10 @@ Generate project for MS Visual Studio with command:
 
 ## TODO ##
 
- - [ ] Changelog
+ - [x] Changelog
  - [ ] Unit Tests (Google Test)
  - [ ] Examples
- - [ ] Doxygen
- - [ ] cppformat integration
- - [ ] spdlog integration
+ - [x] cppformat integration
 
 
 
