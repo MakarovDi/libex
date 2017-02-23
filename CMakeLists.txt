@@ -80,6 +80,7 @@ set(HEADERS
     include/ex/ct/math
     include/ex/ct/meta_str
     include/ex/ct/char
+    include/ex/ct/set_char
     include/ex/ct/streq
     include/ex/ct/strcat
     include/ex/ct/strfill
