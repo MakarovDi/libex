@@ -1,0 +1,30 @@
+#ifndef    EX_LOG_AUTOTAG_H
+#   define EX_LOG_AUTOTAG_H
+
+
+#include "ex/ct/string"
+
+
+//
+// Note: AUTO_TAG - generates module tag in compile-time, no runtime overhead
+//
+// Usage:
+//
+//    Logger logger;
+//
+//    ...
+//
+//
+//    logger.info(AUTO_TAG, "message", ...);
+//
+
+
+
+#define AUTO_TAG                                                                  \
+[]{                                                                               \
+        static constexpr const auto tag = "[" + ex::ct::basename(__FILE__) + "]"; \
+        return tag;                                                               \
+}()
+
+
+#endif

@@ -87,7 +87,8 @@ set(HEADERS
     include/ex/ct/charset
     include/ex/ct/substr
     include/ex/ct/strlen
-    include/ex/ct/basename)
+    include/ex/ct/basename
+    include/ex/log/autotag)
 
 
 # define and export library with name ex
