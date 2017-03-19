@@ -6,7 +6,8 @@
 #include <cstdint>
 
 #include "ex/ct/char"
-#include "ex/meta"
+#include "ex/meta/sequence"
+#include "ex/meta/pack"
 
 
 //

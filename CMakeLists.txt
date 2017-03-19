@@ -75,7 +75,6 @@ set(HEADERS
     include/ex/ct
     include/ex/log/logger
     include/ex/log/stdstream
-    include/ex/meta
     include/ex/ct/string
     include/ex/ct/math
     include/ex/ct/meta_str
@@ -88,7 +87,10 @@ set(HEADERS
     include/ex/ct/substr
     include/ex/ct/strlen
     include/ex/ct/basename
-    include/ex/log/autotag)
+    include/ex/log/autotag
+    include/ex/meta/sequence
+    include/ex/meta/pack
+    include/ex/meta/selector)
 
 
 # define and export library with name ex

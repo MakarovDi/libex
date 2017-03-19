@@ -2,7 +2,7 @@
 #   define EX_CT_SET_CHAR_H
 
 
-#include "ex/meta"
+#include "ex/meta/sequence"
 #include "ex/ct/meta_str"
 
 
