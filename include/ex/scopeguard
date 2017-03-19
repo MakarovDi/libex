@@ -54,7 +54,7 @@ ScopeGuard<Fun> MakeGuard(Fun f)
 }
 
 
-namespace hidden
+namespace internal
 {
     enum ScopeGuardOnExit {};
 
@@ -67,7 +67,7 @@ namespace hidden
 
 
 #define SCOPE_EXIT \
-    auto ANONYMOUS_VARIABLE(SCOPE_EXIT_STATE) = ex::hidden::ScopeGuardOnExit() + [&]()
+    auto UNIQUE_ID(SCOPE_EXIT_STATE) = ex::internal::ScopeGuardOnExit() + [&]()
 
 }
 
