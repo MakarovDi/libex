@@ -52,12 +52,41 @@ namespace meta // template meta programming
     //            }
     //        };
 
+
     template <typename T>
     struct TypeHolder
     {
         using type = T;
     };
 
+
+    //
+    //  Usage: split function into two branches in compile-time
+    //
+    //        template <typename T>
+    //        void test(T value, meta::BoolSelector<true>)
+    //        {
+    //            std::cout << "T is integral";
+    //        }
+    //
+    //        template <typename T>
+    //        void test(T value, meta::BoolSelector<false>)
+    //        {
+    //            std::cout << "T is floating";
+    //        }
+    //
+    //        template <typename T>
+    //        void test(T value)
+    //        {
+    //            test(value, meta::BoolSelector< std::is_integral<T>::value >{});
+    //        }
+    //
+
+    template <bool Condition>
+    struct BoolSelector
+    {
+        static constexpr bool value = Condition;
+    };
 }
 }
 
