@@ -90,7 +90,8 @@ set(HEADERS
     include/ex/log/autotag
     include/ex/meta/sequence
     include/ex/meta/pack
-    include/ex/meta/selector)
+    include/ex/meta/selector
+    include/ex/meta/type_assert)
 
 
 # define and export library with name ex
