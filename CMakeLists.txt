@@ -44,11 +44,10 @@ set(SOURCES
     src/version.cpp
     src/cprint.cpp
     src/assert.cpp
-    src/format.cc)
-
 # Tell where find headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+)
 
 # Enumerate header files
 set(HEADERS
