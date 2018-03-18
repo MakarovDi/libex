@@ -106,6 +106,9 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
 #    # use debug symbols for pdb-generation
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 #endif()
+# add external libs
+add_subdirectory(external)
+target_link_libraries(ex PUBLIC fmt::fmt-header-only)
 
 
 # Check for unicode build
