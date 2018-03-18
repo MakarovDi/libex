@@ -44,9 +44,6 @@ set(SOURCES
     src/version.cpp
     src/cprint.cpp
     src/assert.cpp
-# Tell where find headers
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
 )
 
 # Enumerate header files
@@ -98,23 +95,13 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
                                     CXX_STANDARD 14
                                     CXX_STANDARD_REQUIRED ON)
 
-
-# Some debug settings
-#if (WIN32)
-#    # debug namespace use imagehlp and pdb on Windows
-#    target_link_libraries(ex imagehlp)
-#    # use debug symbols for pdb-generation
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-#endif()
 # add external libs
 add_subdirectory(external)
 target_link_libraries(ex PUBLIC fmt::fmt-header-only)
 
 
-# Check for unicode build
-if(UNICODE)
-    add_definitions("-DUNICODE")
-endif()
+# populate ex headers
+target_include_directories(ex PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 
 # Build samples if need
