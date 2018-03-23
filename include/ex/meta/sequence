@@ -63,13 +63,13 @@ namespace meta // template meta programming
 
 
 
-    template<typename CharType, size_t N, CharType c, size_t... Is>
+    template<typename CharType, size_t N, CharType c, CharType... Is>
     struct make_char_seq : make_char_seq<CharType, N-1, c, c, Is...>
     {
     };
 
 
-    template<typename CharType, CharType c, size_t... Is>
+    template<typename CharType, CharType c, CharType... Is>
     struct make_char_seq<CharType, 0, c, c, Is...> : char_sequence<CharType, c, Is...>
     {
     };
