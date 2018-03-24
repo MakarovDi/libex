@@ -6,6 +6,7 @@
 #include "ex/ct/strlen"
 #include "ex/ct/set_char"
 #include "ex/ct/strfill"
+#include "ex/ct/charset"
 
 //
 // Note: compile-time string concatenation
@@ -56,9 +57,10 @@ namespace ct
                                       ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
-                // TODO: \0
-                return str1[idx1] != '\0' ? strcat<N, result_idx+1>::cat(str1, str2, idx1+1, idx2, ct::set_char<result_idx>(result, str1[idx1])) :
-                       str2[idx2] != '\0' ? strcat<N, result_idx+1>::cat(str1, str2, idx1, idx2+1, ct::set_char<result_idx>(result, str2[idx2])) :
+                return str1[idx1] != ct::charset::zero<CharType>() ?
+                       strcat<N, result_idx+1>::cat(str1, str2, idx1+1, idx2, ct::set_char<result_idx>(result, str1[idx1])) :
+                       str2[idx2] != ct::charset::zero<CharType>() ?
+                       strcat<N, result_idx+1>::cat(str1, str2, idx1, idx2+1, ct::set_char<result_idx>(result, str2[idx2])) :
                        strcat<N, N>::cat(str1, str2, 0, 0, result);
             }
         };
