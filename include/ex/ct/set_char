@@ -26,6 +26,8 @@ namespace ct
                             meta::integer_sequence<right...>)
         -> meta_str_type<CharType, indexes...>
     {
+        static_assert(sizeof...(left) + sizeof...(right) + 1 == sizeof...(indexes), "wrong indexes size");
+
         return { str.c_str[left]..., c, str.c_str[right]... };
     }
 
@@ -34,6 +36,8 @@ namespace ct
     constexpr auto set_char(meta_str_type<CharType, indexes...> str, CharType c)
         -> meta_str_type<CharType, indexes...>
     {
+        static_assert(idx < sizeof...(indexes), "index out of range");
+
         return set_char(str, c,
                         meta::make_integer_sequence<idx>{},
                         meta::make_integer_sequence<sizeof...(indexes), idx+1>{});
