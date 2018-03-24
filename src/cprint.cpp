@@ -3,6 +3,7 @@
 #endif
 
 #include "ex/cprint"
+#include "ex/platform"
 
 #include <cstdio>
 
@@ -22,7 +23,7 @@
     return success > 0;
 
 
-#ifdef _MSC_VER
+#ifdef COMPILER_IS_MSC
 #  define vsnwprintf _vsnwprintf
 #endif
 

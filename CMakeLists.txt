@@ -36,8 +36,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     # using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    #    add_compile_options(/wd4996) # disable MS warning about safer *_s functions
-
+    add_compile_options(/wd4996) # disable MS warning about safer *_s functions
 endif()
 
 # Generate and use config.h file
