@@ -1,10 +1,14 @@
 # libex
 
-Some code that I use frequently.
+Some building blocks which I use frequently.
 
 ## Dependecies
 
 No.
+
+## Submodules
+
+* **{fmt}**: a modern formatting library http://fmtlib.net
 
 ## Requirements ##
 
@@ -12,40 +16,45 @@ No.
 
  * CMake >= 3.1
  * Make
- * GCC (with C++11 support) / Clang
+ * GCC (with C++14 support) / Clang
  
 #### Windows ####
 
  * CMake >= 3.1
- * Microsoft Visual Studio 2013 Toolchain
+ * Microsoft Visual Studio 2015 Toolchain
 
-## Build
+## Configuration
 
 Options:
 
- * UNICODE - set unicode as default project encoding:
-    
-        # cmake -DUNICODE=1
- 
  * BUILD_SAMPLES - build all examples from ex/samples:
  
-        # cmake -DBUILD_SAMPLES=1
+		# cmake -DBUILD_SAMPLES=1
 
-#### CMake Project [Linux, MinGW, Cygwin] ####
+## Usage
 
-Link it with your project:
+#### Get code
+
+	# git clone https://github.com/MakarovDi/libex.git ex
+	# cd ./ex
+	# git checkout v0.3.0
+	# git submodule init
+	# git submodule update
+
+#### CMake Project [Linux/MinGW/Cygwin] ####
+
+Link it with a project:
 
 ``` cmake 
-
 cmake_minimum_required(VERSION 3.1)
 
 project(your_project)
 
-if(UNICODE)
-    add_definitions("-DUNICODE")
-endif()
 
-include(ex)
+set(CMAKE_CXX_STANDARD 14)
+
+
+add_subdirectory(ex)
 
 ...
 
@@ -58,14 +67,6 @@ target_link_libraries(your_project ex)
 
 Generate project for MS Visual Studio with command:
 
-    # cmake -G "Visual Studio 13"
-
-## TODO ##
-
- - [x] Changelog
- - [ ] Unit Tests (Google Test)
- - [ ] Examples
- - [x] cppformat integration
-
+    # cmake -G "Visual Studio 14"
 
 
