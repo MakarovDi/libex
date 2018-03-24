@@ -129,17 +129,17 @@ namespace ex
 // run-time checks
 namespace platform
 {
-    bool is_unix();
-    bool is_windows();
+    constexpr bool is_unix();
+    constexpr bool is_windows();
 
-    bool is_linux();
-    bool is_bsd();
-    bool is_apple();
-    bool is_posix();
-    bool is_android();
+    constexpr bool is_linux();
+    constexpr bool is_bsd();
+    constexpr bool is_apple();
+    constexpr bool is_posix();
+    constexpr bool is_android();
 
-    bool is_x64();
-    bool is_x86();
+    constexpr bool is_x64();
+    constexpr bool is_x86();
 
     String defs();          // check definitions from this module
     String compiler_defs(); // check platform-dependent definitions for diagnostic needs
