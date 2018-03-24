@@ -22,6 +22,11 @@
     return success > 0;
 
 
+#ifdef _MSC_VER
+#  define vsnwprintf _vsnwprintf
+#endif
+
+
 namespace ex
 {
 
