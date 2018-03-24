@@ -3,7 +3,7 @@
 
 
 #include "ex/ct/meta_str"
-#include "ex/meta"
+#include "ex/meta/sequence"
 
 
 namespace ex

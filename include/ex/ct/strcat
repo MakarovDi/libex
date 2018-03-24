@@ -38,76 +38,62 @@ namespace ct
     //                      meta::make_integer_sequence<N1 - 1>(),
     //                      meta::make_integer_sequence<N2 - 1>());
     //    }
+    //
 
     namespace internal
     {
 
-        template <size_t idx, size_t N, size_t offset = 0>
-        struct strcat_iterator
+        // TODO: C++17 remake with constexpr
+
+        template <size_t N, size_t result_idx>
+        struct strcat
         {
-            // TODO: C++17 remake
-
             template <typename CharType, size_t N1, size_t N2, size_t... indexes>
-            constexpr static auto cat_left(const CharType (&str1)[N1],
-                                           const CharType (&str2)[N2],
-                                           ct::meta_str_type<CharType, indexes...> result)
+            constexpr static auto cat(const CharType (&str1)[N1],
+                                      const CharType (&str2)[N2],
+                                      size_t idx1,
+                                      size_t idx2,
+                                      ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
-                return str1[idx] == 0 ? strcat_iterator<idx,   N, idx>::cat_right(str1, str2, result) :
-                                        strcat_iterator<idx+1, N, 0  >::cat_left(str1, str2, ct::set_char<idx>(result, str1[idx]));
+                // TODO: \0
+                return str1[idx1] != '\0' ? strcat<N, result_idx+1>::cat(str1, str2, idx1+1, idx2, ct::set_char<result_idx>(result, str1[idx1])) :
+                       str2[idx2] != '\0' ? strcat<N, result_idx+1>::cat(str1, str2, idx1, idx2+1, ct::set_char<result_idx>(result, str2[idx2])) :
+                       strcat<N, N>::cat(str1, str2, 0, 0, result);
             }
-
-
-            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
-            constexpr static auto cat_right(const CharType (&str1)[N1],
-                                            const CharType (&str2)[N2],
-                                            ct::meta_str_type<CharType, indexes...> result)
-                -> ct::meta_str_type<CharType, indexes...>
-            {
-                return str2[idx-offset] == 0 ? result :
-                                               strcat_iterator<idx+1, N, offset>::cat_right(str1, str2, ct::set_char<idx>(result, str2[idx-offset]));
-            }
-
         };
 
 
-        template <size_t N, size_t offset>
-        struct strcat_iterator<N, N, offset>
+        template <size_t N>
+        struct strcat<N, N>
         {
-
             template <typename CharType, size_t N1, size_t N2, size_t... indexes>
-            constexpr static auto cat_left(const CharType (&str1)[N1],
-                                           const CharType (&str2)[N2],
-                                           ct::meta_str_type<CharType, indexes...> result)
+            constexpr static auto cat(const CharType (&str1)[N1],
+                                      const CharType (&str2)[N2],
+                                      size_t idx1,
+                                      size_t idx2,
+                                      ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
                 return result;
             }
 
-
-            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
-            constexpr static auto cat_right(const CharType (&str1)[N1],
-                                            const CharType (&str2)[N2],
-                                            ct::meta_str_type<CharType, indexes...> result)
-                -> ct::meta_str_type<CharType, indexes...>
-            {
-                return result;
-            }
         };
+
     }
-
 
 
     template<typename CharType, size_t N1, size_t N2>
     constexpr decltype(auto) strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
     {
-        return internal::strcat_iterator<0, N1+N2-2>::cat_left(str1, str2, ct::strpad<CharType, N1+N2-2>());
+        return internal::strcat<N1+N2-2, 0>::cat(str1, str2, 0, 0, ct::strpad<CharType, N1+N2-2>());
     }
 
 
     template<typename CharType, size_t... indexes1, size_t... indexes2>
-    constexpr decltype(auto) operator+(meta_str_type<CharType, indexes1...> a,
-                                       meta_str_type<CharType, indexes2...> b)
+    constexpr auto operator+(meta_str_type<CharType, indexes1...> a,
+                             meta_str_type<CharType, indexes2...> b)
+        -> decltype(strcat(a.c_str, b.c_str)) // stupid MSVC can't deduce this with decltype(auto)
     {
         return strcat(a.c_str, b.c_str);
     }

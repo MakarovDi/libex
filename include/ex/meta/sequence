@@ -1,0 +1,85 @@
+#ifndef    EX_META_SEQUENCE_H
+#   define EX_META_SEQUENCE_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace meta // template meta programming
+{
+    //
+    // Usage:
+    //
+    //  template <size_t K, size_t N>
+    //  constexpr const char* get_first_k(const char (&str)[N])
+    //  {
+    //      return get_first_k_impl(str, make_integer_sequence<K>{});
+    //  }
+    //
+    //
+    //  template <size_t... indexes, size_t N>
+    //  constexpr const char* get_first_k_implconst char (&str)[N], integer_sequence<indexes...>)
+    //  {
+    //      return { str[indexes]... };
+    //  }
+    //
+    //
+
+    template <size_t...>
+    struct integer_sequence
+    {
+        using type = integer_sequence;
+    };
+
+
+    template<size_t N, size_t offset, size_t... Is>
+    struct make_integer_seq : make_integer_seq<N-1, offset, N-1, Is...>
+    {
+    };
+
+
+    template<size_t offset, size_t... Is>
+    struct make_integer_seq<offset, offset, Is...> : integer_sequence<Is...>
+    {
+    };
+
+
+    template <size_t N, size_t offset = 0>
+    using make_integer_sequence = typename make_integer_seq<N, offset>::type;
+
+
+
+    //
+    // Usage: same as [make_integer_sequence] but for [char...]
+    //
+
+    template <typename CharType, CharType...>
+    struct char_sequence
+    {
+        using type = char_sequence;
+    };
+
+
+
+    template<typename CharType, size_t N, CharType c, CharType... Is>
+    struct make_char_seq : make_char_seq<CharType, N-1, c, c, Is...>
+    {
+    };
+
+
+    template<typename CharType, CharType c, CharType... Is>
+    struct make_char_seq<CharType, 0, c, c, Is...> : char_sequence<CharType, c, Is...>
+    {
+    };
+
+
+    template <typename CharType, size_t N, CharType c>
+    using make_char_sequence = typename make_char_seq<CharType, N, c>::type;
+
+}
+}
+
+
+#endif

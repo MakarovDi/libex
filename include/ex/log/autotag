@@ -19,11 +19,12 @@
 //
 
 
+// TODO: C++17 -> add constexpr to lambda
 
 #define AUTO_TAG                                                                  \
 []{                                                                               \
         static constexpr const auto tag = "[" + ex::ct::basename(__FILE__) + "]"; \
-        return tag;                                                               \
+        return tag.c_str;                                                         \
 }()
 
 
