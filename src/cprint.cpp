@@ -3,6 +3,7 @@
 #endif
 
 #include "ex/cprint"
+#include "ex/platform"
 
 #include <cstdio>
 
@@ -20,6 +21,11 @@
     int success = vsprint(buff, size, format, args);    \
     va_end(args);                                       \
     return success > 0;
+
+
+#ifdef COMPILER_IS_MSC
+#  define vsnwprintf _vsnwprintf
+#endif
 
 
 namespace ex

@@ -21,15 +21,23 @@ set(EX_VERSION_REVISION  0)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/bin)
 
-
+# configure build modes
 IF(CMAKE_BUILD_TYPE MATCHES Release)
     add_definitions("-DNDEBUG")
 ENDIF()
 
 
-# TODO: use [add_compile_warnings] in new CMake
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -Wpedantic")
-
+# TODO: use [add_compile_warnings] in new CMake instead of this
+# configure compiler options
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -Wpedantic")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -Wpedantic")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    # using Intel C++
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_compile_options(/wd4996) # disable MS warning about safer *_s functions
+endif()
 
 # Generate and use config.h file
 configure_file (
@@ -93,6 +101,7 @@ set(HEADERS
     include/ex/meta/type_assert)
 
 
+
 # define and export library with name ex
 add_library(ex STATIC ${SOURCES} ${HEADERS})
 
@@ -103,11 +112,13 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
 
 # add external libs
 add_subdirectory(external)
-target_link_libraries(ex PUBLIC fmt::fmt-header-only)
+target_link_libraries(ex PUBLIC fmt::fmt-header-only) # lib {fmt} in header only mode
 
 
 # populate ex headers
 target_include_directories(ex PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+
 
 
 # Build samples if need
