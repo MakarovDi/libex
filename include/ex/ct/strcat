@@ -38,21 +38,22 @@ namespace ct
     //                      meta::make_integer_sequence<N1 - 1>(),
     //                      meta::make_integer_sequence<N2 - 1>());
     //    }
+    //
 
     namespace internal
     {
 
-        // TODO: C++17 remake
+        // TODO: C++17 remake with constexpr
 
         template <size_t N, size_t result_idx>
         struct strcat
         {
             template <typename CharType, size_t N1, size_t N2, size_t... indexes>
             constexpr static auto cat(const CharType (&str1)[N1],
-                                                const CharType (&str2)[N2],
-                                                size_t idx1,
-                                                size_t idx2,
-                                                ct::meta_str_type<CharType, indexes...> result)
+                                      const CharType (&str2)[N2],
+                                      size_t idx1,
+                                      size_t idx2,
+                                      ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
                 // TODO: \0
@@ -68,10 +69,10 @@ namespace ct
         {
             template <typename CharType, size_t N1, size_t N2, size_t... indexes>
             constexpr static auto cat(const CharType (&str1)[N1],
-                                                const CharType (&str2)[N2],
-                                                size_t idx1,
-                                                size_t idx2,
-                                                ct::meta_str_type<CharType, indexes...> result)
+                                      const CharType (&str2)[N2],
+                                      size_t idx1,
+                                      size_t idx2,
+                                      ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
                 return result;
@@ -85,7 +86,7 @@ namespace ct
     template<typename CharType, size_t N1, size_t N2>
     constexpr decltype(auto) strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
     {
-        return internal::strcat<N1+N2-1, 0>::cat(str1, str2, 0, 0, ct::strpad<CharType, N1+N2-1>());
+        return internal::strcat<N1+N2-2, 0>::cat(str1, str2, 0, 0, ct::strpad<CharType, N1+N2-2>());
     }
 
 
