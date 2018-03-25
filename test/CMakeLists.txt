@@ -5,7 +5,7 @@ include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include)
 add_executable(ExTests
     ct/strcat.cpp
     ct/meta_str.cpp
-)
+    ct/char.cpp)
 
 
 target_link_libraries(ExTests PRIVATE gtest gtest_main)

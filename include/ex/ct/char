@@ -5,6 +5,10 @@
 #include <cstdint>
 #include <limits>
 
+//#include "ex/ct/charset"
+
+
+
 
 //
 // Note: compile-time char-related operations
@@ -21,16 +25,16 @@ namespace ct
     namespace internal
     {
         //
-        // Note: functions with some using limitations or ambiguity
+        // Note: functions with some limitations or ambiguity
         //
-
 
         // unsafe: contains_char("abc", 0) -> false (wrong semantic)
         //         contains_char(nullptr, <any>) -> crash
         template < typename CharType, size_t N >
-        constexpr bool contains_char(const CharType (& str)[N], CharType c)
+        constexpr bool contains_char(const CharType (& str)[N], CharType c, size_t idx)
         {
-            return *str == 0 ? false : *str == c ? true : internal::contains_char(str + 1, c);
+            return idx == N      ? false :
+                   str[idx] == c ? true  : internal::contains_char(str, c, idx + 1);
         }
 
 
@@ -64,7 +68,7 @@ namespace ct
     template <typename CharType, size_t N>
     constexpr bool contains_char(const CharType (&str)[N], CharType c)
     {
-        return c == 0 ? true : internal::contains_char(str, c);
+        return internal::contains_char(str, c, 0);
     }
 
 
@@ -80,7 +84,7 @@ namespace ct
     template <typename CharType, size_t N>
     constexpr size_t strlchr(const CharType (&str)[N], CharType c, size_t offset = 0)
     {
-        return offset == N - 1  ? ct::npos :
+        return offset == N      ? ct::npos :
                str[offset] == c ? offset   : strlchr(str, c, offset + 1);
     }
 
@@ -95,35 +99,6 @@ namespace ct
     {
         return internal::select_char<TNeed, TChar, TRest...>::value(c, chars...);
     }
-
-
-    // unit-tests //
-
-//    static_assert(ct::select_char<char>(L'c', 'w', u'6', U'3') == 'w');
-//    static_assert(ct::select_char<char32_t>(L'c', 'w', u'6', U'3') == U'3');
-//    static_assert(ct::select_char<wchar_t>(L'c', 'w', u'6', U'3') == L'c');
-
-//    static_assert(contains_char("test", 'e'), "");
-//    static_assert(contains_char(L"test", L'e'), "");
-
-//    static_assert(char_at<2>("123") == '3', "char_at failure");
-//    static_assert(char_at<2>(L"123") == L'3', "char_at failure");
-//
-//    static_assert(strlchr("test", 't') == 0);
-//    static_assert(strlchr("test", 'a') == ct::npos);
-//    static_assert(strlchr("", 'a') == ct::npos);
-//
-//    static_assert(strlchr(L"test", L't') == 0);
-//    static_assert(strlchr(L"test", L'a') == ct::npos);
-//    static_assert(strlchr(L"", L'a') == ct::npos);
-//
-//    static_assert(strrchr("test", 't') == 3);
-//    static_assert(strrchr("test", 'a') == ct::npos);
-//    static_assert(strrchr("", 'a') == ct::npos);
-//
-//    static_assert(strrchr(L"test", L't') == 3);
-//    static_assert(strrchr(L"test", L'a') == ct::npos);
-//    static_assert(strrchr(L"", L'a') == ct::npos);
 
 }
 }
