@@ -8,7 +8,8 @@ add_executable(ExTests
     ct/char.cpp
     ct/charset.cpp
     ct/set_char.cpp
-    ct/strlen.cpp)
+    ct/strlen.cpp
+    ct/strfill.cpp)
 
 
 target_link_libraries(ExTests PRIVATE gtest gtest_main)
