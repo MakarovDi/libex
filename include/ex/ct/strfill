@@ -33,8 +33,8 @@ namespace ct
     template <typename CharType, size_t N, CharType c>
     constexpr decltype(auto) strfill()
     {
-        return strfill<CharType>(meta::make_integer_sequence<N>(),
-                                 meta::make_char_sequence<CharType, N, c>());
+        return ct::strfill<CharType>(meta::make_integer_sequence<N>(),
+                                     meta::make_char_sequence<CharType, N, c>());
     }
 
 
@@ -46,9 +46,10 @@ namespace ct
     template <typename CharType, size_t N>
     constexpr decltype(auto) strpad()
     {
-        return strfill<CharType>(meta::make_integer_sequence<N>(),
-                                 meta::make_char_sequence< CharType, N, charset::zero<CharType>() >());
+        return ct::strfill<CharType>(meta::make_integer_sequence<N>(),
+                                     meta::make_char_sequence< CharType, N, charset::zero<CharType>() >());
     }
+
 
 }
 }
