@@ -110,18 +110,23 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
                                     CXX_STANDARD 14
                                     CXX_STANDARD_REQUIRED ON)
 
-# add external libs
-add_subdirectory(external)
-target_link_libraries(ex PUBLIC fmt::fmt-header-only) # lib {fmt} in header only mode
-
-
 # populate ex headers
 target_include_directories(ex PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
+# initialize external libs
+add_subdirectory(external)
+
+# lib {fmt} in header only mode
+target_link_libraries(ex PUBLIC fmt::fmt-header-only)
 
 
+# unit tests
+if (BUILD_TESTS)
+    add_subdirectory(test)
+endif()
 
-# Build samples if need
+
+# Build samples
 if(BUILD_SAMPLES)
     add_subdirectory(samples)
     message(STATUS "Samples building enabled")
