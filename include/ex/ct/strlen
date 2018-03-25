@@ -12,17 +12,17 @@ namespace ct
 {
 
     template <typename CharType, size_t N>
-    constexpr size_t strlen(const CharType (&str)[N], size_t idx = N)
+    constexpr size_t strlen(const CharType (&str)[N], size_t idx = 0)
     {
-        return idx == 0                                    ? 0 :
-               str[idx-1] == ct::charset::zero<CharType>() ? strlen(str, idx - 1) : idx;
+        return idx == N                                  ? N-1 :
+               str[idx] == ct::charset::zero<CharType>() ? idx : strlen(str, idx + 1);
     }
 
 
     template <typename CharType, size_t... indexes>
     constexpr size_t strlen(meta_str_type<CharType, indexes...> str)
     {
-        return strlen(str.c_str);
+        return strlen(str.c_str, 0);
     }
 
 }
