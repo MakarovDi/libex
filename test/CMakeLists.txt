@@ -12,7 +12,9 @@ add_executable(ExTests
     ct/strfill.cpp
     ct/streq.cpp
     ct/substr.cpp
-    ct/basename.cpp)
+    ct/basename.cpp
+    ct/math.cpp
+)
 
 
 target_link_libraries(ExTests PRIVATE gtest gtest_main)
