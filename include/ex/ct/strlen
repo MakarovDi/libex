@@ -25,18 +25,6 @@ namespace ct
         return strlen(str.c_str);
     }
 
-
-    // unit-test
-
-//        static_assert(strlen("123") == 3, "failure");
-//        static_assert(strlen("") == 0, "failure");
-//        static_assert(strlen("1") == 1, "failure");
-//        static_assert(strlen(L"123") == 3, "failure");
-//        static_assert(strlen(L"") == 0, "failure");
-//        static_assert(strlen(L"1") == 1, "failure");
-//        static_assert(ct::strlen(ct::strpad<char, 4>()) == 0);
-//        static_assert(ct::strlen(ct::strpad<wchar_t, 4>()) == 0);
-
 }
 }
 
