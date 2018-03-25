@@ -93,6 +93,15 @@ namespace ct
 
 
     template<typename CharType, size_t... indexes1, size_t... indexes2>
+    constexpr auto strcat(meta_str_type<CharType, indexes1...> a,
+                          meta_str_type<CharType, indexes2...> b)
+        -> decltype(strcat(a.c_str, b.c_str)) // stupid MSVC can't deduce this with decltype(auto)
+    {
+        return strcat(a.c_str, b.c_str);
+    }
+
+
+    template<typename CharType, size_t... indexes1, size_t... indexes2>
     constexpr auto operator+(meta_str_type<CharType, indexes1...> a,
                              meta_str_type<CharType, indexes2...> b)
         -> decltype(strcat(a.c_str, b.c_str)) // stupid MSVC can't deduce this with decltype(auto)
