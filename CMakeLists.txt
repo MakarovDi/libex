@@ -1,6 +1,6 @@
 ## Configurable:
 ##
-##  UNICODE = 1   -> use unicode
+##  BUILD_TESTS = 1 -> unit tests
 ##  BUILD_SAMPLES -> compile samples
 cmake_minimum_required(VERSION 3.1.0)
 
@@ -36,7 +36,16 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     # using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_compile_options(/wd4996) # disable MS warning about safer *_s functions
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
+
+    # disable MS warning about safer *_s functions
+    add_compile_options(/wd4996)
+
+    if (BUILD_TESTS)
+        # force this option to ON so that Google Test will use /MD instead of /MT
+        # /MD is now the default for Visual Studio, so it should be our default, too
+        set(gtest_force_shared_crt ON CACHE BOOL "Always use msvcrt.dll" FORCE)
+    endif()
 endif()
 
 # Generate and use config.h file
