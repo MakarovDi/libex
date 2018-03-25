@@ -16,7 +16,7 @@ namespace ct
     {
         return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
     }
-
+    
 }
 }
 
