@@ -40,7 +40,11 @@ namespace ct
     }
 
 
-    // TODO: add strcmp ?
+    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    constexpr bool streq(meta_str_type<CharType, indexes1...> metastr1, meta_str_type<CharType, indexes2...> metastr2)
+    {
+        return streq(metastr1.c_str, metastr2.c_str);
+    }
 
 
     // meta_str operator //
@@ -49,7 +53,7 @@ namespace ct
     template<typename CharType, size_t... indexes1, size_t... indexes2>
     constexpr bool operator==(meta_str_type<CharType, indexes1...> metastr1, meta_str_type<CharType, indexes2...> metastr2)
     {
-        return streq(metastr1.c_str, metastr2.c_str);
+        return streq(metastr1, metastr2);
     }
 
     template<typename CharType, size_t... indexes, size_t N>
@@ -63,27 +67,6 @@ namespace ct
     {
         return streq(str, metastr.c_str);
     }
-
-//        static_assert(ct::streq("Test", "Test"));
-//        static_assert(ct::streq("Test", "Test\0\0\0\0\0\0\0"));
-//        static_assert(!ct::streq("Test", "Tost"));
-//        static_assert(!ct::streq("Test", "Tst"));
-//        static_assert(ct::streq("", ""));
-//
-//        static_assert(ct::streq(L"Test", L"Test"));
-//        static_assert(ct::streq(L"Test", L"Test\0\0\0\0\0\0\0"));
-//        static_assert(!ct::streq(L"Test", L"Tost"));
-//        static_assert(!ct::streq(L"Test", L"Tst"));
-//        static_assert(ct::streq(L"", L""));
-
-//        static_assert(meta_str("123") == meta_str("123"));
-//        static_assert(meta_str("123") == "123");
-//        static_assert("123" == meta_str("123"));
-
-//        static_assert(meta_str(L"123") == meta_str(L"123"));
-//        static_assert(meta_str(L"123") == L"123"));
-//        static_assert(L"123" == meta_str(L"123"));
-
 }
 }
 
