@@ -20,7 +20,7 @@ namespace meta // template meta programming
     //
     //
     //  template <size_t... indexes, size_t N>
-    //  constexpr const char* get_first_k_implconst char (&str)[N], integer_sequence<indexes...>)
+    //  constexpr const char* get_first_k_impl(const char (&str)[N], integer_sequence<indexes...>)
     //  {
     //      return { str[indexes]... };
     //  }
@@ -71,6 +71,11 @@ namespace meta // template meta programming
 
     template<typename CharType, CharType c, CharType... Is>
     struct make_char_seq<CharType, 0, c, c, Is...> : char_sequence<CharType, c, Is...>
+    {
+    };
+
+    template<typename CharType, CharType c, CharType... Is>
+    struct make_char_seq<CharType, 0, c, Is...> : char_sequence<CharType,  Is...>
     {
     };
 

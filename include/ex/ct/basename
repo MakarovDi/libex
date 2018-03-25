@@ -5,6 +5,7 @@
 #include "ex/ct/charset"
 #include "ex/ct/meta_str"
 #include "ex/ct/strfill"
+#include "ex/ct/set_char"
 
 
 namespace ex
@@ -73,27 +74,6 @@ namespace ct // compile-time
     {
         return internal::basename_iterator<N-1, 0, 0>::handle_char(path, ct::strpad<CharType, N>());
     }
-
-
-// unit-tests
-
-//    static_assert( ct::basename("test-path\\file.c") == "file.c");
-//    static_assert( ct::basename("test-path/file.c") == "file.c");
-//    static_assert( ct::basename("./file.c") == "file.c");
-//    static_assert( ct::basename("./file.c") == "file.c");
-//    static_assert( ct::basename("") == "");
-//    static_assert( ct::basename("/") == "");
-//    static_assert( ct::basename("\\") == "");
-//    static_assert( ct::basename("") == "");
-//
-//
-//    static_assert( ct::basename(L"test-path\\file.c") == L"file.c");
-//    static_assert( ct::basename(L"test-path/file.c") == L"file.c");
-//    static_assert( ct::basename(L"./file.c") == L"file.c");
-//    static_assert( ct::basename(L"./file.c") == L"file.c");
-//    static_assert( ct::basename(L"") == L"");
-//    static_assert( ct::basename(L"/") == L"");
-//    static_assert( ct::basename(L"") == L"");
 
 }
 }

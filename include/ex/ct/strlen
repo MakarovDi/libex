@@ -12,30 +12,18 @@ namespace ct
 {
 
     template <typename CharType, size_t N>
-    constexpr size_t strlen(const CharType (&str)[N], size_t idx = N)
+    constexpr size_t strlen(const CharType (&str)[N], size_t idx = 0)
     {
-        return idx == 0                                    ? 0 :
-               str[idx-1] == ct::charset::zero<CharType>() ? strlen(str, idx - 1) : idx;
+        return idx == N                                  ? N-1 :
+               str[idx] == ct::charset::zero<CharType>() ? idx : strlen(str, idx + 1);
     }
 
 
     template <typename CharType, size_t... indexes>
     constexpr size_t strlen(meta_str_type<CharType, indexes...> str)
     {
-        return strlen(str.c_str);
+        return strlen(str.c_str, 0);
     }
-
-
-    // unit-test
-
-//        static_assert(strlen("123") == 3, "failure");
-//        static_assert(strlen("") == 0, "failure");
-//        static_assert(strlen("1") == 1, "failure");
-//        static_assert(strlen(L"123") == 3, "failure");
-//        static_assert(strlen(L"") == 0, "failure");
-//        static_assert(strlen(L"1") == 1, "failure");
-//        static_assert(ct::strlen(ct::strpad<char, 4>()) == 0);
-//        static_assert(ct::strlen(ct::strpad<wchar_t, 4>()) == 0);
 
 }
 }
