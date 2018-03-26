@@ -9,13 +9,13 @@ set(PARENT_PROJECT ${PROJECT_NAME})
 
 project(ex) # Initialize PROJECT_xxx variables
 
+set(EX_VERSION_MAJOR     0)
+set(EX_VERSION_MINOR     3)
+set(EX_VERSION_REVISION  0)
 
 set(CMAKE_CXX_STANDARD 14)
 
 
-set(EX_VERSION_MAJOR     0)
-set(EX_VERSION_MINOR     2)
-set(EX_VERSION_REVISION  0)
 
 # Configure output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
