@@ -3,7 +3,6 @@ include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include)
 
 
 add_executable(ExTests
-    ct/strcat.cpp
     ct/meta_str.cpp
     ct/char.cpp
     ct/charset.cpp
@@ -12,6 +11,7 @@ add_executable(ExTests
     ct/strfill.cpp
     ct/streq.cpp
     ct/substr.cpp
+    ct/strcat.cpp
     ct/basename.cpp
     ct/math.cpp
 )

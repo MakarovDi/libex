@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+#include "ex/common/type"
+
 
 namespace ex
 {
@@ -27,26 +29,26 @@ namespace meta // template meta programming
     //
     //
 
-    template <size_t...>
+    template <index_t...>
     struct integer_sequence
     {
         using type = integer_sequence;
     };
 
 
-    template<size_t N, size_t offset, size_t... Is>
+    template<index_t N, index_t offset, index_t... Is>
     struct make_integer_seq : make_integer_seq<N-1, offset, N-1, Is...>
     {
     };
 
 
-    template<size_t offset, size_t... Is>
+    template<index_t offset, index_t... Is>
     struct make_integer_seq<offset, offset, Is...> : integer_sequence<Is...>
     {
     };
 
 
-    template <size_t N, size_t offset = 0>
+    template <index_t N, index_t offset = 0>
     using make_integer_sequence = typename make_integer_seq<N, offset>::type;
 
 
@@ -63,7 +65,7 @@ namespace meta // template meta programming
 
 
 
-    template<typename CharType, size_t N, CharType c, CharType... Is>
+    template<typename CharType, index_t N, CharType c, CharType... Is>
     struct make_char_seq : make_char_seq<CharType, N-1, c, c, Is...>
     {
     };
@@ -80,7 +82,7 @@ namespace meta // template meta programming
     };
 
 
-    template <typename CharType, size_t N, CharType c>
+    template <typename CharType, index_t N, CharType c>
     using make_char_sequence = typename make_char_seq<CharType, N, c>::type;
 
 }
