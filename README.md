@@ -25,9 +25,14 @@ Some building blocks which I use frequently.
 
 Options:
 
+ * BUILD_TESTS - build unit tests:
+ 
+		# cmake -DBUILD_TESTS=ON
+
+
  * BUILD_SAMPLES - build all examples from ex/samples:
  
-		# cmake -DBUILD_SAMPLES=1
+		# cmake -DBUILD_SAMPLES=ON
 
 ## Usage
 

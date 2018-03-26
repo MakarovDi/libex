@@ -1,7 +1,3 @@
-## Configurable:
-##
-##  BUILD_TESTS = 1 -> unit tests
-##  BUILD_SAMPLES -> compile samples
 cmake_minimum_required(VERSION 3.1.0)
 
 # Define library name and version
@@ -15,6 +11,9 @@ set(EX_VERSION_REVISION  0)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# compilation options
+option(BUILD_TESTS "Build the unit tests" OFF)
+option(BUILD_SAMPLES "Build the demo programs" OFF)
 
 
 # Configure output directory
