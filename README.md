@@ -2,13 +2,11 @@
 
 Some building blocks which I use frequently.
 
-## Dependecies
-
-No.
 
 ## Submodules
 
-* **{fmt}**: a modern formatting library http://fmtlib.net
+* **{fmt}**: a modern formatting library http://fmtlib.net;
+* **{googletest}**: unit test framework https://github.com/google/googletest;
 
 ## Requirements ##
 
