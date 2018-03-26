@@ -1,11 +1,13 @@
 # Changelog
 
-## [v0.3.0] - 24.04.2018
+## [v0.3.0] - 27.04.2018
 
 **[+]** type for compile-time branching: **BoolSelector**; `#include <ex/meta/selector>`  
 **[+]** compile-time type constrains: TYPE_ASSERT, TYPE_ASSERT_SAME; `#include <ex/meta/type_assert>`  
 **[+]** added **googletest** framework as submodule;  
 **[+]** unit tests for **ct** module; `ex/test/ct`  
+**[+]** use `index_t` for indexing (`int32_t` for now); `#include <ex/common/type>`
+  
 
 
 **[*]** split meta into: **pack**, **sequence**; `#include <ex/meta/...>`  
