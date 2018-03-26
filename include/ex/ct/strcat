@@ -1,7 +1,7 @@
 #ifndef    EX_CT_STRCAT_H
 #   define EX_CT_STRCAT_H
 
-
+#include "ex/common/type"
 #include "ex/ct/meta_str"
 #include "ex/ct/strlen"
 #include "ex/ct/set_char"
@@ -46,14 +46,14 @@ namespace ct
 
         // TODO: C++17 remake with constexpr
 
-        template <size_t N, size_t result_idx>
+        template <index_t N, index_t result_idx>
         struct strcat
         {
-            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            template <typename CharType, index_t N1, index_t N2, index_t... indexes>
             constexpr static auto cat(const CharType (&str1)[N1],
                                       const CharType (&str2)[N2],
-                                      size_t idx1,
-                                      size_t idx2,
+                                      index_t idx1,
+                                      index_t idx2,
                                       ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
@@ -66,14 +66,14 @@ namespace ct
         };
 
 
-        template <size_t N>
+        template <index_t N>
         struct strcat<N, N>
         {
-            template <typename CharType, size_t N1, size_t N2, size_t... indexes>
+            template <typename CharType, index_t N1, index_t N2, index_t... indexes>
             constexpr static auto cat(const CharType (&str1)[N1],
                                       const CharType (&str2)[N2],
-                                      size_t idx1,
-                                      size_t idx2,
+                                      index_t idx1,
+                                      index_t idx2,
                                       ct::meta_str_type<CharType, indexes...> result)
                 -> ct::meta_str_type<CharType, indexes...>
             {
@@ -85,14 +85,14 @@ namespace ct
     }
 
 
-    template<typename CharType, size_t N1, size_t N2>
+    template<typename CharType, index_t N1, index_t N2>
     constexpr decltype(auto) strcat(const CharType (&str1)[N1], const CharType (&str2)[N2])
     {
         return internal::strcat<N1+N2-2, 0>::cat(str1, str2, 0, 0, ct::strpad<CharType, N1+N2-2>());
     }
 
 
-    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    template<typename CharType, index_t... indexes1, index_t... indexes2>
     constexpr auto strcat(meta_str_type<CharType, indexes1...> a,
                           meta_str_type<CharType, indexes2...> b)
         -> decltype(strcat(a.c_str, b.c_str)) // stupid MSVC can't deduce this with decltype(auto)
@@ -101,7 +101,7 @@ namespace ct
     }
 
 
-    template<typename CharType, size_t... indexes1, size_t... indexes2>
+    template<typename CharType, index_t... indexes1, index_t... indexes2>
     constexpr auto operator+(meta_str_type<CharType, indexes1...> a,
                              meta_str_type<CharType, indexes2...> b)
         -> decltype(strcat(a.c_str, b.c_str)) // stupid MSVC can't deduce this with decltype(auto)
@@ -110,7 +110,7 @@ namespace ct
     }
 
 
-    template<typename CharType, size_t... indexes, size_t N>
+    template<typename CharType, index_t... indexes, index_t N>
     constexpr auto operator+(meta_str_type<CharType, indexes...> metastr, const CharType (&str)[N])
         -> decltype(metastr + meta_str(str))
     {
@@ -118,7 +118,7 @@ namespace ct
     }
 
 
-    template<typename CharType, size_t... indexes, size_t N>
+    template<typename CharType, index_t... indexes, index_t N>
     constexpr auto operator+(const CharType (&str)[N], meta_str_type<CharType, indexes...> metastr)
         -> decltype(metastr + meta_str(str))
     {

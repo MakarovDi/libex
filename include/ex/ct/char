@@ -5,9 +5,7 @@
 #include <cstdint>
 #include <limits>
 
-//#include "ex/ct/charset"
-
-
+#include "ex/common/type"
 
 
 //
@@ -19,7 +17,7 @@ namespace ex
 {
 namespace ct
 {
-    static constexpr const size_t npos = std::numeric_limits<size_t>::max();
+    static constexpr const index_t npos = std::numeric_limits<index_t>::max();
 
 
     namespace internal
@@ -30,8 +28,8 @@ namespace ct
 
         // unsafe: contains_char("abc", 0) -> false (wrong semantic)
         //         contains_char(nullptr, <any>) -> crash
-        template < typename CharType, size_t N >
-        constexpr bool contains_char(const CharType (& str)[N], CharType c, size_t idx)
+        template < typename CharType, index_t N >
+        constexpr bool contains_char(const CharType (& str)[N], CharType c, index_t idx)
         {
             return idx == N      ? false :
                    str[idx] == c ? true  : internal::contains_char(str, c, idx + 1);
@@ -58,22 +56,22 @@ namespace ct
     }
 
 
-    template <size_t index, typename CharType, size_t N>
+    template <index_t index, typename CharType, index_t N>
     constexpr CharType char_at(const CharType (&str)[N])
     {
         return str[index];
     }
 
 
-    template <typename CharType, size_t N>
+    template <typename CharType, index_t N>
     constexpr bool contains_char(const CharType (&str)[N], CharType c)
     {
         return internal::contains_char(str, c, 0);
     }
 
 
-    template <typename CharType, size_t N>
-    constexpr size_t strrchr(const CharType (&str)[N], CharType c, size_t offset = N - 1)
+    template <typename CharType, index_t N>
+    constexpr index_t strrchr(const CharType (&str)[N], CharType c, index_t offset = N - 1)
     {
         return offset == 0      ? ct::npos :
                str[offset] == c ? offset   : strrchr(str, c, offset - 1);
@@ -81,8 +79,8 @@ namespace ct
     }
 
 
-    template <typename CharType, size_t N>
-    constexpr size_t strlchr(const CharType (&str)[N], CharType c, size_t offset = 0)
+    template <typename CharType, index_t N>
+    constexpr index_t strlchr(const CharType (&str)[N], CharType c, index_t offset = 0)
     {
         return offset == N      ? ct::npos :
                str[offset] == c ? offset   : strlchr(str, c, offset + 1);

@@ -107,7 +107,8 @@ set(HEADERS
     include/ex/meta/sequence
     include/ex/meta/pack
     include/ex/meta/selector
-    include/ex/meta/type_assert)
+    include/ex/meta/type_assert
+    include/ex/common/type)
 
 
 

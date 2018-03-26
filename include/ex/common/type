@@ -1,0 +1,11 @@
+#ifndef    EX_COMMON_TYPE_H
+#   define EX_COMMON_TYPE_H
+
+
+#include <cstdint>
+
+
+using index_t = int32_t;
+
+
+#endif // EX_COMMON_TYPE_H

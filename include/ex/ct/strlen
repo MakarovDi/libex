@@ -2,6 +2,7 @@
 #define EX_CT_STRLEN_H
 
 
+#include "ex/common/type"
 #include "ex/ct/charset"
 #include "ex/ct/meta_str"
 
@@ -11,16 +12,16 @@ namespace ex
 namespace ct
 {
 
-    template <typename CharType, size_t N>
-    constexpr size_t strlen(const CharType (&str)[N], size_t idx = 0)
+    template <typename CharType, index_t N>
+    constexpr index_t strlen(const CharType (&str)[N], index_t idx = 0)
     {
         return idx == N                                  ? N-1 :
                str[idx] == ct::charset::zero<CharType>() ? idx : strlen(str, idx + 1);
     }
 
 
-    template <typename CharType, size_t... indexes>
-    constexpr size_t strlen(meta_str_type<CharType, indexes...> str)
+    template <typename CharType, index_t... indexes>
+    constexpr index_t strlen(meta_str_type<CharType, indexes...> str)
     {
         return strlen(str.c_str, 0);
     }

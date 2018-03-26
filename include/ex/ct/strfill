@@ -2,6 +2,7 @@
 #   define EX_CT_STRFILL_H
 
 
+#include "ex/common/type"
 #include "ex/ct/meta_str"
 #include "ex/ct/charset"
 
@@ -22,7 +23,7 @@ namespace ex
 namespace ct
 {
 
-    template <typename CharType, CharType... chars, size_t... indexes>
+    template <typename CharType, CharType... chars, index_t... indexes>
     constexpr auto strfill(meta::integer_sequence<indexes...>, meta::char_sequence<CharType, chars...>)
         -> ct::meta_str_type<CharType, indexes...>
     {
@@ -30,7 +31,7 @@ namespace ct
     }
 
 
-    template <typename CharType, size_t N, CharType c>
+    template <typename CharType, index_t N, CharType c>
     constexpr decltype(auto) strfill()
     {
         return ct::strfill<CharType>(meta::make_integer_sequence<N>(),
@@ -43,7 +44,7 @@ namespace ct
     //
 
 
-    template <typename CharType, size_t N>
+    template <typename CharType, index_t N>
     constexpr decltype(auto) strpad()
     {
         return ct::strfill<CharType>(meta::make_integer_sequence<N>(),

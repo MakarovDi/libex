@@ -1,7 +1,7 @@
 #ifndef    EX_CT_BASENAME_H
 #   define EX_CT_BASENAME_H
 
-
+#include "ex/common/type"
 #include "ex/ct/charset"
 #include "ex/ct/meta_str"
 #include "ex/ct/strfill"
@@ -16,12 +16,12 @@ namespace ct // compile-time
     namespace internal
     {
 
-        template <size_t N, size_t result_idx, size_t path_idx>
+        template <index_t N, index_t result_idx, index_t path_idx>
         struct basename_iterator
         {
             // TODO: C++17 remake with single constexpr function
 
-            template <typename CharType, size_t N1, size_t... indexes>
+            template <typename CharType, index_t N1, index_t... indexes>
             constexpr static auto handle_char(const CharType (& path)[N1],
                                               ct::meta_str_type<CharType, indexes...> result) -> decltype(result)
             {
@@ -34,10 +34,10 @@ namespace ct // compile-time
         };
 
 
-        template <size_t N, size_t result_idx>
+        template <index_t N, index_t result_idx>
         struct basename_iterator<N, result_idx, N>
         {
-            template <typename CharType, size_t N1, size_t... indexes>
+            template <typename CharType, index_t N1, index_t... indexes>
             constexpr static auto handle_char(const CharType (& path)[N1],
                                               ct::meta_str_type<CharType, indexes...> result) -> decltype(result)
             {
@@ -68,7 +68,7 @@ namespace ct // compile-time
     //
     //
 
-    template <typename CharType, size_t N>
+    template <typename CharType, index_t N>
     constexpr auto basename(const CharType (&path)[N])
         -> decltype(ct::strpad<CharType, N>())
     {
