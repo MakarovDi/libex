@@ -1,0 +1,32 @@
+#ifndef    EX_META_PACK_H
+#   define EX_META_PACK_H
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace meta // template meta programming
+{
+    //
+    // Usage:
+    //
+    //  You can't do
+    //
+    //      void do_smth(char... char)
+    //
+    //
+    //  but you can do this
+    //
+    //      template <size_t... indexes>
+    //      void do_smth(pack<char, indexes>... chars)
+    //
+    //
+
+
+    template<typename T, size_t index>
+    using pack = T;
+}
+}
+
+#endif

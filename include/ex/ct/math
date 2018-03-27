@@ -28,7 +28,7 @@ namespace ct
         //
 
         template <typename NumType>
-        constexpr NumType nonnegative(NumType i)
+        constexpr NumType nonnegative(NumType i) // TODO: replace with static_assert
         {
             return (i >= 0) ? i : throw std::logic_error("must be non negative");
         }
@@ -89,26 +89,6 @@ namespace ct
         return ct::require::nonnegative(x),
             x < eps ? NumType(0) : NumType(internal::sqrt(double(x), 1.0, 2.0, eps));
     }
-
-
-
-//  [unit tests]
-
-//    static_assert(ct::abs(-1) == 1);
-//    static_assert(ct::abs(1) == 1);
-//    static_assert(ct::abs(1.0) == 1.0);
-//    static_assert(ct::abs(-1.0) == 1.0);
-//
-//    static_assert(ct::factorial(0) == 1);
-//    static_assert(ct::factorial(1) == 1);
-//    static_assert(ct::factorial(2) == 2);
-//    static_assert(ct::factorial(4) == 2*3*4);
-//    static_assert(ct::factorial(4.0) == 2.0*3.0*4.0);
-
-//    static_assert(ct::sqrt(4) == 2);
-//    static_assert(ct::sqrt(16) == 4);
-//    static_assert(ct::abs(ct::sqrt(15.0) - 3.87298334) < 1e-8);
-//    static_assert(ct::sqrt(15) == 3);
 
 }
 }

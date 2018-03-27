@@ -1,0 +1,18 @@
+#ifndef    EX_COMMON_TYPE_H
+#   define EX_COMMON_TYPE_H
+
+
+#include <cstdint>
+
+
+#ifdef EX_INDEX_TYPE
+    // redefinition of index_t via cmake add_definitions(-DTEST_DEF=int64_t)
+    using index_t = EX_INDEX_TYPE;
+#else
+    using index_t = int32_t;
+#endif
+
+
+
+
+#endif // EX_COMMON_TYPE_H

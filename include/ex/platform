@@ -51,26 +51,42 @@
 
 
 // Compiler detection
+
 #if defined(__clang__)                            // Clang/LLVM
 #   define COMPILER_IS_CLANG
-#elif defined(__ICC) || defined(__INTEL_COMPILER) // ICC/ICPC
+#endif
+
+#if defined(__ICC) || defined(__INTEL_COMPILER) // ICC/ICPC
 #   define COMPILER_IS_INTEL
-#elif defined(__HP_cc) || defined(__HP_aCC)       // Hewlett-Packard C/aC++
+#endif
+
+#if defined(__HP_cc) || defined(__HP_aCC)       // Hewlett-Packard C/aC++
 #   define COMPILER_IS_HP
-#elif defined(__IBMC__) || defined(__IBMCPP__)    // IBM XL C/C++
+#endif
+
+#if defined(__IBMC__) || defined(__IBMCPP__)    // IBM XL C/C++
 #   define COMPILER_IS_IBM
-#elif defined(_MSC_VER)                           // MS Compiler
-#   define COMPILER_IS_MSC
-#elif defined(__PGI)                              // Portland Group PGCC/PGCPP
+#endif
+
+#if defined(__PGI)                              // Portland Group PGCC/PGCPP
 #   define COMPILER_IS_PORTLAND
-#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC) // Oracle Solaris Studio
+#endif
+
+#if defined(__SUNPRO_C) || defined(__SUNPRO_CC) // Oracle Solaris Studio
 #   define COMPILER_IS_SUN
-#elif (defined(__GNUC__) || defined(__GNUG__)) && !defined(COMPILER_IS_INTEL)  // GNU Compiler
+#endif
+
+#if defined(_MSC_VER)                           // MS Compiler
+#   define COMPILER_IS_MSC
+#endif
+
+#if (defined(__GNUC__) || defined(__GNUG__)) && !defined(COMPILER_IS_INTEL)  // GNU Compiler
 #   define COMPILER_IS_GNU
 #endif
 
 
 // Environment detection
+
 #if defined(__CYGWIN__)
 #   define ENVIRONMENT_IS_CYGWIN
 #elif defined(__MINGW32__) || defined(__MINGW64__)
@@ -81,6 +97,7 @@
 
 
 // Processor detection
+
 #if defined(__ia64) || defined(__itanium__) || defined(_M_IA64) // Itanium
 #   define PROCESSOR_IS_IA64
 #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
@@ -112,17 +129,17 @@ namespace ex
 // run-time checks
 namespace platform
 {
-    bool is_unix();
-    bool is_windows();
+    constexpr bool is_unix();
+    constexpr bool is_windows();
 
-    bool is_linux();
-    bool is_bsd();
-    bool is_apple();
-    bool is_posix();
-    bool is_android();
+    constexpr bool is_linux();
+    constexpr bool is_bsd();
+    constexpr bool is_apple();
+    constexpr bool is_posix();
+    constexpr bool is_android();
 
-    bool is_x64();
-    bool is_x86();
+    constexpr bool is_x64();
+    constexpr bool is_x86();
 
     String defs();          // check definitions from this module
     String compiler_defs(); // check platform-dependent definitions for diagnostic needs

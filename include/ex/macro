@@ -21,9 +21,9 @@
 
 // This macro try to define unique variable
 #ifdef __COUNTER__
-#   define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __COUNTER__)
+#   define UNIQUE_ID(str) CONCATENATE(str, __COUNTER__)
 #else
-#   define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __LINE__)
+#   define UNIQUE_ID(str) CONCATENATE(str, __LINE__)
 #endif
 
 

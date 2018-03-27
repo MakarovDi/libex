@@ -6,7 +6,7 @@ namespace ex
 {
 
 
-bool platform::is_unix()
+constexpr bool platform::is_unix()
 {
 #ifdef PLATFORM_IS_UNIX
     return true;
@@ -16,7 +16,7 @@ bool platform::is_unix()
 }
 
 
-bool platform::is_windows()
+constexpr bool platform::is_windows()
 {
 #ifdef PLATFORM_IS_WINDOWS
     return true;
@@ -26,7 +26,7 @@ bool platform::is_windows()
 }
 
 
-bool platform::is_linux()
+constexpr bool platform::is_linux()
 {
 #ifdef PLATFORM_IS_LINUX
     return true;
@@ -36,7 +36,7 @@ bool platform::is_linux()
 }
 
 
-bool platform::is_bsd()
+constexpr bool platform::is_bsd()
 {
 #ifdef PLATFORM_IS_BSD
     return true;
@@ -46,7 +46,7 @@ bool platform::is_bsd()
 }
 
 
-bool platform::is_apple()
+constexpr bool platform::is_apple()
 {
 #ifdef PLATFORM_IS_APPLE
     return true;
@@ -56,7 +56,7 @@ bool platform::is_apple()
 }
 
 
-bool platform::is_posix()
+constexpr bool platform::is_posix()
 {
 #ifdef PLATFORM_IS_POSIX
     return true;
@@ -66,7 +66,7 @@ bool platform::is_posix()
 }
 
 
-bool platform::is_android()
+constexpr bool platform::is_android()
 {
 #ifdef PLATFORM_IS_ANDROID
     return true;
@@ -76,7 +76,7 @@ bool platform::is_android()
 }
 
 
-bool is_x64()
+constexpr bool is_x64()
 {
 #ifdef PLATFORM_IS_x64
     return true;
@@ -86,7 +86,7 @@ bool is_x64()
 }
 
 
-bool is_x86()
+constexpr bool is_x86()
 {
 #ifdef PLATFORM_IS_x86
     return true;

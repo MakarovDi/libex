@@ -2,7 +2,8 @@
 #   define EX_CT_SET_CHAR_H
 
 
-#include "ex/meta"
+#include "ex/common/type"
+#include "ex/meta/sequence"
 #include "ex/ct/meta_str"
 
 
@@ -20,27 +21,31 @@ namespace ex
 namespace ct
 {
 
-    template <typename CharType, size_t... left, size_t... right, size_t... indexes>
+    template <typename CharType, index_t... left, index_t... right, index_t... indexes>
     constexpr auto set_char(meta_str_type<CharType, indexes...> str, CharType c,
                             meta::integer_sequence<left...>,
                             meta::integer_sequence<right...>)
         -> meta_str_type<CharType, indexes...>
     {
+        static_assert(sizeof...(left) + sizeof...(right) + 1 == sizeof...(indexes), "wrong indexes size");
+
         return { str.c_str[left]..., c, str.c_str[right]... };
     }
 
 
-    template <size_t idx, typename CharType, size_t... indexes>
+    template <index_t idx, typename CharType, index_t... indexes>
     constexpr auto set_char(meta_str_type<CharType, indexes...> str, CharType c)
         -> meta_str_type<CharType, indexes...>
     {
+        static_assert(idx < sizeof...(indexes), "index out of range");
+
         return set_char(str, c,
                         meta::make_integer_sequence<idx>{},
                         meta::make_integer_sequence<sizeof...(indexes), idx+1>{});
     }
 
 
-    template <size_t idx, typename CharType, size_t N>
+    template <index_t idx, typename CharType, index_t N>
     constexpr decltype(auto) set_char(const CharType (&str)[N], CharType c)
     {
         return set_char<idx, CharType>(meta_str(str), c);

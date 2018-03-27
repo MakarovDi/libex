@@ -2,8 +2,9 @@
 #   define EX_CT_SUBSTR_H
 
 
+#include "ex/common/type"
 #include "ex/ct/meta_str"
-#include "ex/meta"
+#include "ex/meta/sequence"
 
 
 namespace ex
@@ -11,12 +12,12 @@ namespace ex
 namespace ct
 {
 
-    template <size_t offset, typename CharType, size_t N>
+    template <index_t offset, typename CharType, index_t N>
     constexpr decltype(auto) substr(const CharType (&str)[N])
     {
         return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
     }
-
+    
 }
 }
 
