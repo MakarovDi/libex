@@ -32,7 +32,16 @@ Options:
 
  * BUILD_SAMPLES - build all examples from ex/samples:
  
-		# cmake -DBUILD_SAMPLES=ON
+	    # cmake -DBUILD_SAMPLES=ON
+		
+ * EX_INDEX_TYPE - change type of indexes:
+        
+		# cmake -DEX_INDEX_TYPE=int64_t
+        
+    or
+        
+        add_definitions(-DEX_INDEX_TYPE=int64_t)
+    
 
 ## Usage
 
