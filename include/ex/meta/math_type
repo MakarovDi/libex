@@ -1,0 +1,71 @@
+#ifndef    EX_META_MATH_TYPE_H
+#   define EX_META_MATH_TYPE_H
+
+
+#include <type_traits>
+
+
+namespace ex
+{
+    //
+    // Usage: classify type for branching
+    //
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kIntergral>) const
+    //    {
+    //      ...
+    //    }
+    //
+    //
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kFloating>) const
+    //    {
+    //     ...
+    //    }
+    //
+    //
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kUserType>) const
+    //    {
+    //     ...
+    //    }
+    //
+    //
+    //    ...
+    //
+    //    return is_elements_equal(m, IntSelector<MathType<T>::classify>());
+    //
+    //    ...
+    //
+
+    template
+    <
+        class U,
+        bool is_integral = std::is_integral<U>::value,
+        bool is_floating = std::is_floating_point<U>::value
+    >
+    struct MathType
+    {
+        enum { kIntergral = 0, kFloating, kUserType };
+
+        static constexpr auto classify = kUserType;
+    };
+
+
+    template <class U>
+    struct MathType<U, true, false>
+    {
+        enum { kIntergral = 0, kFloating, kUserType };
+
+        static constexpr auto classify = kIntergral;
+    };
+
+
+    template <class U>
+    struct MathType<U, false, true>
+    {
+        enum { kIntergral = 0, kFloating, kUserType };
+
+        static constexpr auto classify = kFloating;
+    };
+}
+
+
+#endif // EX_META_MATH_TYPE_H
