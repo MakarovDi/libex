@@ -3,9 +3,6 @@
 
 namespace ex
 {
-namespace meta // template meta programming
-{
-
     //
     // Usage:
     //
@@ -87,8 +84,6 @@ namespace meta // template meta programming
     {
         static constexpr bool value = Condition;
     };
-}
-}
 
 
 
