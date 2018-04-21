@@ -82,9 +82,20 @@ namespace ex
     template <bool Condition>
     struct BoolSelector
     {
-        static constexpr bool value = Condition;
+        enum { value = Condition };
     };
 
 
+    //
+    //  Usage: split function into multiple branches in compile-time
+    //
 
+    template <int Condition>
+    struct IntSelector
+    {
+        enum { value = Condition };
+    };
+
+
+}
 #endif
