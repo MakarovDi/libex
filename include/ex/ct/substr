@@ -15,7 +15,7 @@ namespace ct
     template <index_t offset, typename CharType, index_t N>
     constexpr decltype(auto) substr(const CharType (&str)[N])
     {
-        return meta_str(str, meta::make_integer_sequence<N - 1, offset>());
+        return meta_str(str, ex::make_integer_sequence<N - 1, offset>());
     }
     
 }
