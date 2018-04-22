@@ -66,6 +66,30 @@ namespace ex
     }
 
 
+    template
+    <
+        typename T,
+        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>
+    >
+    void range_check(T value, T max)
+    {
+        if (value > max)
+            NoticePolicy::notice("wrong value range");
+    }
+
+
+    template
+    <
+        typename T,
+        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>
+    >
+    void range_check(T value, T min, T max)
+    {
+        if (value > max || value < min)
+            NoticePolicy::notice("wrong value range");
+    }
+
+
     template <typename TDest, typename TSource>
     void range_check_assert(TSource value)
     {
@@ -73,17 +97,28 @@ namespace ex
     }
 
 
+    template <typename T>
+    void range_check_assert(T value, T min, T max)
+    {
+        range_check<T, policy::AssertNotice>(value, min, max);
+    }
+
+
+    template <typename T>
+    void range_check_assert(T value, T max)
+    {
+        range_check<T, policy::AssertNotice>(value, max);
+    }
+
+
     template
     <
         typename TDest,
-        typename TException = std::overflow_error,
         typename TSource
     >
     TDest range_check_cast(TSource value)
     {
-        static_assert(std::is_base_of<std::exception, TException>::value, "TException must be derived from std::exception");
-
-        range_check<TDest>(value);
+        range_check<TDest, policy::ThrowNotice<std::overflow_error>>(value);
 
         return static_cast<TDest>(value);
     }
@@ -245,161 +280,5 @@ namespace ex
 
 }
 
-
-// unit tests
-
-//void test1() // uint32 -> uint64
-//{
-//    range_check<uint64_t>(std::numeric_limits<uint32_t>::min());
-//    range_check<uint64_t>(std::numeric_limits<uint32_t>::max());
-//
-//    printf("test1 done\n");
-//}
-//
-//
-//void test2() // uint64 -> int32
-//{
-//    range_check<uint32_t>(std::numeric_limits<uint64_t>::min());
-//    range_check<uint32_t>(uint64_t(std::numeric_limits<uint32_t>::max()));
-//
-//    try
-//    {
-//        range_check<uint32_t>(std::numeric_limits<uint64_t>::max());
-//    }
-//    catch (std::overflow_error&)
-//    {
-//        printf("test2 done\n");
-//    }
-//}
-//
-//
-//void test3() // uint32 -> int32
-//{
-//    range_check<int32_t>(std::numeric_limits<uint32_t>::min());
-//    range_check<int32_t>(uint32_t(std::numeric_limits<int32_t>::max()));
-//
-//    try
-//    {
-//        range_check<int32_t>(std::numeric_limits<uint32_t>::max());
-//
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test3 done\n");
-//    }
-//}
-//
-//void test4() //  int32 -> uint32
-//{
-//
-//    range_check<uint32_t>(std::numeric_limits<int32_t>::max());
-//
-//    try
-//    {
-//        range_check<uint32_t>(std::numeric_limits<int32_t>::min());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test4 done\n");
-//    }
-//}
-//
-//
-//
-//void test5() // uint32 -> int64
-//{
-//    range_check<int64_t>(std::numeric_limits<uint32_t>::min());
-//    range_check<int64_t>(std::numeric_limits<uint32_t>::max());
-//
-//    printf("test5 done\n");
-//}
-//
-//
-//void test6() // int32 -> uint64
-//{
-//    range_check<uint64_t>(std::numeric_limits<int32_t>::max());
-//
-//    try
-//    {
-//        range_check<uint64_t>(std::numeric_limits<int32_t>::min());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test6 done\n");
-//    }
-//}
-//
-//
-//void test7() // int32 -> int64
-//{
-//    range_check<int64_t>(std::numeric_limits<int32_t>::min());
-//    range_check<int64_t>(std::numeric_limits<int32_t>::max());
-//
-//    printf("test7 done\n");
-//}
-//
-//
-//void test8() // uint64 -> uint32
-//{
-//    range_check<uint32_t>(std::numeric_limits<uint64_t>::min());
-//
-//    try
-//    {
-//        range_check<uint32_t>(std::numeric_limits<uint64_t>::max());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test8 done\n");
-//    }
-//}
-//
-//
-//void test9() // int64 -> uint32
-//{
-//    range_check<uint32_t>(int64_t(std::numeric_limits<uint32_t>::min()));
-//
-//
-//    try
-//    {
-//        range_check<uint32_t>(std::numeric_limits<int64_t>::max());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//    }
-//
-//    try
-//    {
-//        range_check<uint32_t>(std::numeric_limits<int64_t>::min());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test9 done\n");
-//    }
-//}
-//
-//
-//void test10() // int64 -> int32
-//{
-//    range_check<int32_t>(int64_t(std::numeric_limits<int32_t>::min()));
-//    range_check<int32_t>(int64_t(std::numeric_limits<int32_t>::max()));
-//
-//
-//    try
-//    {
-//        range_check<int32_t>(std::numeric_limits<int64_t>::max());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//    }
-//
-//    try
-//    {
-//        range_check<int32_t>(std::numeric_limits<int64_t>::min());
-//    }
-//    catch(std::overflow_error&)
-//    {
-//        printf("test10 done\n");
-//    }
-//}
 
 #endif // EX_RANGE_CHECK_H
