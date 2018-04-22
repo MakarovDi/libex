@@ -1,0 +1,28 @@
+#ifndef    EX_ENCODING_WORD_H
+#   define EX_ENCODING_WORD_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+namespace word
+{
+
+
+    uint8_t u16_low(uint16_t value)
+    {
+        return uint8_t(value & 0xFFu);
+    }
+
+
+    uint8_t u16_hi(uint16_t value)
+    {
+        return uint8_t(value >> 8u);
+    }
+
+
+}
+}
+#endif // EX_ENCODING_WORD_H

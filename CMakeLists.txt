@@ -109,7 +109,8 @@ set(HEADERS
     include/ex/meta/selector
     include/ex/meta/type_assert
     include/ex/common/type
-    include/ex/meta/math_type)
+    include/ex/meta/math_type
+    include/ex/encoding/word)
 
 
 
