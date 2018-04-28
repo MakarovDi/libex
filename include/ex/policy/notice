@@ -49,6 +49,9 @@ namespace policy
         AssertNotice()  {}
         ~AssertNotice() {}
     };
+
+
+    // TODO: LogNotice
 }
 }
 

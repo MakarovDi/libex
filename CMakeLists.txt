@@ -82,7 +82,6 @@ set(HEADERS
     include/ex/interface
     include/ex/policy/threading
     include/ex/policy/pool
-    include/ex/policy/index_check
     include/ex/cprint
     include/ex/assert
     include/ex/semantic

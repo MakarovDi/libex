@@ -8,8 +8,11 @@ using namespace ex;
 TEST(range_check_test, range_check)
 {
     ASSERT_NO_THROW(range_check(0, -1, 1));
+    ASSERT_NO_THROW(range_check(1, -1, 1));
+    ASSERT_NO_THROW(range_check(-1, -1, 1));
     ASSERT_NO_THROW(range_check(0.0, -1.0, 1.0));
     ASSERT_NO_THROW(range_check(0, 1));
+    ASSERT_NO_THROW(range_check(1, 1));
     ASSERT_NO_THROW(range_check(0.0, 1.0));
 
     ASSERT_THROW(range_check(2, -1, 1), std::overflow_error);

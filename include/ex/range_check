@@ -68,8 +68,8 @@ namespace ex
 
     template
     <
-        typename T,
-        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>
+        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>,
+        typename T
     >
     void range_check(T value, T max)
     {
@@ -80,8 +80,8 @@ namespace ex
 
     template
     <
-        typename T,
-        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>
+        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>,
+        typename T
     >
     void range_check(T value, T min, T max)
     {
