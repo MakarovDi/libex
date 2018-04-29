@@ -1,0 +1,13 @@
+#ifndef EX_COMMON_POLICY_HEADER
+#   define EX_COMMON_POLICY_HEADER
+
+#include <ex/policy/notice>
+
+
+namespace ex
+{
+
+    using DefaultErrorNotice = ex::policy::AssertNotice;
+
+}
+#endif // EX_COMMON_POLICY_HEADER
