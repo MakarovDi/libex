@@ -100,14 +100,14 @@ namespace ex
     template <typename T>
     void range_check_assert(T value, T min, T max)
     {
-        range_check<T, policy::AssertNotice>(value, min, max);
+        range_check<policy::AssertNotice, T>(value, min, max);
     }
 
 
     template <typename T>
     void range_check_assert(T value, T max)
     {
-        range_check<T, policy::AssertNotice>(value, max);
+        range_check<policy::AssertNotice, T>(value, max);
     }
 
 
