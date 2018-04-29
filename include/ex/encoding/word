@@ -23,6 +23,12 @@ namespace word
     }
 
 
+    uint16_t u16_make(uint8_t hi, uint8_t low)
+    {
+        return (uint16_t(hi) << 8u) | low;
+    }
+
+
 }
 }
 #endif // EX_ENCODING_WORD_H
