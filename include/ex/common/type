@@ -5,13 +5,14 @@
 #include <cstdint>
 
 
-#ifdef EX_INDEX_TYPE
-    // redefinition of index_t via cmake add_definitions(-DTEST_DEF=int64_t)
-    using index_t = EX_INDEX_TYPE;
-#else
-    using index_t = int32_t;
+// you can change index_t via cmake add_definitions(-EX_INDEX_TYPE=int64_t)
+#ifndef EX_INDEX_TYPE
+#   define EX_INDEX_TYPE int32_t;
 #endif
 
+
+
+using index_t = EX_INDEX_TYPE;
 
 
 

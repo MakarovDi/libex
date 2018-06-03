@@ -135,6 +135,7 @@ target_link_libraries(ex PUBLIC fmt::fmt-header-only)
 # unit tests
 if (BUILD_TESTS)
     add_subdirectory(test)
+    message(STATUS "Test building enabled")
 endif()
 
 
