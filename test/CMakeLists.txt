@@ -17,4 +17,4 @@ add_executable(ExTests
     range_check.cpp)
 
 
-target_link_libraries(ExTests PRIVATE gtest gtest_main)
+target_link_libraries(ExTests PRIVATE ex gtest gtest_main)

@@ -1,4 +1,10 @@
 #include <gtest/gtest.h>
+
+#include <stdexcept>
+#include <ex/policy/notice>
+
+
+#define EX_NOTICE_POLICY ex::policy::ThrowNotice<std::overflow_error>
 #include <ex/range_check>
 
 
