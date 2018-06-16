@@ -1,11 +1,10 @@
-#ifndef EX_ASSERT_H
-#define EX_ASSERT_H
+#ifndef    EX_ASSERT_H
+#   define EX_ASSERT_H
 
 #include <cassert>
 
 
 #define ASSERT(expression, message) assert((expression) && (message))
-#define FAILURE(message)            assert(false && (message))
 
 
 namespace ex

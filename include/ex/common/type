@@ -5,7 +5,6 @@
 #include <cstdint>
 
 
-// you can change index_t via cmake add_definitions(-EX_INDEX_TYPE=int64_t)
 #ifndef EX_INDEX_TYPE
 #   define EX_INDEX_TYPE int32_t;
 #endif
