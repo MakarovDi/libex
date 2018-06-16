@@ -7,28 +7,47 @@
 
 namespace ex
 {
-namespace word
-{
 
-
-    uint8_t u16_low(uint16_t value)
+    class word16 final
     {
-        return uint8_t(value & 0xFFu);
+    public:
+        word16()
+        {
+        }
+
+
+        word16(uint16_t word) : value(word)
+        {
+        }
+
+
+        word16(uint8_t hi, uint8_t low) :
+            low(low),
+            hi(hi)
+        {
+        }
+
+
+        operator uint16_t() const { return value; }
+
+    public:
+        union
+        {
+            uint16_t value;
+
+            struct
+            {
+                unsigned low : 8;
+                unsigned hi  : 8;
+            };
+        };
+    };
+
+
+    void swap(word16& w1, word16& w2)
+    {
+        std::swap(w1.value, w2.value);
     }
 
-
-    uint8_t u16_hi(uint16_t value)
-    {
-        return uint8_t(value >> 8u);
-    }
-
-
-    uint16_t u16_make(uint8_t hi, uint8_t low)
-    {
-        return (uint16_t(hi) << 8u) | low;
-    }
-
-
-}
 }
 #endif // EX_ENCODING_WORD_H
