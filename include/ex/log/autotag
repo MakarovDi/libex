@@ -20,6 +20,8 @@
 
 
 // TODO: C++17 -> add constexpr to lambda
+// TODO: when GCC fix __FUNCTION__ to constexpr add it and move from lambda: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66639
+// TODO: AUTO_TAG  (("[" + ex::ct::basename(__FILE__) + "]").c_str)
 
 #define AUTO_TAG                                                                  \
 []{                                                                               \

@@ -7,9 +7,71 @@
 #include <utility>
 #include <typeinfo>
 
+#include "ex/common/policy"
+
 
 //
-// see: ex/doc/Alexandrescu - Systematic Error Handling in C++
+// Usage
+//
+//  1. return exception or value:
+//
+//
+//            expected<int> parse_int(const std::string& s)
+//            {
+//                int result;
+//
+//                ...
+//
+//                if (nonDigit)
+//                    return expected<int>(std::invalid_argument("not a number"));
+//
+//                ...
+//
+//                if (tooManyDigits)
+//                    return expected<int>(std::out_of_range("overflow"));
+//
+//                ...
+//
+//                return result;
+//            }
+//
+//
+//  2. universal error handling:
+//
+//            auto x = parseInt(str).get(); // throw on error
+//
+//                or
+//
+//            auto y = parseInt(str); // won’t throw
+//            if (!y)
+//            {
+//                // handle some error locally
+//                if (y.has_exception<std::invalid_argument>())
+//                {
+//                    // no digits
+//                    ...
+//                }
+//
+//                y.rethrow();
+//            }
+//
+//
+//
+//  3. absorb exception:
+//
+//            try
+//            {
+//                ...
+//            }
+//            catch(...)
+//            {
+//                return expected<T>::current_exception();
+//            }
+//
+//
+// see:
+//      ex/doc/Alexandrescu - Systematic Error Handling in C++
+//      ex/doc/Alexandrescu - Expect the Expected
 //
 
 namespace ex
@@ -17,26 +79,27 @@ namespace ex
 
 
 template<class T>
-class Expected final
+class expected final
 {
-    union
-    {
-        T m_value;
-        std::exception_ptr m_exception;
-    };
 
-    bool m_have_value;
-
-    Expected() {}
+    expected() {}
 
 public:
-    Expected(const T& rhs) : m_value(rhs), m_have_value(true) {}
+    expected(const T& rhs) :
+        m_value(rhs),
+        m_have_value(true)
+    {
+    }
 
 
-    Expected(T&& rhs) : m_value(std::move(rhs)), m_have_value(true) {}
+    expected(T&& rhs) :
+        m_value(std::move(rhs)),
+        m_have_value(true)
+    {
+    }
 
 
-    Expected(const Expected& rhs) : m_have_value(rhs.m_have_value)
+    expected(const expected& rhs) : m_have_value(rhs.m_have_value)
     {
         if(m_have_value)
             new(&m_value) T(rhs.m_value);
@@ -45,7 +108,7 @@ public:
     }
 
 
-    Expected(Expected&& rhs) : m_have_value(rhs.m_have_value)
+    expected(expected&& rhs) : m_have_value(rhs.m_have_value)
     {
         if(m_have_value)
             new(&m_value) T(std::move(rhs.m_value));
@@ -55,18 +118,23 @@ public:
 
 
     template<class E>
-    Expected(const E &exception) : m_have_value(false)
+    expected(const E& exception) : m_have_value(false)
     {
-        if(typeid(exception) != typeid(E))
-        {
-            throw std::invalid_argument("slicing detected");
-        }
+        if (typeid(exception) != typeid(E))
+            ex::policy::DefaultNotice::notice("slicing detected");
 
         new(&m_exception) std::exception_ptr(std::move(std::make_exception_ptr(exception)));
     }
 
 
-    ~Expected()
+    explicit expected(std::exception_ptr p) :
+        m_have_value(false),
+        m_exception(std::move(p))
+    {
+    }
+
+
+    ~expected()
     {
         using std::exception_ptr;
 
@@ -77,7 +145,7 @@ public:
     }
 
 
-    void swap(Expected& rhs)
+    void swap(expected& rhs)
     {
         if(m_have_value)
         {
@@ -103,58 +171,48 @@ public:
             }
             else
             {
-                m_exception.swap(rhs.m_exception);
+                using std::swap;
+                swap(m_exception, rhs.m_exception);
+
                 std::swap(m_have_value, rhs.m_have_value);
             }
         }
     }
 
 
-    template<class E>
-    static Expected<T> from_exception(const E &exception)
+    operator bool() const
     {
-        if(typeid(exception) != typeid(E))
-        {
-            throw std::invalid_argument("slicing detected");
-        }
-
-        return from_exception(std::make_exception_ptr(exception));
+        return is_valid();
     }
 
 
-    static Expected<T> from_exception(std::exception_ptr p)
+    bool is_valid() const
     {
-        Expected<T> result;
-
-        result.m_have_value = false;
-        new(&result.m_exception) std::exception_ptr(std::move(p));
-
-        return result;
+        return m_have_value;
     }
-
-
-    static Expected<T> from_exception()
-    {
-        return from_exception(std::current_exception());
-    }
-
-
-    operator bool() const { return is_valid();   }
-
-    bool is_valid() const { return m_have_value; }
 
 
     T& get()
     {
-        if(!m_have_value) std::rethrow_exception(m_exception);
+        if(!m_have_value)
+            std::rethrow_exception(m_exception);
+
         return m_value;
     }
 
 
     const T& get() const
     {
-        if(!m_have_value) std::rethrow_exception(m_exception);
+        if(!m_have_value)
+            std::rethrow_exception(m_exception);
+
         return m_value;
+    }
+
+
+    void rethrow() const
+    {
+        std::rethrow_exception(m_exception);
     }
 
 
@@ -165,31 +223,59 @@ public:
         {
             if(!m_have_value) std::rethrow_exception(m_exception);
         }
-        catch(const E &object)
+        catch(const E&)
         {
             return true;
         }
-        catch(...) {}
+        catch(...)
+        {
+        }
 
         return false;
     }
 
 
+public:
+
+    static expected<T> current_exception()
+    {
+        return expected<T>(std::current_exception());
+    }
+
+
     template<class F>
-    static Expected from_code(F fun)
+    static expected from_code(F fun)
     {
         try
         {
-            return Expected(fun());
+            return expected(fun());
         }
         catch(...)
         {
-            return from_exception();
+            return expected<T>::current_exception();
         }
     }
+
+private:
+    union
+    {
+        T m_value;
+        std::exception_ptr m_exception;
+    };
+
+    bool m_have_value;
 };
 
 
+
+template<typename T>
+void swap(expected<T>& e1, expected<T>& e2)
+{
+    e1.swap(e2);
 }
+
+
+}
+
 
 #endif

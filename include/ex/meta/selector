@@ -1,95 +1,102 @@
 #ifndef    EX_META_SELECTOR_H
 #   define EX_META_SELECTOR_H
 
+
 namespace ex
 {
-namespace meta // template meta programming
+//
+// Usage:
+//
+//  You can't do this (explicit specialization in non-namespace scope):
+//
+//        struct test
+//        {
+//            template < typename T >
+//            static T get_char();
+//
+//
+//            template <>
+//            static char get_char<char>()
+//            {
+//                return 'a';
+//            }
+//
+//            template <>
+//            static wchar_t get_char<wchar_t>()
+//            {
+//                return L'a';
+//            }
+//        };
+//
+//  But you can do this:
+//
+//        struct test
+//        {
+//            template < typename T >
+//            static T get_char()
+//            {
+//                return get_char(type_selector<T>());
+//            }
+//
+//
+//            static char get_char(type_selector<char>)
+//            {
+//                return 'a';
+//            }
+//
+//            static wchar_t get_char(type_selector<wchar_t>)
+//            {
+//                return L'a';
+//            }
+//        };
+
+
+template <typename T>
+struct type_selector
 {
-
-    //
-    // Usage:
-    //
-    //  You can't do this (explicit specialization in non-namespace scope):
-    //
-    //        struct test
-    //        {
-    //            template < typename T >
-    //            static T get_char();
-    //
-    //
-    //            template <>
-    //            static char get_char<char>()
-    //            {
-    //                return 'a';
-    //            }
-    //
-    //            template <>
-    //            static wchar_t get_char<wchar_t>()
-    //            {
-    //                return L'a';
-    //            }
-    //        };
-    //
-    //  But you can do this:
-    //
-    //        struct test
-    //        {
-    //            template < typename T >
-    //            static T get_char()
-    //            {
-    //                return get_char(TypeHolder<T>());
-    //            }
-    //
-    //
-    //            static char get_char(TypeHolder<char>)
-    //            {
-    //                return 'a';
-    //            }
-    //
-    //            static wchar_t get_char(TypeHolder<wchar_t>)
-    //            {
-    //                return L'a';
-    //            }
-    //        };
+    using type = T;
+};
 
 
-    template <typename T>
-    struct TypeHolder
-    {
-        using type = T;
-    };
+//
+//  Usage: split function into two branches in compile-time
+//
+//        template <typename T>
+//        void test(T value, meta::bool_selector<true>)
+//        {
+//            std::cout << "T is integral";
+//        }
+//
+//        template <typename T>
+//        void test(T value, meta::bool_selector<false>)
+//        {
+//            std::cout << "T is floating";
+//        }
+//
+//        template <typename T>
+//        void test(T value)
+//        {
+//            test(value, meta::bool_selector< std::is_integral<T>::value >{});
+//        }
+//
+
+template <bool Condition>
+struct bool_selector
+{
+    enum { value = Condition };
+};
 
 
-    //
-    //  Usage: split function into two branches in compile-time
-    //
-    //        template <typename T>
-    //        void test(T value, meta::BoolSelector<true>)
-    //        {
-    //            std::cout << "T is integral";
-    //        }
-    //
-    //        template <typename T>
-    //        void test(T value, meta::BoolSelector<false>)
-    //        {
-    //            std::cout << "T is floating";
-    //        }
-    //
-    //        template <typename T>
-    //        void test(T value)
-    //        {
-    //            test(value, meta::BoolSelector< std::is_integral<T>::value >{});
-    //        }
-    //
+//
+//  Usage: split function into multiple branches in compile-time
+//
 
-    template <bool Condition>
-    struct BoolSelector
-    {
-        static constexpr bool value = Condition;
-    };
+template <int Condition>
+struct selector
+{
+    enum { value = Condition };
+};
+
+
 }
-}
-
-
-
 #endif

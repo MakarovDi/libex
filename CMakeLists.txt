@@ -54,6 +54,9 @@ configure_file (
     @ONLY                                          # replace VAR with pattern @VAR@ only (not ${VAR})
 )
 add_definitions("-DHAVE_CONFIG_H")                 # define HAVE_CONFIG_H for project
+
+# define include path for internal usage
+include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 
 # Enumerate source files
@@ -106,8 +109,11 @@ set(HEADERS
     include/ex/meta/sequence
     include/ex/meta/pack
     include/ex/meta/selector
-    include/ex/meta/type_assert
-    include/ex/common/type)
+    include/ex/meta/concept
+    include/ex/common/type
+    include/ex/common/policy
+    include/ex/meta/math_type
+    include/ex/encoding/word)
 
 
 
@@ -122,6 +128,7 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
 # populate ex headers
 target_include_directories(ex PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
+
 # initialize external libs
 add_subdirectory(external)
 
@@ -132,6 +139,7 @@ target_link_libraries(ex PUBLIC fmt::fmt-header-only)
 # unit tests
 if (BUILD_TESTS)
     add_subdirectory(test)
+    message(STATUS "Test building enabled")
 endif()
 
 

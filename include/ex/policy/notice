@@ -1,5 +1,5 @@
-#ifndef EX_POLICY_NOTICE_H
-#define EX_POLICY_NOTICE_H
+#ifndef    EX_POLICY_NOTICE_H
+#   define EX_POLICY_NOTICE_H
 
 
 #include <iostream>
@@ -11,44 +11,63 @@ namespace ex
 namespace policy
 {
 
-    template < class TException >
-    struct ThrowNotice
+
+template < class Exception >
+struct ThrowNotice
+{
+    static void notice(const char* message)
     {
-        static void notice(const char* message)
-        {
-            throw TException(message);
-        }
+        throw Exception(message);
+    }
 
-    protected:
-        ThrowNotice()  {}
-        ~ThrowNotice() {}
-    };
+protected:
+    ThrowNotice()  {}
+    ~ThrowNotice() {}
+};
 
 
-    struct StderrNotice
+struct StderrNotice
+{
+    static void notice(const char* message)
     {
-        static void notice(const char* message)
-        {
-            std::cerr << message << std::endl;
-        }
+        std::cerr << message << std::endl;
+    }
 
-    protected:
-        StderrNotice()  {}
-        ~StderrNotice() {}
-    };
+protected:
+    StderrNotice()  {}
+    ~StderrNotice() {}
+};
 
 
-    struct AssertNotice
+struct AssertNotice
+{
+    static void notice(const char* message)
     {
-        static void notice(const char* message)
-        {
-            ex::failure(message);
-        }
+        ex::failure(message);
+    }
 
-    protected:
-        AssertNotice()  {}
-        ~AssertNotice() {}
-    };
+protected:
+    AssertNotice()  {}
+    ~AssertNotice() {}
+};
+
+
+
+struct NoNotice
+{
+    static void notice(const char*)
+    {
+    }
+
+protected:
+    NoNotice()  {}
+    ~NoNotice() {}
+};
+
+
+// TODO: LogNotice
+
+
 }
 }
 

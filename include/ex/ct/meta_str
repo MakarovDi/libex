@@ -74,7 +74,7 @@ namespace ct
         }
 
 
-        constexpr meta_str_type(meta::pack<CharType, indexes>... chars) :
+        constexpr meta_str_type(ex::pack<CharType, indexes>... chars) :
             c_str{ chars..., 0 }
         {
         }
@@ -89,9 +89,8 @@ namespace ct
         static constexpr index_t size = sizeof...(indexes) + 1;
 
         constexpr CharType operator[](index_t index) const { return c_str[index]; }
-//        constexpr CharType operator[](int index)    const { return c_str[index]; }
 
-        constexpr operator const CharType* ()       const { return c_str;        }
+        constexpr operator const CharType* ()        const { return c_str;        }
     };
 
 
@@ -104,7 +103,7 @@ namespace ct
 
 
     template<typename CharType, index_t N, index_t... indexes>
-    constexpr decltype(auto) meta_str(const CharType (& str)[N], meta::integer_sequence<indexes...>)
+    constexpr decltype(auto) meta_str(const CharType (& str)[N], ex::integer_sequence<indexes...>)
     {
         return meta_str_type<CharType, indexes...>(str);
     }
@@ -113,7 +112,7 @@ namespace ct
     template<typename CharType, index_t N>
     constexpr decltype(auto) meta_str(const CharType (& str)[N])
     {
-        return meta_str(str, meta::make_integer_sequence<N - 1>());
+        return meta_str(str, ex::make_integer_sequence<N - 1>());
     }
 
 }
