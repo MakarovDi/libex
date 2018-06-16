@@ -14,7 +14,8 @@ add_executable(ExTests
     ct/strcat.cpp
     ct/basename.cpp
     ct/math.cpp
-    range_check.cpp)
+    range_check.cpp
+    expected.cpp)
 
 
 target_link_libraries(ExTests PRIVATE ex gtest gtest_main)
