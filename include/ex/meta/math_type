@@ -10,19 +10,19 @@ namespace ex
     //
     // Usage: classify type for branching
     //
-    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kIntergral>) const
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<math_type<T>::kIntergral>) const
     //    {
     //      ...
     //    }
     //
     //
-    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kFloating>) const
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<math_type<T>::kFloating>) const
     //    {
     //     ...
     //    }
     //
     //
-    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<MathType<T>::kUserType>) const
+    //    bool is_elements_equal(const Matrix& m, ex::meta::IntSelector<math_type<T>::kUserType>) const
     //    {
     //     ...
     //    }
@@ -30,7 +30,7 @@ namespace ex
     //
     //    ...
     //
-    //    return is_elements_equal(m, IntSelector<MathType<T>::classify>());
+    //    return is_elements_equal(m, IntSelector<math_type<T>::classify>());
     //
     //    ...
     //
@@ -41,7 +41,7 @@ namespace ex
         bool is_integral = std::is_integral<U>::value,
         bool is_floating = std::is_floating_point<U>::value
     >
-    struct MathType
+    struct math_type
     {
         enum { kIntergral = 0, kFloating, kUserType };
 
@@ -50,7 +50,7 @@ namespace ex
 
 
     template <class U>
-    struct MathType<U, true, false>
+    struct math_type<U, true, false>
     {
         enum { kIntergral = 0, kFloating, kUserType };
 
@@ -59,7 +59,7 @@ namespace ex
 
 
     template <class U>
-    struct MathType<U, false, true>
+    struct math_type<U, false, true>
     {
         enum { kIntergral = 0, kFloating, kUserType };
 
