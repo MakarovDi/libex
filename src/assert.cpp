@@ -22,7 +22,7 @@ namespace ex
 
     void failure(const char* message)
     {
-        std::cerr << "Assertion failed!" << std::endl << std::endl;
+        std::cerr << "something goes definitely wrong!" << std::endl << std::endl;
         std::cerr << "Message: " << message << std::endl;
 
         abort();
@@ -31,7 +31,7 @@ namespace ex
 
     void failure(const wchar_t* message)
     {
-        std::wcerr << L"Assertion failed!" << std::endl << std::endl;
+        std::wcerr << L"something goes definitely wrong!" << std::endl << std::endl;
         std::wcerr << L"Message: " << message << std::endl;
 
         abort();

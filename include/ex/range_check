@@ -6,7 +6,7 @@
 #include <limits>
 #include <stdexcept>
 
-#include "ex/policy/notice"
+#include "ex/common/policy"
 
 
 //
@@ -42,241 +42,227 @@
 namespace ex
 {
 
-    namespace range_check_private // forward declaration
+
+namespace range_check_private // forward declaration
+{
+    template
+    <
+        typename Source,
+        typename Dest,
+        typename NoticePolicy,
+        bool=std::is_same<Source, Dest>::value
+    >
+    struct TypeSplitter;
+
+    struct AssertNotice;
+}
+
+
+template
+<
+    typename Dest,
+    typename NoticePolicy = ex::policy::DefaultNotice,
+    typename Source
+>
+void range_check(Source value)
+{
+    static_assert(std::is_arithmetic<Source>::value, "value must be arithmetic type");
+    static_assert(std::is_arithmetic<Dest>::value, "destination type must be arithmetic");
+
+    range_check_private::TypeSplitter<Source, Dest, NoticePolicy>::check(value);
+}
+
+
+template
+<
+    typename NoticePolicy = ex::policy::DefaultNotice,
+    typename T
+>
+void range_check(T value, T max)
+{
+    if (value > max)
+        NoticePolicy::notice("wrong value range");
+}
+
+
+template
+<
+    typename NoticePolicy = ex::policy::DefaultNotice,
+    typename T
+>
+void range_check(T value, T min, T max)
+{
+    if (value > max || value < min)
+        NoticePolicy::notice("wrong value range");
+}
+
+
+template
+<
+    typename Dest,
+    typename Source
+>
+Dest range_check_cast(Source value)
+{
+    range_check<Dest, policy::ThrowNotice<std::overflow_error>>(value);
+
+    return static_cast<Dest>(value);
+}
+
+
+
+namespace range_check_private
+{
+    static constexpr char message[] = "value overflows destination type (range_check)";
+
+    enum DestSize { kSmaller, kSame, kLarger };
+
+
+    template <typename Source, typename Dest>
+    constexpr DestSize detect_dest_size_mode()
     {
-        template <typename TSource, typename TDest, typename NoticePolicy, bool = std::is_same<TSource, TDest>::value>
-        struct SameTypeFilter;
-
-        struct AssertNotice;
+        return (sizeof(Dest) > sizeof(Source)) ? DestSize::kLarger  :
+               (sizeof(Dest) < sizeof(Source)) ? DestSize::kSmaller :
+               DestSize::kSame;
     }
-
 
     template
     <
-        typename TDest,
-        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>,
-        typename TSource
+        typename Source,
+        typename Dest,
+        typename NoticePolicy,
+        DestSize = detect_dest_size_mode<Source, Dest>(),
+        bool = std::is_signed<Source>::value,
+        bool = std::is_signed<Dest>::value
     >
-    void range_check(TSource value)
+    struct CheckMethodSplitter;
+
+
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct TypeSplitter <Source, Dest, NoticePolicy, true>
     {
-        static_assert(std::is_arithmetic<TSource>::value, "value must be arithmetic type");
-        static_assert(std::is_arithmetic<TDest>::value, "destination type must be arithmetic");
-
-        range_check_private::SameTypeFilter<TSource, TDest, NoticePolicy>::check(value);
-    }
-
-
-    template
-    <
-        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>,
-        typename T
-    >
-    void range_check(T value, T max)
-    {
-        if (value > max)
-            NoticePolicy::notice("wrong value range");
-    }
-
-
-    template
-    <
-        typename NoticePolicy = policy::ThrowNotice<std::overflow_error>,
-        typename T
-    >
-    void range_check(T value, T min, T max)
-    {
-        if (value > max || value < min)
-            NoticePolicy::notice("wrong value range");
-    }
-
-
-    template <typename TDest, typename TSource>
-    void range_check_assert(TSource value)
-    {
-        range_check<TDest, policy::AssertNotice>(value);
-    }
-
-
-    template <typename T>
-    void range_check_assert(T value, T min, T max)
-    {
-        range_check<policy::AssertNotice, T>(value, min, max);
-    }
-
-
-    template <typename T>
-    void range_check_assert(T value, T max)
-    {
-        range_check<policy::AssertNotice, T>(value, max);
-    }
-
-
-    template
-    <
-        typename TDest,
-        typename TSource
-    >
-    TDest range_check_cast(TSource value)
-    {
-        range_check<TDest, policy::ThrowNotice<std::overflow_error>>(value);
-
-        return static_cast<TDest>(value);
-    }
-
-
-
-    namespace range_check_private
-    {
-        static const char message[] = "value overflows destination type (range_check)";
-
-        enum DestSize { kSmaller, kSame, kLarger };
-
-
-        template <typename TSource, typename TDest>
-        constexpr DestSize detect_dest_size_mode()
-        {
-            return (sizeof(TDest) > sizeof(TSource)) ? DestSize::kLarger  :
-                   (sizeof(TDest) < sizeof(TSource)) ? DestSize::kSmaller :
-                   DestSize::kSame;
-        }
-
-        template
-        <
-            typename TSource,
-            typename TDest,
-            typename NoticePolicy,
-            DestSize = detect_dest_size_mode<TSource, TDest>(),
-            bool = std::is_signed<TSource>::value,
-            bool = std::is_signed<TDest>::value
-        >
-        struct CheckMethodSplitter;
-
-
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct SameTypeFilter <TSource, TDest, NoticePolicy, true>
-        {
-            inline static void check(TSource) {} // ranges of same types are same
-        };
-
-
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct SameTypeFilter <TSource, TDest, NoticePolicy, false>
-        {
-            inline static void check(TSource value) // check ranges of different types
-            {
-                CheckMethodSplitter<TSource, TDest, NoticePolicy>::check(value);
-            }
-        };
-
-
-        // int32 -> uint32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSame, true, false>
-        {
-            inline static void check(TSource value)
-            {
-                if (value < 0)
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // uint32 -> int32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSame, false, true>
-        {
-            inline static void check(TSource value)
-            {
-                if (value > std::numeric_limits<TDest>::max())
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // uint32 -> uint64
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kLarger, false, false>
-        {
-            inline static void check(TSource value) { }
-        };
-
-
-        // uint32 -> int64
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kLarger, false, true>
-        {
-            inline static void check(TSource value) { }
-        };
-
-
-        // int32 -> uint64
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kLarger, true, false>
-        {
-            inline static void check(TSource value)
-            {
-                if (value < 0)
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // int32 -> int64
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kLarger, true, true>
-        {
-            inline static void check(TSource value) { }
-        };
-
-
-        // uint64 -> uint32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSmaller, false, false>
-        {
-            inline static void check(TSource value)
-            {
-                if (value > std::numeric_limits<TDest>::max())
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // uint64 -> int32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSmaller, false, true>
-        {
-            inline static void check(TSource value)
-            {
-                if (value > std::numeric_limits<TDest>::max())
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // int64 -> uint32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSmaller, true, false>
-        {
-            inline static void check(TSource value)
-            {
-                if (value < 0 || value > std::numeric_limits<TDest>::max())
-                    NoticePolicy::notice(message);
-            }
-        };
-
-
-        // int64 -> int32
-        template <typename TSource, typename TDest, typename NoticePolicy>
-        struct CheckMethodSplitter<TSource, TDest, NoticePolicy, DestSize::kSmaller, true, true>
-        {
-            inline static void check(TSource value)
-            {
-                if (value < std::numeric_limits<TDest>::min() || value > std::numeric_limits<TDest>::max())
-                    NoticePolicy::notice(message);
-            }
-        };
-
+        inline static void check(Source) {} // ranges of same types are same
     };
+
+
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct TypeSplitter <Source, Dest, NoticePolicy, false>
+    {
+        inline static void check(Source value) // check ranges of different types
+        {
+            CheckMethodSplitter<Source, Dest, NoticePolicy>::check(value);
+        }
+    };
+
+
+    // int32 -> uint32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSame, true, false>
+    {
+        inline static void check(Source value)
+        {
+            if (value < 0)
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // uint32 -> int32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSame, false, true>
+    {
+        inline static void check(Source value)
+        {
+            if (value > std::numeric_limits<Dest>::max())
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // uint32 -> uint64
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, false, false>
+    {
+        inline static void check(Source value) { }
+    };
+
+
+    // uint32 -> int64
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, false, true>
+    {
+        inline static void check(Source value) { }
+    };
+
+
+    // int32 -> uint64
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, true, false>
+    {
+        inline static void check(Source value)
+        {
+            if (value < 0)
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // int32 -> int64
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, true, true>
+    {
+        inline static void check(Source value) { }
+    };
+
+
+    // uint64 -> uint32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSmaller, false, false>
+    {
+        inline static void check(Source value)
+        {
+            if (value > std::numeric_limits<Dest>::max())
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // uint64 -> int32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSmaller, false, true>
+    {
+        inline static void check(Source value)
+        {
+            if (value > std::numeric_limits<Dest>::max())
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // int64 -> uint32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSmaller, true, false>
+    {
+        inline static void check(Source value)
+        {
+            if (value < 0 || value > std::numeric_limits<Dest>::max())
+                NoticePolicy::notice(message);
+        }
+    };
+
+
+    // int64 -> int32
+    template <typename Source, typename Dest, typename NoticePolicy>
+    struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kSmaller, true, true>
+    {
+        inline static void check(Source value)
+        {
+            if (value < std::numeric_limits<Dest>::min() || value > std::numeric_limits<Dest>::max())
+                NoticePolicy::notice(message);
+        }
+    };
+
+};
 
 }
 

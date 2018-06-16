@@ -6,6 +6,8 @@
 
 namespace ex
 {
+namespace policy
+{
 
 #ifndef    EX_NOTICE_POLICY
 #   define EX_NOTICE_POLICY ex::policy::AssertNotice
@@ -14,5 +16,6 @@ namespace ex
 
 using DefaultNotice = EX_NOTICE_POLICY;
 
+}
 }
 #endif // EX_COMMON_POLICY_HEADER
