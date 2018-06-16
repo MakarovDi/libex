@@ -54,6 +54,9 @@ configure_file (
     @ONLY                                          # replace VAR with pattern @VAR@ only (not ${VAR})
 )
 add_definitions("-DHAVE_CONFIG_H")                 # define HAVE_CONFIG_H for project
+
+# define include path for internal usage
+include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 
 # Enumerate source files
@@ -124,6 +127,7 @@ set_target_properties(ex PROPERTIES LINKER_LANGUAGE CXX
 
 # populate ex headers
 target_include_directories(ex PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
 
 # initialize external libs
 add_subdirectory(external)
