@@ -109,7 +109,7 @@ set(HEADERS
     include/ex/meta/sequence
     include/ex/meta/pack
     include/ex/meta/selector
-    include/ex/meta/type_assert
+    include/ex/meta/concept
     include/ex/common/type
     include/ex/common/policy
     include/ex/meta/math_type

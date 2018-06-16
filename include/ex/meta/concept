@@ -2,6 +2,7 @@
 #   define EX_META_TYPE_ASSERT_H
 
 #include <type_traits>
+
 #include "ex/macro"
 
 //
@@ -25,23 +26,23 @@
 //
 //        private:
 //            // Only arithmetic types are allowed
-//            TYPE_ASSERT(std::is_arithmetic<GridType>::value);
+//            REQUIRES(std::is_arithmetic<GridType>::value);
 //
 //            // AxisTypes must be the same for all Axis (GridType)
-//            TYPE_ASSERT_SAME(typename AxisX::AxisType, typename AxisY::AxisType);
-//            TYPE_ASSERT_SAME(typename AxisX::AxisType, typename AxisZ::AxisType);
+//            REQUIRES_SAME(typename AxisX::AxisType, typename AxisY::AxisType);
+//            REQUIRES_SAME(typename AxisX::AxisType, typename AxisZ::AxisType);
 //
 //            // steps along the axis must be the same for uniform grid
-//            TYPE_ASSERT(AxisX::step == AxisY::step && AxisX::step == AxisZ::step);
+//            REQUIRES(AxisX::step == AxisY::step && AxisX::step == AxisZ::step);
 //        };
 //
 
 
-#define TYPE_ASSERT(assertion) \
+#define REQUIRES(assertion) \
     using UNIQUE_ID(type_assert) = typename std::enable_if< (assertion) == true >::type;
 
 
-#define TYPE_ASSERT_SAME(T1, T2) \
+#define REQUIRES_SAME(T1, T2) \
     using UNIQUE_ID(type_assert) = typename std::enable_if< std::is_same<T1, T2>::value == true >::type;
 
 
