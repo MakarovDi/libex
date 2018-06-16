@@ -173,7 +173,7 @@ namespace range_check_private
     {
         inline static void check(Source value)
         {
-            if (value > std::numeric_limits<Dest>::max())
+            if (value > Source(std::numeric_limits<Dest>::max()))
                 NoticePolicy::notice(message);
         }
     };

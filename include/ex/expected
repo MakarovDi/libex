@@ -171,7 +171,9 @@ public:
             }
             else
             {
-                m_exception.swap(rhs.m_exception);
+                using std::swap;
+                swap(m_exception, rhs.m_exception);
+
                 std::swap(m_have_value, rhs.m_have_value);
             }
         }
@@ -221,7 +223,7 @@ public:
         {
             if(!m_have_value) std::rethrow_exception(m_exception);
         }
-        catch(const E& object)
+        catch(const E&)
         {
             return true;
         }
