@@ -2,19 +2,19 @@
 
 ## [v0.3.1] - 16.06.2018
 
-**[+]** added `selector` - tool for compile-time branching; `#include <ex/meta/selector>`  
-**[+]** added `math_type` - compile-time type classification; `#include <ex/meta/math_type>`  
+**[+]** added **selector** - tool for compile-time branching; `#include <ex/meta/selector>`  
+**[+]** added **math_type** - compile-time type classification; `#include <ex/meta/math_type>`  
 **[+]** added word splitting and combining tool; `#include <ex/encoding/word>`   
 
-**[*]** configurable notice policy `ex::policy::DefaultNotice`; `#include <ex/common/policy>`  
-**[*]** `Expected<T>` -> `expected<T>` + function renaming; `#include <ex/expected>`    
+**[*]** configurable notice policy **ex::policy::DefaultNotice**; `#include <ex/common/policy>`  
+**[*]** **Expected<T>** -> **expected** + function renaming; `#include <ex/expected>`    
 **[*]** eliminated extra namespace: `meta`;  
 **[*]** all `meta` tools now in lowercase;  
-**[*]** added `NoNotice` policy; `#include <ex/policy/notice>`  
+**[*]** added **NoNotice** policy; `#include <ex/policy/notice>`  
 **[*]** rename `type_assert` to `concept`(similar to new language feature p1079r0); `#include <ex/meta/concept>`  
-**[*]** interface of `expected<T>` updated; `#include <ex/expected>`  
+**[*]** interface of **expected** updated; `#include <ex/expected>`  
 
-**[-]** removed `range_check_assert`; `#include <ex/range_check>`
+**[-]** removed **range_check_assert**; `#include <ex/range_check>`
 
 
 ## [v0.3.0] - 27.04.2018
