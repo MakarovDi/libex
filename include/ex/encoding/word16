@@ -1,0 +1,237 @@
+#ifndef    EX_ENCODING_WORD_H
+#   define EX_ENCODING_WORD_H
+
+
+#include <cstdint>
+
+
+namespace ex
+{
+
+#pragma pack(push, 1)
+
+
+struct word16 final
+{
+public:
+    word16()
+    {
+    }
+
+
+    word16(uint16_t word) : value(word)
+    {
+    }
+
+
+    word16(uint8_t hi, uint8_t low) :
+        low(low),
+        hi(hi)
+    {
+    }
+
+
+    operator uint16_t() const { return value; }
+
+public:
+    word16& operator +=(word16 w)
+    {
+        value += w.value;
+        return *this;
+    }
+
+
+    word16& operator -=(word16 w)
+    {
+        value -= w.value;
+        return *this;
+    }
+
+
+    word16& operator *=(word16 w)
+    {
+        value *= w.value;
+        return *this;
+    }
+
+
+    word16& operator /=(word16 w)
+    {
+        value /= w.value;
+        return *this;
+    }
+
+
+    word16& operator |=(word16 w)
+    {
+        value |= w.value;
+        return *this;
+    }
+
+
+    word16& operator ^=(word16 w)
+    {
+        value ^= w.value;
+        return *this;
+    }
+
+
+    word16& operator >>=(word16 w)
+    {
+        value >>= w.value;
+        return *this;
+    }
+
+
+    word16& operator <<=(word16 w)
+    {
+        value <<= w.value;
+        return *this;
+    }
+
+
+public:
+    union
+    {
+        uint16_t value;
+
+        struct
+        {
+            uint8_t low : 8;
+            uint8_t hi  : 8;
+        };
+    };
+};
+
+
+#pragma pack(pop)
+
+
+void swap(word16& w1, word16& w2)
+{
+    std::swap(w1.value, w2.value);
+}
+
+
+template <typename T>
+word16 operator << (word16 w1, T w2)
+{
+    return w1.value << w2;
+}
+
+
+template <typename T>
+T operator << (T w1, word16 w2)
+{
+    return w1 << w2.value;
+}
+
+
+word16 operator << (word16 w1, word16 w2)
+{
+    return w1.value << w2.value;
+}
+
+
+template <typename T>
+word16 operator >> (word16 w1, T w2)
+{
+    return w1.value >> w2;
+}
+
+
+template <typename T>
+T operator >> (T w1, word16 w2)
+{
+    return w1 >> w2.value;
+}
+
+
+word16 operator >> (word16 w1, word16 w2)
+{
+    return w1.value >> w2.value;
+}
+
+
+template <typename T>
+word16 operator + (word16 w1, T w2)
+{
+    return w1.value + w2;
+}
+
+
+template <typename T>
+T operator + (T w1, word16 w2)
+{
+    return w1 + w2.value;
+}
+
+
+word16 operator + (word16 w1, word16 w2)
+{
+    return w1.value + w2.value;
+}
+
+template <typename T>
+word16 operator - (word16 w1, T w2)
+{
+    return w1.value - w2;
+}
+
+
+template <typename T>
+T operator - (T w1, word16 w2)
+{
+    return w1 - w2.value;
+}
+
+
+word16 operator - (word16 w1, word16 w2)
+{
+    return w1.value - w2.value;
+}
+
+
+template <typename T>
+word16 operator * (word16 w1, T w2)
+{
+    return w1.value * w2;
+}
+
+
+template <typename T>
+T operator * (T w1, word16 w2)
+{
+    return w1 * w2.value;
+}
+
+
+word16 operator * (word16 w1, word16 w2)
+{
+    return w1.value * w2.value;
+}
+
+
+template <typename T>
+word16 operator / (word16 w1, T w2)
+{
+    return w1.value / w2;
+}
+
+
+template <typename T>
+T operator / (T w1, word16 w2)
+{
+    return w1 / w2.value;
+}
+
+
+word16 operator / (word16 w1, word16 w2)
+{
+    return w1.value / w2.value;
+}
+
+
+
+}
+#endif // EX_ENCODING_WORD_H

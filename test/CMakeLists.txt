@@ -14,6 +14,7 @@ add_executable(ExTests
     ct/strcat.cpp
     ct/basename.cpp
     ct/math.cpp
+    encoding/word16.cpp
     range_check.cpp
     expected.cpp)
 
