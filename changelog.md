@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.3.2] - 17.06.2018
+
+**[*]** fix for **word16** interface + unit test; `#include <ex/encoding/word16>`  
+
 ## [v0.3.1] - 16.06.2018
 
 **[+]** added **selector** - tool for compile-time branching; `#include <ex/meta/selector>`  
