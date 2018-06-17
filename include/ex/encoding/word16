@@ -107,7 +107,7 @@ public:
 #pragma pack(pop)
 
 
-void swap(word16& w1, word16& w2)
+inline void swap(word16& w1, word16& w2)
 {
     std::swap(w1.value, w2.value);
 }
@@ -127,7 +127,7 @@ T operator << (T w1, word16 w2)
 }
 
 
-word16 operator << (word16 w1, word16 w2)
+inline word16 operator << (word16 w1, word16 w2)
 {
     return w1.value << w2.value;
 }
@@ -147,7 +147,7 @@ T operator >> (T w1, word16 w2)
 }
 
 
-word16 operator >> (word16 w1, word16 w2)
+inline word16 operator >> (word16 w1, word16 w2)
 {
     return w1.value >> w2.value;
 }
@@ -167,7 +167,7 @@ T operator + (T w1, word16 w2)
 }
 
 
-word16 operator + (word16 w1, word16 w2)
+inline word16 operator + (word16 w1, word16 w2)
 {
     return w1.value + w2.value;
 }
@@ -186,7 +186,7 @@ T operator - (T w1, word16 w2)
 }
 
 
-word16 operator - (word16 w1, word16 w2)
+inline word16 operator - (word16 w1, word16 w2)
 {
     return w1.value - w2.value;
 }
@@ -206,7 +206,7 @@ T operator * (T w1, word16 w2)
 }
 
 
-word16 operator * (word16 w1, word16 w2)
+inline word16 operator * (word16 w1, word16 w2)
 {
     return w1.value * w2.value;
 }
@@ -226,7 +226,7 @@ T operator / (T w1, word16 w2)
 }
 
 
-word16 operator / (word16 w1, word16 w2)
+inline word16 operator / (word16 w1, word16 w2)
 {
     return w1.value / w2.value;
 }
