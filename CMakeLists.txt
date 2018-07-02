@@ -81,6 +81,7 @@ set(HEADERS
     include/ex/string
     include/ex/version
     include/ex/container/pool
+    include/ex/container/ring_buffer
     include/ex/interface
     include/ex/cprint
     include/ex/assert

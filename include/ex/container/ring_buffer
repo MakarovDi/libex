@@ -1,0 +1,125 @@
+#ifndef    EX_CONTAINER_RING_BUFFER_HEADER
+#   define EX_CONTAINER_RING_BUFFER_HEADER
+
+
+#include <memory>
+#include "ex/common/type"
+#include "ex/common/policy"
+#include "ex/interface"
+#include "ex/assert"
+
+
+namespace ex
+{
+
+
+template <typename T>
+class RingBuffer final : INonCopyable
+{
+public:
+    explicit RingBuffer(index_t size) :
+        m_buffer(new T[size]),
+        m_front(0),
+        m_back(-1),
+        m_size(size),
+        m_count(0)
+    {
+    }
+
+public:
+    index_t size()  const { return m_size;  }
+    index_t count() const { return m_count; }
+
+    bool is_empty() const { return count() == 0;      }
+    bool is_full()  const { return count() == size(); }
+
+
+    T& operator [](index_t idx)
+    {
+        ex::assert(is_full() || idx < count(), "index out of range");
+        return m_buffer[ (m_front + idx) % size() ];
+    }
+
+
+    const T& operator [](index_t idx) const
+    {
+        return const_cast<RingBuffer*>(this)->operator[](idx);
+    }
+
+public:
+    T& front()
+    {
+        ex::assert(!is_empty(), "buffer is empty");
+        return m_buffer[m_front];
+    }
+
+
+    T& back()
+    {
+        ex::assert(!is_empty(), "buffer is empty");
+        return m_buffer[m_back];
+    }
+
+
+    const T& front() const { return const_cast<RingBuffer*>(this)->front(); }
+    const T& back()  const { return const_cast<RingBuffer*>(this)->back();  }
+
+public:
+    void push_back(const T& value)
+    {
+        m_back = (m_back + 1) % size();
+        m_buffer[m_back] = value;
+
+        if (is_full())
+            m_front = (m_front + 1) % size();
+        else
+            m_count++;
+    }
+
+
+    T pop_back()
+    {
+        ex::assert(!is_empty(), "buffer is empty");
+
+        T value = std::move(back());
+
+        m_back = (m_back - 1 + size()) % size();
+        m_count--;
+
+        return value;
+    }
+
+
+    T pop_front()
+    {
+        ex::assert(!is_empty(), "buffer is empty");
+
+        T value = std::move(front());
+
+        m_front = (m_front + 1) % size();
+        m_count--;
+
+        return value;
+    }
+
+
+    void clear()
+    {
+        m_back = -1;
+        m_front = 0;
+        m_count = 0;
+    }
+
+private:
+    std::unique_ptr<T[]> m_buffer;
+
+    index_t m_front;
+    index_t m_back;
+    index_t m_size;
+    index_t m_count;
+};
+
+
+
+}
+#endif // EX_CONTAINER_RING_BUFFER_HEADER
