@@ -81,14 +81,15 @@ set(HEADERS
     include/ex/scopeguard
     include/ex/string
     include/ex/version
-    include/ex/pool
+    include/ex/container/pool
     include/ex/interface
-    include/ex/policy/threading
-    include/ex/policy/pool
     include/ex/cprint
     include/ex/assert
     include/ex/semantic
+    include/ex/policy/threading
     include/ex/policy/notice
+    include/ex/policy/pool/size
+    include/ex/policy/pool/destroy
     include/ex/range_check
     include/ex/ct
     include/ex/log/logger

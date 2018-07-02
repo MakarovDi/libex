@@ -1,0 +1,54 @@
+#ifndef    EX_POLICY_POOL_SIZE_HEADER
+#   define EX_POLICY_POOL_SIZE_HEADER
+
+
+#include <stdexcept>
+#include <utility>
+#include <functional>
+
+
+namespace ex
+{
+namespace policy
+{
+
+
+template < class T >
+using creator = std::function<T&()>;
+
+
+
+template < class T >
+class FixedSizePool
+{
+protected:
+    T* extend_pool()
+    {
+        throw std::logic_error("fixed-size pool is empty");
+    }
+protected:
+    FixedSizePool(creator<T>&&) {}
+    ~FixedSizePool()            {}
+};
+
+
+template < class T >
+class ExtendablePool
+{
+protected:
+    T* extend_pool()
+    {
+        return m_creator();
+    }
+
+protected:
+    ExtendablePool(creator<T>&& function) : m_creator(std::move(function)) {}
+    ~ExtendablePool() {}
+private:
+    creator<T> m_creator;
+};
+
+
+}
+}
+#endif // EX_POLICY_POOL_SIZE_HEADER
