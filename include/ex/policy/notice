@@ -3,7 +3,6 @@
 
 
 #include <iostream>
-#include "ex/assert"
 
 
 namespace ex
@@ -39,18 +38,34 @@ protected:
 };
 
 
-struct AssertNotice
+template < class Exception >
+struct DebugNotice
 {
     static void notice(const char* message)
     {
-        ex::failure(message);
+    #ifndef NDEBUG
+        throw Exception(message);
+    #endif
     }
 
 protected:
-    AssertNotice()  {}
-    ~AssertNotice() {}
+    DebugNotice()  {}
+    ~DebugNotice() {}
 };
 
+
+struct FatalNotice
+{
+    static void notice(const char* message)
+    {
+        std::cerr << message << std::endl;
+        abort();
+    }
+
+protected:
+    FatalNotice()  {}
+    ~FatalNotice() {}
+};
 
 
 struct NoNotice

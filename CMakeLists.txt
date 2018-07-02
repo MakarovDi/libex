@@ -65,8 +65,7 @@ set(SOURCES
     src/platform.cpp
     src/version.cpp
     src/cprint.cpp
-    src/assert.cpp
-)
+    )
 
 # Enumerate header files
 set(HEADERS

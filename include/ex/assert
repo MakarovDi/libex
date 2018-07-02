@@ -1,16 +1,28 @@
-#ifndef    EX_ASSERT_H
-#   define EX_ASSERT_H
+#ifndef    EX_ASSERT_HEADER
+#   define EX_ASSERT_HEADER
 
-#include <cassert>
+#include "ex/common/policy"
 
-
-#define ASSERT(expression, message) assert((expression) && (message))
-
+#ifdef assert
+#   undef assert
+#endif
 
 namespace ex
 {
-    void failure(const char*    message);
-    void failure(const wchar_t* message);
+    template <typename Notice = ex::policy::DefaultNotice>
+    void assert(bool statement, const char* message)
+    {
+        if (!statement)
+            Notice::notice(message);
+    }
+
+
+    template <typename Notice = ex::policy::DefaultNotice>
+    void failure(const char* message)
+    {
+        ex::assert(false, message);
+    }
+
 }
 
 #endif
