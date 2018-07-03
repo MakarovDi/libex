@@ -1,0 +1,66 @@
+#ifndef    EX_RANDOM_HEADER
+#   define EX_RANDOM_HEADER
+
+#include <random>
+
+#include "ex/interface"
+#include "ex/meta/math_type"
+
+
+namespace ex
+{
+
+
+template <typename T, typename S = typename math_type<T>::type>
+struct uniform_distribution : INonCreatable
+{
+};
+
+
+template <typename T>
+struct uniform_distribution<T, int> : public std::uniform_int_distribution<T>
+{
+    using base = std::uniform_int_distribution<T>;
+public:
+    using type = std::uniform_int_distribution<T>;
+    using result_type = typename base::result_type;
+    using param_type  = typename base::param_type;
+
+public:
+    explicit uniform_distribution(result_type a = 0,
+                                  result_type b = std::numeric_limits<result_type>::max()) : base(a, b)
+    {
+    }
+
+
+    explicit uniform_distribution(const param_type& p) : base(p)
+    {
+    }
+};
+
+
+template <typename T>
+struct uniform_distribution<T, float> : public std::uniform_real_distribution<T>
+{
+    using base = std::uniform_real_distribution<T>;
+
+public:
+    using type = std::uniform_real_distribution<T>;
+    using result_type = typename base::result_type;
+    using param_type  = typename base::param_type;
+
+public:
+    explicit uniform_distribution(result_type a = 0.0, result_type b = 1.0) : base(a, b)
+    {
+    }
+
+
+    explicit uniform_distribution(const param_type& p) : base(p)
+    {
+    }
+};
+
+
+
+}
+#endif // EX_RANDOM_HEADER
