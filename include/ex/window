@@ -1,0 +1,190 @@
+#ifndef    EX_WINDOW_HEADER
+#   define EX_WINDOW_HEADER
+
+#include <stdexcept>
+#include <algorithm>
+#include <functional>
+
+#include "ex/common/type"
+#include "ex/assert"
+
+
+namespace ex
+{
+
+
+namespace internal
+{
+
+
+template <typename T, typename Facade>
+class ExtremumWindow final : public Facade
+{
+public:
+    ExtremumWindow(index_t window_size, const T* array, index_t array_size) :
+        m_array(array),
+        m_array_size(array_size),
+        m_size(window_size),
+        m_start(0),
+        m_end(-1),
+        m_extremum_idx(-1)
+    {
+        if (m_size <= 0 || m_array_size <= 0)
+            throw std::logic_error("invalid size");
+    }
+
+public:
+    void next()
+    {
+        if (m_end == -1)
+        {
+            m_end = 0;
+            m_extremum_idx = 0;
+            return;
+        }
+
+        if (m_end < m_array_size - 1)
+        {
+            ++m_end;
+
+            if (this->is_extremum(m_array[m_end], m_array[m_extremum_idx]))
+            {
+                m_extremum_idx = m_end;
+            }
+
+            if (count() > size())
+            {
+                update_start_pointer();
+            }
+        }
+        else
+        {
+            update_start_pointer();
+        }
+    }
+
+public:
+    index_t size()  const { return m_size;              }
+    index_t count() const { return m_end - m_start + 1; }
+
+protected:
+    friend Facade;
+protected:
+    index_t  extremum_index() const
+    {
+        ex::assert(count() > 0, "window should not be empty");
+        return m_extremum_idx;
+    }
+
+
+    const T& extremum() const
+    {
+        ex::assert(count() > 0, "window should not be empty");
+        return m_array[m_extremum_idx];
+    }
+
+private:
+    void update_start_pointer()
+    {
+        if (m_size > m_array_size)
+        {
+            --m_size;
+            return;
+        }
+
+        ++m_start;
+
+        if (m_extremum_idx >= m_start)
+        {
+            return;
+        }
+
+        auto extremum_idx = this->find_extremum(&m_array[m_start], &m_array[m_end+1]);
+        m_extremum_idx    = index_t( std::distance(m_array, extremum_idx) );
+    }
+
+private:
+    const T* m_array;
+    index_t  m_array_size;
+    index_t  m_size;
+    index_t  m_start;
+    index_t  m_end;
+    index_t  m_extremum_idx;
+};
+
+
+template <typename T>
+class MinFacade
+{
+    using Window = ExtremumWindow<T, MinFacade<T>>;
+
+public:
+    index_t  minimum_index() const { return self().extremum_index(); }
+    const T& minimum()       const { return self().extremum();       }
+
+protected:
+    template <typename Iterator>
+    Iterator find_extremum(Iterator start, Iterator end)
+    {
+        return std::min_element(start, end, std::less_equal<T>());
+    }
+
+
+    bool is_extremum(const T& value, const T& current_extremum) const
+    {
+        return value <= current_extremum;
+    }
+
+protected:
+    MinFacade()  = default;
+    ~MinFacade() = default;
+
+private:
+    const Window& self() const { return *static_cast<const Window*>(this); }
+};
+
+
+template <typename T>
+class MaxFacade
+{
+    using Window = ExtremumWindow<T, MaxFacade<T>>;
+
+public:
+    index_t  maximum_index() const { return self().extremum_index(); }
+    const T& maximum()       const { return self().extremum();       }
+
+protected:
+    template <typename Iterator>
+    Iterator find_extremum(Iterator start, Iterator end)
+    {
+        return std::max_element(start, end, std::less_equal<T>());
+    }
+
+
+    bool is_extremum(const T& value, const T& current_extremum) const
+    {
+        return value >= current_extremum;
+    }
+
+protected:
+    MaxFacade()  = default;
+    ~MaxFacade() = default;
+
+private:
+    const Window& self() const { return *static_cast<const Window*>(this); }
+};
+
+
+}
+
+
+template <typename T>
+using MinWindow = internal::ExtremumWindow<T, internal::MinFacade<T>>;
+
+
+template <typename T>
+using MaxWindow = internal::ExtremumWindow<T, internal::MaxFacade<T>>;
+
+
+}
+#endif // EX_WINDOW_HEADER

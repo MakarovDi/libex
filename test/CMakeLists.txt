@@ -17,7 +17,8 @@ add_executable(ExTests
     encoding/word16.cpp
     range_check.cpp
     expected.cpp
-    container/ring_buffer.cpp)
+    container/ring_buffer.cpp
+    window.cpp)
 
 
 target_link_libraries(ExTests PRIVATE ex gtest gtest_main)
