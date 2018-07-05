@@ -116,7 +116,8 @@ set(HEADERS
     include/ex/meta/math_type
     include/ex/encoding/word16
     include/ex/random
-    include/ex/window)
+    include/ex/window
+    include/ex/utility)
 
 
 

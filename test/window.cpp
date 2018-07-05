@@ -1,7 +1,4 @@
 #include <gtest/gtest.h>
-
-//#include <ex/policy/notice>
-//#define EX_NOTICE_POLICY ex::policy::ThrowNotice<std::logic_error>
 #include <ex/window>
 
 
