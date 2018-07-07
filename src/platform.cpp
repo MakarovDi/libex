@@ -1,6 +1,14 @@
 #include "ex/platform"
 
 
+#ifdef UNICODE
+#  define __L(s) L##s
+#else
+#  define __L(s) s
+#endif
+
+// L - conversion to project's encoding
+#define L(S)    __L(S)
 
 namespace ex
 {
