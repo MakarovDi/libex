@@ -3,6 +3,7 @@
 
 
 #include <cstdint>
+#include "ex/range_check"
 
 
 namespace ex
@@ -24,6 +25,19 @@ public:
     }
 
 
+    word16(int word) : value(uint16_t(word))
+    {
+        ex::range_check(word, int(std::numeric_limits<uint16_t>::max()));
+    }
+
+
+    word16(uint8_t low) :
+        low(low),
+        hi(0)
+    {
+    }
+
+
     word16(uint8_t hi, uint8_t low) :
         low(low),
         hi(hi)
@@ -31,7 +45,7 @@ public:
     }
 
 
-    operator uint16_t() const { return value; }
+    operator int() const { return value; }
 
 public:
     word16& operator +=(word16 w)
@@ -111,126 +125,6 @@ inline void swap(word16& w1, word16& w2)
 {
     std::swap(w1.value, w2.value);
 }
-
-
-template <typename T>
-word16 operator << (word16 w1, T w2)
-{
-    return w1.value << w2;
-}
-
-
-template <typename T>
-T operator << (T w1, word16 w2)
-{
-    return w1 << w2.value;
-}
-
-
-inline word16 operator << (word16 w1, word16 w2)
-{
-    return w1.value << w2.value;
-}
-
-
-template <typename T>
-word16 operator >> (word16 w1, T w2)
-{
-    return w1.value >> w2;
-}
-
-
-template <typename T>
-T operator >> (T w1, word16 w2)
-{
-    return w1 >> w2.value;
-}
-
-
-inline word16 operator >> (word16 w1, word16 w2)
-{
-    return w1.value >> w2.value;
-}
-
-
-template <typename T>
-word16 operator + (word16 w1, T w2)
-{
-    return w1.value + w2;
-}
-
-
-template <typename T>
-T operator + (T w1, word16 w2)
-{
-    return w1 + w2.value;
-}
-
-
-inline word16 operator + (word16 w1, word16 w2)
-{
-    return w1.value + w2.value;
-}
-
-template <typename T>
-word16 operator - (word16 w1, T w2)
-{
-    return w1.value - w2;
-}
-
-
-template <typename T>
-T operator - (T w1, word16 w2)
-{
-    return w1 - w2.value;
-}
-
-
-inline word16 operator - (word16 w1, word16 w2)
-{
-    return w1.value - w2.value;
-}
-
-
-template <typename T>
-word16 operator * (word16 w1, T w2)
-{
-    return w1.value * w2;
-}
-
-
-template <typename T>
-T operator * (T w1, word16 w2)
-{
-    return w1 * w2.value;
-}
-
-
-inline word16 operator * (word16 w1, word16 w2)
-{
-    return w1.value * w2.value;
-}
-
-
-template <typename T>
-word16 operator / (word16 w1, T w2)
-{
-    return w1.value / w2;
-}
-
-
-template <typename T>
-T operator / (T w1, word16 w2)
-{
-    return w1 / w2.value;
-}
-
-
-inline word16 operator / (word16 w1, word16 w2)
-{
-    return w1.value / w2.value;
-}
-
 
 
 }
