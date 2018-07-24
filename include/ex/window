@@ -2,11 +2,10 @@
 #   define EX_WINDOW_HEADER
 
 #include <stdexcept>
-#include <algorithm>
-#include <functional>
 
 #include "ex/common/type"
 #include "ex/assert"
+#include "ex/algo"
 
 
 namespace ex
@@ -126,7 +125,7 @@ protected:
     template <typename Iterator>
     Iterator find_extremum(Iterator start, Iterator end)
     {
-        return std::min_element(start, end, std::less_equal<T>());
+        return ex::last_min_element(start, end);
     }
 
 
@@ -157,7 +156,7 @@ protected:
     template <typename Iterator>
     Iterator find_extremum(Iterator start, Iterator end)
     {
-        return std::max_element(start, end, std::less_equal<T>());
+        return ex::last_max_element(start, end);
     }
 
 
