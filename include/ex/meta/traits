@@ -1,0 +1,33 @@
+#ifndef EX_META_TRAITS_HEADER
+#define EX_META_TRAITS_HEADER
+
+#include <type_traits>
+#include <utility>
+
+
+namespace ex
+{
+
+
+template<class T>
+struct has_index_operator final
+{
+    has_index_operator()  = delete;
+    ~has_index_operator() = delete;
+private:
+    template <typename U>
+    static auto test(U*)  noexcept -> decltype(std::declval<U>()[0]) { return {}; }
+
+    template <typename>
+    static auto test(...) noexcept -> std::false_type { return {}; }
+
+public:
+    enum : bool
+    {
+        value = !std::is_same< decltype(test<T>(nullptr)), std::false_type >::value
+    };
+};
+
+
+}
+#endif // EX_META_TRAITS_HEADER

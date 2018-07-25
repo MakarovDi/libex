@@ -18,7 +18,9 @@ add_executable(ExTests
     range_check.cpp
     expected.cpp
     container/ring_buffer.cpp
-    window.cpp)
+    window.cpp
+    meta/traits.cpp
+)
 
 
 target_link_libraries(ExTests PRIVATE ex gtest gtest_main)

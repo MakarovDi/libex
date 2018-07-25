@@ -65,7 +65,7 @@ set(SOURCES
     src/platform.cpp
     src/version.cpp
     src/cprint.cpp
-    )
+)
 
 # Enumerate header files
 set(HEADERS
@@ -111,13 +111,15 @@ set(HEADERS
     include/ex/meta/pack
     include/ex/meta/selector
     include/ex/meta/concept
+    include/ex/meta/math_type
+    include/ex/meta/traits
     include/ex/common/type
     include/ex/common/policy
-    include/ex/meta/math_type
     include/ex/encoding/word16
     include/ex/random
     include/ex/window
-    include/ex/utility)
+    include/ex/utility
+)
 
 
 
