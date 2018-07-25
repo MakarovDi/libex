@@ -22,10 +22,7 @@ private:
     static auto test(...) noexcept -> std::false_type { return {}; }
 
 public:
-    enum : bool
-    {
-        value = !std::is_same< decltype(test<T>(nullptr)), std::false_type >::value
-    };
+    static constexpr bool value = !std::is_same< decltype(test<T>(nullptr)), std::false_type >::value;
 };
 
 
