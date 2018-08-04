@@ -1,5 +1,5 @@
-#ifndef EX_META_TRAITS_HEADER
-#define EX_META_TRAITS_HEADER
+#ifndef    EX_META_TRAITS_HEADER
+#   define EX_META_TRAITS_HEADER
 
 #include <type_traits>
 #include <utility>
@@ -23,6 +23,29 @@ private:
 
 public:
     static constexpr bool value = !std::is_same< decltype(test<T>(nullptr)), std::false_type >::value;
+};
+
+
+template <class T, bool=std::is_pointer<T>::value>
+class iterator_type;
+
+template <class T>
+class iterator_type<T, true>
+{
+public:
+    using type = T;
+};
+
+template <class T>
+class iterator_type<T, false>
+{
+    static auto test_container(T&& container) -> decltype(auto)
+    {
+        using std::begin;
+        return begin( container );
+    }
+public:
+    using type = decltype(test_container(std::declval<T>()));
 };
 
 
