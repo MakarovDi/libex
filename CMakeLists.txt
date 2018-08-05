@@ -73,7 +73,7 @@ set(HEADERS
     include/ex/exception
     include/ex/expected
     include/ex/format
-    include/ex/iterator
+    include/ex/iterator/any_iterator
     include/ex/macro
     include/ex/placebo
     include/ex/platform
