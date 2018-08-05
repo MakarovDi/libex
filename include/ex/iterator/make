@@ -1,0 +1,31 @@
+#ifndef    EX_ITERATOR_MAKE_HEADER
+#   define EX_ITERATOR_MAKE_HEADER
+
+#include <iterator>
+
+
+namespace ex
+{
+
+
+template <class Container>
+inline auto make_begin(Container& container) -> decltype(auto)
+{
+    using std::begin;
+
+    return begin(container);
+}
+
+
+template <class Container>
+inline auto make_end(Container& container) -> decltype(auto)
+{
+    using std::end;
+
+    return end(container);
+}
+
+
+}
+
+#endif // EX_ITERATOR_UTIL_HEADER
