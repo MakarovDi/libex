@@ -74,6 +74,7 @@ set(HEADERS
     include/ex/expected
     include/ex/format
     include/ex/iterator/any_iterator
+    include/ex/iterator/index_iterator
     include/ex/macro
     include/ex/placebo
     include/ex/platform

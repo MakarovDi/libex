@@ -1,0 +1,118 @@
+#ifndef    EX_ITERATOR_INDEX_ITERATOR_HEADER
+#   define EX_ITERATOR_INDEX_ITERATOR_HEADER
+
+#include <type_traits>
+#include <iterator>
+#include "ex/common/type"
+
+
+namespace ex
+{
+
+
+namespace   internal
+{
+    struct IndexOperatorRandomAccess
+    {
+        template <typename Container>
+        static inline auto get(Container&& object, index_t index) -> decltype(auto)
+        {
+            return object[index];
+        }
+    };
+
+}
+
+
+
+template<typename T, typename Container, class IRandomAccess = internal::IndexOperatorRandomAccess>
+class index_iterator : public std::iterator<std::random_access_iterator_tag, T>
+{
+protected:
+   Container* m_iteratable;
+   index_t    m_index;
+
+public:
+    index_iterator() :
+        m_iteratable(nullptr),
+        m_index(index_t(0))
+    {
+    }
+
+
+    index_iterator(Container& m, index_t index) :
+        m_iteratable(&m),
+        m_index(index)
+    {
+    }
+
+public:
+    bool operator==(const index_iterator& other) const
+    {
+        return m_iteratable == other.m_iteratable && m_index == other.m_index;
+    }
+
+    bool operator !=(const index_iterator& other) const
+    {
+        return !(*this == other);
+    }
+
+
+    T&       operator*()        { return IRandomAccess::get(*m_iteratable, m_index);  }
+    T const& operator*()  const { return IRandomAccess::get(*m_iteratable, m_index);  }
+
+    T*       operator->()       { return &IRandomAccess::get(*m_iteratable, m_index); }
+    T const* operator->() const { return &IRandomAccess::get(*m_iteratable, m_index); }
+
+    T&       operator[](index_t i)       { return IRandomAccess::get(*m_iteratable, m_index); }
+    T const& operator[](index_t i) const { return IRandomAccess::get(*m_iteratable, m_index); }
+
+
+    index_iterator& operator++()
+    {
+        ++m_index;
+        return *this;
+    }
+
+    index_iterator  operator++(int)
+    {
+        index_iterator current(*this);
+        operator++();
+        return current;
+    }
+
+
+    index_iterator& operator--()
+    {
+        --m_index;
+        return *this;
+    }
+
+    index_iterator  operator--(int)
+    {
+        index_iterator current(*this);
+        operator--();
+        return current;
+    }
+
+    // for run std::distance() in O(1)
+    index_t operator-(const index_iterator& other) const { return m_index - other.m_index; }
+
+    bool operator< (const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index <  other.m_index; }
+    bool operator<=(const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index <= other.m_index; }
+    bool operator> (const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index >  other.m_index; }
+    bool operator>=(const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index >= other.m_index; }
+
+    index_iterator& operator+=(index_t shift) { m_index += shift; return *this; }
+    index_iterator& operator-=(index_t shift) { m_index -= shift; return *this; }
+
+public:
+    friend index_iterator operator+(const index_iterator& a, index_t b) { index_iterator result(a); result += b; return result; }
+    friend index_iterator operator-(const index_iterator& a, index_t b) { index_iterator result(a); result -= b; return result; }
+    friend index_iterator operator+(index_t a, const index_iterator& b) { index_iterator result(b); result += a; return result; }
+    friend index_iterator operator-(index_t a, const index_iterator& b) { index_iterator result(b); result -= a; return result; }
+};
+
+
+}
+#endif // EX_ITERATOR_INDEX_ITERATOR_HEADER
