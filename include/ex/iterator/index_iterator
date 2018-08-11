@@ -3,7 +3,9 @@
 
 #include <type_traits>
 #include <iterator>
+
 #include "ex/common/type"
+#include "ex/assert"
 
 
 namespace ex
@@ -96,12 +98,36 @@ public:
     }
 
     // for run std::distance() in O(1)
-    index_t operator-(const index_iterator& other) const { return m_index - other.m_index; }
+    index_t operator-(const index_iterator& other) const
+    {
+        ex::assert(m_iteratable == other.m_iteratable, "iterators for same object");
+        return m_index - other.m_index;
+    }
 
-    bool operator< (const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index <  other.m_index; }
-    bool operator<=(const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index <= other.m_index; }
-    bool operator> (const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index >  other.m_index; }
-    bool operator>=(const index_iterator& other) const { return m_iteratable == other.m_iteratable && m_index >= other.m_index; }
+
+    bool operator< (const index_iterator& other) const
+    {
+        ex::assert(m_iteratable == other.m_iteratable, "iterators for same object");
+        return (m_index <  other.m_index);
+    }
+
+    bool operator<=(const index_iterator& other) const
+    {
+        ex::assert(m_iteratable == other.m_iteratable, "iterators for same object");
+        return m_index <= other.m_index;
+    }
+
+    bool operator> (const index_iterator& other) const
+    {
+        ex::assert(m_iteratable == other.m_iteratable, "iterators for same object");
+        return m_index >  other.m_index;
+    }
+
+    bool operator>=(const index_iterator& other) const
+    {
+        ex::assert(m_iteratable == other.m_iteratable, "iterators for same object");
+        return m_index >= other.m_index;
+    }
 
     index_iterator& operator+=(index_t shift) { m_index += shift; return *this; }
     index_iterator& operator-=(index_t shift) { m_index -= shift; return *this; }
