@@ -20,6 +20,7 @@ add_executable(ExTests
     container/ring_buffer.cpp
     window.cpp
     meta/traits.cpp
+    algo.cpp
 )
 
 

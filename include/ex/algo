@@ -42,20 +42,28 @@ Container sorted(Container x)
 template<typename Iterator>
 Iterator last_max_element(Iterator start, Iterator end)
 {
+    if (start == end) return end;
+
     auto rstart = std::make_reverse_iterator(end);
     auto rend = std::make_reverse_iterator(start);
 
-    return (std::max_element(rstart, rend)+1).base();
+    auto last_max = std::max_element(rstart, rend);
+
+    return last_max.base() - 1;
 }
 
 
 template<typename Iterator>
 Iterator last_min_element(Iterator start, Iterator end)
 {
+    if (start == end) return end;
+
     auto rstart = std::make_reverse_iterator(end);
     auto rend = std::make_reverse_iterator(start);
 
-    return (std::min_element(rstart, rend)+1).base();
+    auto last_min = std::min_element(rstart, rend);
+
+    return last_min.base() - 1;
 }
 
 
