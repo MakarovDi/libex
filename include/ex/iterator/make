@@ -2,6 +2,7 @@
 #   define EX_ITERATOR_MAKE_HEADER
 
 #include <iterator>
+#include <utility>
 
 
 namespace ex
@@ -9,20 +10,20 @@ namespace ex
 
 
 template <class Container>
-inline auto make_begin(Container& container) -> decltype(auto)
+inline auto make_begin(Container&& container) -> decltype(auto)
 {
     using std::begin;
 
-    return begin(container);
+    return begin(std::forward<Container>(container));
 }
 
 
 template <class Container>
-inline auto make_end(Container& container) -> decltype(auto)
+inline auto make_end(Container&& container) -> decltype(auto)
 {
     using std::end;
 
-    return end(container);
+    return end(std::forward<Container>(container));
 }
 
 
