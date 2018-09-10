@@ -5,15 +5,27 @@
 namespace ex
 {
 
-    class INonCopyable
-    {
-    protected:
-        INonCopyable()  {}
-        ~INonCopyable()	{}
-    private:
-        INonCopyable(const INonCopyable&);
-        INonCopyable& operator=(const INonCopyable&);
-    };
+
+class INonCopyable
+{
+protected:
+    INonCopyable()  {}
+    ~INonCopyable()	{}
+private:
+    INonCopyable(const INonCopyable&);
+    INonCopyable& operator=(const INonCopyable&);
+};
+
+
+
+class INonCreatable
+{
+private:
+    INonCreatable()  {}
+    ~INonCreatable() {}
+};
+
+
 
 }
 

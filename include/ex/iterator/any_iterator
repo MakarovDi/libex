@@ -1,14 +1,15 @@
-#ifndef    EX_ITERATOR_HEADER
-#   define EX_ITERATOR_HEADER
+#ifndef    EX_ITERATOR_ANY_ITERATOR_HEADER
+#   define EX_ITERATOR_ANY_ITERATOR_HEADER
 
 
 #include <memory> // unique_ptr
 
-#include "ex/debug"
-
 
 namespace ex
 {
+
+// TODO: refactoring + unit_tests
+// TODO: virtual functions optimization
 
 
 template<typename T>
@@ -35,7 +36,7 @@ const_unpointed<T>& const_unref(T &input) { return *input; }
 
 
 template<typename T, typename R=T, Transform<T, R> tfm=transparent<T, R>>
-class IteratorAdapter final
+class any_iterator final
 {
 	class BaseIterator;
 	using pBaseIterator = std::unique_ptr<BaseIterator>;
@@ -89,79 +90,79 @@ class IteratorAdapter final
 	};
 
 public:
-	IteratorAdapter() : m_faceless_iterator(nullptr) { }
+	any_iterator() : m_faceless_iterator(nullptr) { }
 
 	template<class Iterator> // const -> cancel reference collapsing rules
-	IteratorAdapter& operator=(const Iterator &&i)
+	any_iterator& operator=(const Iterator &&i)
 	{
 		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))));
 		return *this;
 	}
 
 	template<class Iterator>
-	IteratorAdapter& operator=(const Iterator &i)
+	any_iterator& operator=(const Iterator &i)
 	{
 		m_faceless_iterator.reset(new ConcreteIterator<Iterator>(i));
 		return *this;
 	}
 
-	IteratorAdapter& operator=(const IteratorAdapter &i)
+	any_iterator& operator=(const any_iterator &i)
 	{
 		m_faceless_iterator = std::move(i.m_faceless_iterator->clone());
 		return *this;
 	}
 
-	IteratorAdapter& operator=(IteratorAdapter &&i)
+	any_iterator& operator=(any_iterator &&i)
 	{
 		m_faceless_iterator = std::move(i.m_faceless_iterator);
 		return *this;
 	}
 
 	template<class Iterator> // const -> cancel reference collapsing rules
-	IteratorAdapter(const Iterator &&i) :
+	any_iterator(const Iterator &&i) :
 		m_faceless_iterator(new ConcreteIterator<Iterator>(std::move(const_cast<Iterator&>(i))))
 	{
 	}
 
 	template<class Iterator>
-	IteratorAdapter(const Iterator &i) :
+	any_iterator(const Iterator &i) :
 		m_faceless_iterator(new ConcreteIterator<Iterator>(i))
 	{
 	}
 
-	//IteratorAdapter(IteratorAdapter &&ia) = default;
-	IteratorAdapter(IteratorAdapter &&i) :
+	//any_iterator(any_iterator &&ia) = default;
+	any_iterator(any_iterator &&i) :
 		m_faceless_iterator(std::move(i.m_faceless_iterator))
 	{
 	}
 
-	IteratorAdapter(const IteratorAdapter &i) :
+	any_iterator(const any_iterator &i) :
 		m_faceless_iterator(i.m_faceless_iterator->clone())
 	{
 	}
 
-	IteratorAdapter& operator++()
+	any_iterator& operator++()
 	{
 		m_faceless_iterator->inc();
 		return *this;
 	}
 
-	IteratorAdapter operator++(int)
+	any_iterator operator++(int)
 	{
-		IteratorAdapter tmp(*this);
+		any_iterator tmp(*this);
 		m_faceless_iterator->inc();
 		return tmp;
 	}
 
-	IteratorAdapter& operator--()
+	any_iterator& operator--()
 	{
 		m_faceless_iterator->dec();
 		return *this;
 	}
 
-	IteratorAdapter operator--(int)
+	any_iterator operator--(int)
 	{
-		IteratorAdapter tmp(*this);
+		any_iterator tmp(*this);
 		m_faceless_iterator->dec();
 		return tmp;
 	}
@@ -174,14 +175,14 @@ public:
 		return i.equal(cmp);
 	}
 
-	bool operator==(const IteratorAdapter &cmp) const
+	bool operator==(const any_iterator &cmp) const
 	{
 		return m_faceless_iterator->equal(*cmp.m_faceless_iterator.get());
 	}
 
 	template<class Iterator>
 	bool operator!=(const Iterator &cmp)        const { return !operator==(cmp); }
-	bool operator!=(const IteratorAdapter &cmp) const { return !operator==(cmp); }
+	bool operator!=(const any_iterator &cmp) const { return !operator==(cmp); }
 
 	R& operator*()  const { return m_faceless_iterator->get_value(); }
 	R* operator->() const { return &operator*();                     }
@@ -194,4 +195,4 @@ private:
 
 
 
-#endif // EX_ITERATOR_HEADER
+#endif // EX_ITERATOR_ANY_ITERATOR_HEADER

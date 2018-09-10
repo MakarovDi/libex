@@ -1,16 +1,50 @@
-#ifndef    EX_ASSERT_H
-#   define EX_ASSERT_H
-
-#include <cassert>
+#ifndef    EX_ASSERT_HEADER
+#   define EX_ASSERT_HEADER
 
 
-#define ASSERT(expression, message) assert((expression) && (message))
+#include "ex/common/policy"
+
+
+#ifdef assert
+#   undef assert
+#endif
 
 
 namespace ex
 {
-    void failure(const char*    message);
-    void failure(const wchar_t* message);
+
+
+template <typename Notice = ex::policy::DefaultNotice>
+void assert(bool statement, const char* message)
+{
+    if (!statement)
+        Notice::notice(message);
+}
+
+
+template <typename Notice = ex::policy::DefaultNotice, typename T>
+void assert_equal(const T& t1, const T& t2)
+{
+    //
+    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notice is empty function
+    //
+    if (Notice::is_empty) return; // TODO: remove it when ms vc will be not so stupid (last check VS2017)
+
+    if (&t1 != &t2 && t1 != t2)
+    {
+        Notice::notice("objects must be same");
+    }
+}
+
+
+
+template <typename Notice = ex::policy::DefaultNotice>
+void failure(const char* message)
+{
+    ex::assert(false, message);
+}
+
+
 }
 
 #endif

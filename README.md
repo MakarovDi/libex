@@ -13,13 +13,13 @@ Some building blocks which I use frequently.
 #### Linux/MinGW/Cygwin ####
 
  * CMake >= 3.1
- * Make
+ * Make/Ninja
  * GCC (with C++14 support) / Clang
  
 #### Windows ####
 
  * CMake >= 3.1
- * Microsoft Visual Studio 2015 Toolchain
+ * Microsoft Visual Studio 2017 Toolchain
 
 ## Configuration
 
@@ -77,8 +77,8 @@ target_link_libraries(your_project ex)
 
 #### MSVC/Windows ####
 
-Generate project for MS Visual Studio with command:
+VS2017 has cmake support or you can generate project with:
 
-    # cmake -G "Visual Studio 14"
+    # cmake -G "Visual Studio 15"
 
 

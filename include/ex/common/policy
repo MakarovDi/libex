@@ -1,6 +1,7 @@
 #ifndef    EX_COMMON_POLICY_HEADER
 #   define EX_COMMON_POLICY_HEADER
 
+
 #include "ex/policy/notice"
 
 
@@ -10,7 +11,8 @@ namespace policy
 {
 
 #ifndef    EX_NOTICE_POLICY
-#   define EX_NOTICE_POLICY ex::policy::AssertNotice
+#   include <stdexcept>
+#   define EX_NOTICE_POLICY ex::policy::DebugNotice<std::logic_error>
 #endif
 
 

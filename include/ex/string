@@ -6,52 +6,12 @@
 #include <memory>
 #include <sstream>
 
-//
-// Note: module for maintain encoding-independent projects
-//
-// Using:
-//
-//      const Char* test = L("Some Text");
-//
-//      It will translated in dependent of UNICODE definition.
-//
-//      UNICODE undefined:
-//
-//      ->  const char* test = "Some Text";
-//
-//      UNICODE defined:
-//
-//      ->  const wchar_t* test = L"Some Text";
-//
-//  References:
-//      docs/const_func/Compile-time computations - Andrzej's C++ blog.pdf
-//      docs/schurr_cpp11_tools_for_class_authors.pdf, p.24
-//
-
 
 // Generates universal unicode defenition
 #if defined(UNICODE) || defined(_UNICODE)
-#   undef  UNICODE
+#   undef  _UNICODE
 #   define UNICODE
 #endif
-
-
-#ifdef L
-#   undef L
-#   warning "L macro already defined -> undef"
-#endif
-
-
-
-
-#ifdef UNICODE
-#  define __L(s) L##s
-#else
-#  define __L(s) s
-#endif
-
-// L - conversion to project's encoding
-#define L(S)    __L(S)
 
 
 namespace ex
@@ -85,7 +45,14 @@ namespace ex
 
     namespace string
     {
-        static constexpr const Char* empty = L("");  // represent empty string
+
+    #ifdef UNICODE
+        static constexpr const Char* empty = L"";
+    #else
+        static constexpr const Char* empty = "";
+    #endif
+
+
 
         //
         // Note: compile-time string constant selection based on template parameter

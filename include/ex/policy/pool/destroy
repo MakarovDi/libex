@@ -1,0 +1,155 @@
+#ifndef    EX_POLICY_POOL_DESTROY_HEADER
+#   define EX_POLICY_POOL_DESTROY_HEADER
+
+
+#include <cassert>
+#include <vector>
+#include <unordered_map>
+
+#include "ex/assert"
+
+
+namespace ex
+{
+namespace policy
+{
+
+
+// [-][+] doesn't destroy non-released objects (leaks possible)
+// [-]    double free possible
+// [-][+] allow releasing "foreign"(not from pool) objects
+// [-]    no trace for: double free, releasing "foreign" object
+// [+]    fastest and lightweight
+template < class T >
+class ReleasedOnlyDestroy
+{
+protected:
+	void creation_notice(T&)    {}
+	void acquisition_notice(T&) {}
+	void releasing_notice(T&)   {}
+
+	void destroy(std::vector<T*>& released_list)
+	{
+		while (!released_list.empty())
+		{
+			T* object = released_list.back(); // no-throw
+			released_list.pop_back();         // no-throw
+
+			try
+			{
+				delete object;
+			}
+			catch(...)
+			{
+			    // supressed in Release
+				ex::failure<policy::DebugNotice>("<T> throws exception in destructor");
+			}
+		}
+	}
+protected:
+	ReleasedOnlyDestroy(uint32_t pool_depth)  {}
+	~ReleasedOnlyDestroy() {}
+};
+
+
+// [+][-] destroy non-released objects (no leaks)
+// [+]    no double free
+// [-][+] allow releasing "foreign"(not from pool) objects into pool
+// [-]    no trace for: double free, releasing "foreign" object, destroy non-released object
+template < class T >
+class AllAllocatedDestroy
+{
+protected:
+    void creation_notice(T& object)
+    {
+        m_death_note.push_back(&object);
+    }
+
+    void acquisition_notice(T&) {}
+    void releasing_notice(T&)   {}
+
+    void destroy(std::vector<T*>&)
+    {
+        for (T* item : m_death_note)
+        {
+            try
+            {
+                delete item;
+            }
+            catch(...)
+            {
+                // supressed in Release
+                ex::failure<policy::DebugNotice>("<T> throws exception in destructor");
+            }
+        }
+    }
+protected:
+    AllAllocatedDestroy(uint32_t pool_depth) { m_death_note.reserve(pool_depth); }
+    ~AllAllocatedDestroy() {}
+private:
+    std::vector<T*> m_death_note;
+};
+
+
+// [+] trace possible bugs: double free, releasing "foreign" object, destroy non-released object
+// [-] heavy
+template < class T >
+class DebugDestroy
+{
+protected:
+    void creation_notice(T& object)
+    {
+        m_death_note.insert(std::make_pair<T*, bool>(&object, true));
+    }
+
+
+    void acquisition_notice(T& object)
+    {
+        m_death_note[&object] = false;
+    }
+
+
+    void releasing_notice(T& object)
+    {
+        auto object_pos = m_death_note.find(&object);
+
+        if (object_pos->second == false)
+            throw std::logic_error("double release");
+
+        if (object_pos != m_death_note.end())
+            throw std::logic_error("was released \"foreign\" object (not from pool)");
+
+        m_death_note[&object] = false;
+    }
+
+
+    void destroy(std::vector<T*>&)
+    {
+        for (auto& item : m_death_note)
+        {
+            if (item.second == true)
+                throw std::logic_error("pool object wasn't released");
+
+            try
+            {
+                delete item.first;
+            }
+            catch(...)
+            {
+                // supressed in Release
+                ex::failure<policy::DebugNotice>("<T> throws exception in destructor");
+            }
+        }
+    }
+
+protected:
+    DebugDestroy(uint32_t pool_depth) { m_death_note.reserve(pool_depth); }
+    ~DebugDestroy() {}
+private:
+    std::unordered_map<T*, bool> m_death_note;
+};
+
+
+}
+}
+#endif // EX_POLICY_POOL_DESTROY_HEADER

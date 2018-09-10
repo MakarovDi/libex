@@ -3,7 +3,6 @@
 
 
 #include <iostream>
-#include "ex/assert"
 
 
 namespace ex
@@ -15,6 +14,9 @@ namespace policy
 template < class Exception >
 struct ThrowNotice
 {
+    static constexpr bool is_empty = false;
+
+
     static void notice(const char* message)
     {
         throw Exception(message);
@@ -28,6 +30,9 @@ protected:
 
 struct StderrNotice
 {
+    static constexpr bool is_empty = false;
+
+
     static void notice(const char* message)
     {
         std::cerr << message << std::endl;
@@ -39,22 +44,52 @@ protected:
 };
 
 
-struct AssertNotice
+template < class Exception >
+struct DebugNotice
 {
+
+#ifdef NDEBUG
+    static constexpr bool is_empty = true;
+#else
+    static constexpr bool is_empty = false;
+#endif
+
+
     static void notice(const char* message)
     {
-        ex::failure(message);
+    #ifndef NDEBUG
+        throw Exception(message);
+    #endif
     }
 
 protected:
-    AssertNotice()  {}
-    ~AssertNotice() {}
+    DebugNotice()  {}
+    ~DebugNotice() {}
 };
 
+
+struct FatalNotice
+{
+    static constexpr bool is_empty = false;
+
+
+    static void notice(const char* message)
+    {
+        std::cerr << message << std::endl;
+        abort();
+    }
+
+protected:
+    FatalNotice()  {}
+    ~FatalNotice() {}
+};
 
 
 struct NoNotice
 {
+    static constexpr bool is_empty = true;
+
+
     static void notice(const char*)
     {
     }

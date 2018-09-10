@@ -9,22 +9,16 @@ set(EX_VERSION_MAJOR     0)
 set(EX_VERSION_MINOR     3)
 set(EX_VERSION_REVISION  0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD  14)
 
 # compilation options
-option(BUILD_TESTS "Build the unit tests" OFF)
+option(BUILD_TESTS   "Build the unit tests"    OFF)
 option(BUILD_SAMPLES "Build the demo programs" OFF)
 
 
 # Configure output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/bin)
-
-# configure build modes
-IF(CMAKE_BUILD_TYPE MATCHES Release)
-    add_definitions("-DNDEBUG")
-ENDIF()
-
 
 # TODO: use [add_compile_warnings] in new CMake instead of this
 # configure compiler options
@@ -35,6 +29,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     # using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
 
     # disable MS warning about safer *_s functions
@@ -65,7 +60,6 @@ set(SOURCES
     src/platform.cpp
     src/version.cpp
     src/cprint.cpp
-    src/assert.cpp
 )
 
 # Enumerate header files
@@ -74,21 +68,24 @@ set(HEADERS
     include/ex/exception
     include/ex/expected
     include/ex/format
-    include/ex/iterator
+    include/ex/iterator/any_iterator
+    include/ex/iterator/index_iterator
     include/ex/macro
     include/ex/placebo
     include/ex/platform
     include/ex/scopeguard
     include/ex/string
     include/ex/version
-    include/ex/pool
+    include/ex/container/pool
+    include/ex/container/ring_buffer
     include/ex/interface
-    include/ex/policy/threading
-    include/ex/policy/pool
     include/ex/cprint
     include/ex/assert
     include/ex/semantic
+    include/ex/policy/threading
     include/ex/policy/notice
+    include/ex/policy/pool/size
+    include/ex/policy/pool/destroy
     include/ex/range_check
     include/ex/ct
     include/ex/log/logger
@@ -110,10 +107,16 @@ set(HEADERS
     include/ex/meta/pack
     include/ex/meta/selector
     include/ex/meta/concept
+    include/ex/meta/math_type
+    include/ex/meta/traits
     include/ex/common/type
     include/ex/common/policy
-    include/ex/meta/math_type
-    include/ex/encoding/word16)
+    include/ex/encoding/word16
+    include/ex/random
+    include/ex/window
+    include/ex/utility
+    include/ex/iterator/make
+)
 
 
 

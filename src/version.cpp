@@ -2,6 +2,16 @@
 #include "ex/macro"
 
 
+#ifdef UNICODE
+#  define __L(s) L##s
+#else
+#  define __L(s) s
+#endif
+
+// L - conversion to project's encoding
+#define L(S)    __L(S)
+
+
 #ifdef HAVE_CONFIG_H
 #  include "ex/config"
 #else

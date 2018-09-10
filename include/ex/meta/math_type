@@ -43,6 +43,8 @@ namespace ex
     >
     struct math_type
     {
+        using type = void;
+
         enum { kIntergral = 0, kFloating, kUserType };
 
         static constexpr auto classify = kUserType;
@@ -52,6 +54,8 @@ namespace ex
     template <class U>
     struct math_type<U, true, false>
     {
+        using type = int;
+
         enum { kIntergral = 0, kFloating, kUserType };
 
         static constexpr auto classify = kIntergral;
@@ -61,6 +65,8 @@ namespace ex
     template <class U>
     struct math_type<U, false, true>
     {
+        using type = float;
+
         enum { kIntergral = 0, kFloating, kUserType };
 
         static constexpr auto classify = kFloating;

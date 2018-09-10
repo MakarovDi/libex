@@ -1,0 +1,226 @@
+#ifndef    EX_ITERATOR_INDEX_ITERATOR_HEADER
+#   define EX_ITERATOR_INDEX_ITERATOR_HEADER
+
+#include <type_traits>
+#include <iterator>
+
+#include "ex/common/type"
+#include "ex/meta/concept"
+#include "ex/meta/selector"
+#include "ex/meta/traits"
+#include "ex/assert"
+
+
+
+namespace ex
+{
+
+
+namespace internal
+{
+
+
+struct IndexOperatorRandomAccess
+{
+    template <typename Container>
+    static inline auto get(Container& object, index_t index) -> decltype(auto)
+    {
+        static_assert(std::is_lvalue_reference<decltype(object[0])>::type, "index operator must return reference");
+        return object[index];
+    }
+};
+
+
+}
+
+
+template
+<
+    typename T,
+    typename Container,
+    typename IRandomAccess = internal::IndexOperatorRandomAccess
+>
+class index_iterator : public std::iterator<std::random_access_iterator_tag, T>
+{
+    REQUIRES(std::is_class< typename ex::strip_type<Container>::type >::value)
+private:
+    using ContainerRef = typename std::conditional< std::is_pointer<Container>::value, Container, Container& >::type;
+
+public:
+    index_iterator() :
+        m_iteratable(empty()),
+        m_index(index_t(0))
+    {
+    }
+
+
+    index_iterator(ContainerRef m, index_t index) :
+        m_iteratable(m),
+        m_index(index)
+    {
+    }
+
+
+public:
+    bool operator==(const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return m_index == other.m_index;
+    }
+
+
+    bool operator !=(const index_iterator& other) const
+    {
+        return !(*this == other);
+    }
+
+
+    T&       operator*()        { return get_value_ref();  }
+    const T& operator*()  const { return get_value_ref();  }
+
+    T*       operator->()       { return &get_value_ref(); }
+    const T* operator->() const { return &get_value_ref(); }
+
+    T&       operator[](index_t i)       { return get_value_ref(); }
+    const T& operator[](index_t i) const { return get_value_ref(); }
+
+
+    index_iterator& operator++()
+    {
+        ++m_index;
+        return *this;
+    }
+
+    index_iterator  operator++(int)
+    {
+        index_iterator current(*this);
+        operator++();
+        return current;
+    }
+
+
+    index_iterator& operator--()
+    {
+        --m_index;
+        return *this;
+    }
+
+    index_iterator  operator--(int)
+    {
+        index_iterator current(*this);
+        operator--();
+        return current;
+    }
+
+    // for run std::distance() in O(1)
+    index_t operator-(const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return m_index - other.m_index;
+    }
+
+    bool operator< (const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return (m_index <  other.m_index);
+    }
+
+    bool operator<=(const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return m_index <= other.m_index;
+    }
+
+    bool operator> (const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return m_index >  other.m_index;
+    }
+
+    bool operator>=(const index_iterator& other) const
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+        return m_index >= other.m_index;
+    }
+
+    index_iterator& operator+=(index_t shift) { m_index += shift; return *this; }
+    index_iterator& operator-=(index_t shift) { m_index -= shift; return *this; }
+
+public:
+    index_iterator(const index_iterator& other) :
+        m_iteratable(other.m_iteratable),
+        m_index(other.m_index)
+    {
+    }
+
+
+    index_iterator(index_iterator&& other) :
+        m_iteratable(std::move(other.m_iteratable)),
+        m_index(other.m_index)
+    {
+        other.m_index = -1;
+    }
+
+
+    index_iterator& operator=(const index_iterator& other)
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+
+        m_index = other.m_index;
+
+        return *this;
+    }
+
+
+    index_iterator& operator=(index_iterator&& other)
+    {
+        ex::assert_equal(m_iteratable, other.m_iteratable);
+
+        m_iteratable = std::move(other.m_iteratable);
+        m_index = other.m_index;
+
+        other.m_index = -1;
+
+        return *this;
+    }
+
+
+protected:
+   Container m_iteratable;
+   index_t   m_index;
+
+private:
+    enum ConainerMode : bool
+    {
+        kDirect  = false,
+        kPointer = true
+    };
+
+private:
+    T&       get_value_ref()       { return get_value_ref(ex::bool_selector< std::is_pointer<Container>::value >{}); }
+    const T& get_value_ref() const { return get_value_ref(ex::bool_selector< std::is_pointer<Container>::value >{}); }
+
+    T&       get_value_ref(ex::bool_selector<ConainerMode::kPointer>)       { return IRandomAccess::get(*m_iteratable, m_index);  }
+    const T& get_value_ref(ex::bool_selector<ConainerMode::kPointer>) const { return IRandomAccess::get(*m_iteratable, m_index);  }
+    T&       get_value_ref(ex::bool_selector<ConainerMode::kDirect>)        { return IRandomAccess::get(m_iteratable,  m_index);  }
+    const T& get_value_ref(ex::bool_selector<ConainerMode::kDirect>)  const { return IRandomAccess::get(m_iteratable,  m_index);  }
+
+private:
+    inline Container empty()
+    {
+        return empty(ex::bool_selector< std::is_pointer<Container>::value >{});
+    }
+
+    inline Container empty(ex::bool_selector<ConainerMode::kPointer>) { return nullptr;     }
+    inline Container empty(ex::bool_selector<ConainerMode::kDirect>)  { return Container(); }
+
+public:
+    friend index_iterator operator+(const index_iterator& a, index_t b) { index_iterator result(a); result += b; return result; }
+    friend index_iterator operator-(const index_iterator& a, index_t b) { index_iterator result(a); result -= b; return result; }
+    friend index_iterator operator+(index_t a, const index_iterator& b) { index_iterator result(b); result += a; return result; }
+    friend index_iterator operator-(index_t a, const index_iterator& b) { index_iterator result(b); result -= a; return result; }
+};
+
+
+}
+#endif // EX_ITERATOR_INDEX_ITERATOR_HEADER
