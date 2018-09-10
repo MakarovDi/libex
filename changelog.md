@@ -1,5 +1,26 @@
 # Changelog
 
+
+## [v0.4.0] - 10.09.2018
+
+
+**[+]** meta-function **strip_type** - "stronger" version of **std::decay**; `#include <ex/meta/traits>`   
+**[+]** universal functions for an iterator creation: **make_begin**/**make_end**; `#include <ex/iterator/make>`  
+**[+]** **index_iterator** for iterate over objects without built-in iterator support; `#include <ex/iterator/index_iterator>`  
+**[+]** an iterator type detection **iterator_type**; `#include <ex/meta/traits>`  
+**[+]** meta-function **has_index_operator**; `#include <ex/meta/traits>`  
+**[+]** iterator-based **last_max_element** and **last_min_element** algorithms; `#include <ex/algo>`   
+**[+]** min/max sliding window implementation; `#include <ex/window>`  
+**[+]** **uniform_distribution** for auto switch between **uniform_int_distribution** and **uniform_real_distribution**; `#include <ex/random>`  
+**[+]** **INonCreatable** interface; `#include <ex/interface>`  
+**[+]** **RingBuffer**; `#include <ex/container/ring_buffer>`  
+
+**[*]** fixed **word16** implicit conversions; `#include <ex/encoding/word16>`  
+**[*]** **index_t** now **std::ptrdiff_t** by default instead of **int32_t**;  
+**[*]** {fmt} module updated to 5.0.0;  
+**[*]** assert system reworked; `#include <ex/assert>`  
+
+
 ## [v0.3.2] - 17.06.2018
 
 **[*]** fix for **word16** interface + unit test; `#include <ex/encoding/word16>`  

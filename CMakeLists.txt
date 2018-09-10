@@ -115,7 +115,8 @@ set(HEADERS
     include/ex/random
     include/ex/window
     include/ex/utility
-    include/ex/iterator/make)
+    include/ex/iterator/make
+)
 
 
 
