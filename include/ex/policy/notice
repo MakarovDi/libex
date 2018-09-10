@@ -14,6 +14,9 @@ namespace policy
 template < class Exception >
 struct ThrowNotice
 {
+    static constexpr bool is_empty = false;
+
+
     static void notice(const char* message)
     {
         throw Exception(message);
@@ -27,6 +30,9 @@ protected:
 
 struct StderrNotice
 {
+    static constexpr bool is_empty = false;
+
+
     static void notice(const char* message)
     {
         std::cerr << message << std::endl;
@@ -41,6 +47,14 @@ protected:
 template < class Exception >
 struct DebugNotice
 {
+
+#ifdef NDEBUG
+    static constexpr bool is_empty = true;
+#else
+    static constexpr bool is_empty = false;
+#endif
+
+
     static void notice(const char* message)
     {
     #ifndef NDEBUG
@@ -56,6 +70,9 @@ protected:
 
 struct FatalNotice
 {
+    static constexpr bool is_empty = false;
+
+
     static void notice(const char* message)
     {
         std::cerr << message << std::endl;
@@ -70,6 +87,9 @@ protected:
 
 struct NoNotice
 {
+    static constexpr bool is_empty = true;
+
+
     static void notice(const char*)
     {
     }

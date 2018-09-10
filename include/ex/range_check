@@ -43,7 +43,7 @@ namespace ex
 {
 
 
-namespace range_check_private // forward declaration
+namespace internal // forward declaration
 {
     template
     <
@@ -69,7 +69,7 @@ void range_check(Source value)
     static_assert(std::is_arithmetic<Source>::value, "value must be arithmetic type");
     static_assert(std::is_arithmetic<Dest>::value, "destination type must be arithmetic");
 
-    range_check_private::TypeSplitter<Source, Dest, NoticePolicy>::check(value);
+    internal::TypeSplitter<Source, Dest, NoticePolicy>::check(value);
 }
 
 
@@ -80,6 +80,11 @@ template
 >
 void range_check(T value, T max)
 {
+    //
+    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notice is empty function
+    //
+    if (NoticePolicy::is_empty) return; // TODO: remove it when ms vc will be not so stupid (last check VS2017)
+
     if (value > max)
         NoticePolicy::notice("wrong value range");
 }
@@ -92,6 +97,11 @@ template
 >
 void range_check(T value, T min, T max)
 {
+    //
+    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notice is empty function
+    //
+    if (NoticePolicy::is_empty) return; // TODO: remove it when ms vc will be not so stupid (last check VS2017)
+
     if (value > max || value < min)
         NoticePolicy::notice("wrong value range");
 }
@@ -111,7 +121,7 @@ Dest range_check_cast(Source value)
 
 
 
-namespace range_check_private
+namespace internal
 {
     static constexpr char message[] = "value overflows destination type (range_check)";
 
