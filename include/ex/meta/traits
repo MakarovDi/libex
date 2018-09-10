@@ -49,5 +49,17 @@ public:
 };
 
 
+//
+// strip_type = type without any modificators: reference, pointer, const, ...
+//
+
+template<typename T>
+struct strip_type
+{
+    using type = typename std::remove_pointer< typename std::decay<T>::type >::type;
+};
+
+
+
 }
 #endif // EX_META_TRAITS_HEADER
