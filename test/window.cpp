@@ -153,7 +153,9 @@ TEST(window, class_check)
     std::array<int, 7> data = { 2, 2, 2, 4, 2, 2, 2 };
     int expected[]  = { 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2 };
 
-    ex::MaxWindow<int> w1(8, data.begin(), data.end());
+    using ConstIterator = std::array<int, 7>::const_iterator;
+
+    ex::MaxWindow<int, ConstIterator> w1(8, data.begin(), data.end());
 
     for (int i = 0; i < 14; ++i)
     {
@@ -168,7 +170,9 @@ TEST(window, reset_check)
     std::array<int, 7> data = { 2, 2, 2, 4, 2, 2, 2 };
     int expected[]  = { 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2 };
 
-    ex::MaxWindow<int> w1(8, data.begin(), data.end());
+    using ConstIterator = std::array<int, 7>::const_iterator;
+
+    ex::MaxWindow<int, ConstIterator> w1(8, data.begin(), data.end());
 
     for (int i = 0; i < 7; ++i)
     {
