@@ -9,22 +9,16 @@ set(EX_VERSION_MAJOR     0)
 set(EX_VERSION_MINOR     3)
 set(EX_VERSION_REVISION  0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD  14)
 
 # compilation options
-option(BUILD_TESTS "Build the unit tests" OFF)
+option(BUILD_TESTS   "Build the unit tests"    OFF)
 option(BUILD_SAMPLES "Build the demo programs" OFF)
 
 
 # Configure output directory
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH    ${CMAKE_BINARY_DIR}/bin)
-
-# configure build modes
-IF(CMAKE_BUILD_TYPE MATCHES Release)
-    add_definitions("-DNDEBUG")
-ENDIF()
-
 
 # TODO: use [add_compile_warnings] in new CMake instead of this
 # configure compiler options
@@ -35,6 +29,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     # using Intel C++
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
 
     # disable MS warning about safer *_s functions
