@@ -77,7 +77,7 @@ target_link_libraries(your_project ex)
 
 #### MSVC/Windows ####
 
-Generate project for MS Visual Studio with command:
+VS2017 has cmake support or you can generate project with:
 
     # cmake -G "Visual Studio 15"
 

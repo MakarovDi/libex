@@ -11,7 +11,7 @@
 **[+]** meta-function **has_index_operator**; `#include <ex/meta/traits>`  
 **[+]** iterator-based **last_max_element** and **last_min_element** algorithms; `#include <ex/algo>`   
 **[+]** min/max sliding window implementation; `#include <ex/window>`  
-**[+]** **uniform_distribution** for auto switch between **uniform_int_distribution** and **uniform_real_distribution**; `#include <ex/random>`  
+**[+]** **uniform_distribution** switch between **uniform_int_distribution** and **uniform_real_distribution**; `#include <ex/random>`  
 **[+]** **INonCreatable** interface; `#include <ex/interface>`  
 **[+]** **RingBuffer**; `#include <ex/container/ring_buffer>`  
 
