@@ -19,11 +19,101 @@ struct platform
     static constexpr bool is_bsd();
     static constexpr bool is_apple();
     static constexpr bool is_android();
+};
+
+
+struct architecture
+{
+    static constexpr bool sparc();
+    static constexpr bool powerpc();
+    static constexpr bool ia64(); // Itanium
 
     static constexpr bool is_x64();
     static constexpr bool is_x86();
 };
 
+
+struct env
+{
+    static constexpr bool cygwin();
+    static constexpr bool mingw();
+    static constexpr bool native();
+};
+
+
+struct compiler
+{
+    static constexpr bool clang();
+    static constexpr bool intel();
+    static constexpr bool hp();
+    static constexpr bool ibm();
+    static constexpr bool portland();
+    static constexpr bool sun();
+    static constexpr bool msc();
+    static constexpr bool gnu();
+};
+
+
+// compiler
+
+
+#ifdef COMPILER_IS_CLANG
+    constexpr bool compiler::clang()    { return true;  }
+#else
+    constexpr bool compiler::clang()    { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_INTEL
+    constexpr bool compiler::intel()    { return true;  }
+#else
+    constexpr bool compiler::intel()    { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_HP
+    constexpr bool compiler::hp()       { return true;  }
+#else
+    constexpr bool compiler::hp()       { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_IBM
+    constexpr bool compiler::ibm()      { return true;  }
+#else
+    constexpr bool compiler::ibm()      { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_PORTLAND
+    constexpr bool compiler::portland() { return true;  }
+#else
+    constexpr bool compiler::portland() { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_SUN
+    constexpr bool compiler::sun()      { return true;  }
+#else
+    constexpr bool compiler::sun()      { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_MSC
+    constexpr bool compiler::msc()      { return true;  }
+#else
+    constexpr bool compiler::msc()      { return false; }
+#endif
+
+
+#ifdef COMPILER_IS_GNU
+    constexpr bool compiler::gnu()      { return true;  }
+#else
+    constexpr bool compiler::gnu()      { return false; }
+#endif
+
+
+// platform
 
 
 #ifdef PLATFORM_IS_POSIX
@@ -75,17 +165,65 @@ struct platform
 #endif
 
 
-#ifdef PLATFORM_IS_x64
-    constexpr bool platform::is_x64()     { return true;  }
+// architecture
+
+
+#ifdef ARCHITECTURE_IS_SPARC
+    constexpr bool architecture::sparc()   { return true;  }
 #else
-    constexpr bool platform::is_x64()     { return false; }
+    constexpr bool architecture::sparc()   { return false; }
 #endif
 
 
-#ifdef PLATFORM_IS_x86
-    constexpr bool platform::is_x86()     { return true;  }
+#ifdef ARCHITECTURE_IS_POWERPC
+    constexpr bool architecture::powerpc() { return true;  }
 #else
-    constexpr bool platform::is_x86()     { return false; }
+    constexpr bool architecture::powerpc() { return false; }
+#endif
+
+
+#ifdef ARCHITECTURE_IS_IA64
+    constexpr bool architecture::ia64()    { return true;  }
+#else
+    constexpr bool architecture::ia64()    { return false; }
+#endif
+
+
+#ifdef ARCHITECTURE_IS_x64
+    constexpr bool architecture::is_x64()  { return true;  }
+#else
+    constexpr bool architecture::is_x64()  { return false; }
+#endif
+
+
+#ifdef ARCHITECTURE_IS_x86
+    constexpr bool architecture::is_x86()  { return true;  }
+#else
+    constexpr bool architecture::is_x86()  { return false; }
+#endif
+
+
+// env
+
+
+#ifdef ENVIRONMENT_IS_CYGWIN
+    constexpr bool env::cygwin()  { return true;  }
+#else
+    constexpr bool env::cygwin()  { return false; }
+#endif
+
+
+#ifdef ENVIRONMENT_IS_MINGW
+    constexpr bool env::mingw()   { return true;  }
+#else
+    constexpr bool env::mingw()   { return false; }
+#endif
+
+
+#ifdef ENVIRONMENT_IS_NATIVE
+    constexpr bool env::native()  { return true;  }
+#else
+    constexpr bool env::native()  { return false; }
 #endif
 
 

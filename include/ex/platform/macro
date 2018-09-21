@@ -93,20 +93,20 @@
 #endif
 
 
-// Processor detection
+// Architecture detection
 
 #if defined(__ia64) || defined(__itanium__) || defined(_M_IA64) // Itanium
-#   define PROCESSOR_IS_IA64
+#   define ARCHITECTURE_IS_IA64
 #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
-#   define PROCESSOR_IS_POWERPC
+#   define ARCHITECTURE_IS_POWERPC
 #elif defined(__sparc)
-#   define PROCESSOR_IS_SPARC
+#   define ARCHITECTURE_IS_SPARC
 #endif
 
 #if defined(__x86_64__) || defined(_M_X64)
-#   define PLATFORM_IS_x64
+#   define ARCHITECTURE_IS_x64
 #elif defined(__i386) || defined(_M_IX86)
-#   define PLATFORM_IS_x86
+#   define ARCHITECTURE_IS_x86
 #endif
 
 
