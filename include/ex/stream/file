@@ -1,0 +1,110 @@
+#ifndef    EX_STREAM_FILE_HEADER
+#   define EX_STREAM_FILE_HEADER
+
+#include <string>
+
+#include "ex/policy/notice"
+#include "ex/stream/interface"
+
+
+namespace ex
+{
+
+
+class FileStream final : public IIoStream
+{
+public:
+    enum OpenMode : int
+    {
+        kOpenExisting = 0,
+        kOpenCreate   = 1,
+        kCreateNew    = 2,
+        kCreate       = 3,
+        kAppend       = 4,
+
+        kOpenModeCount
+    };
+
+    enum Access : int
+    {
+        kUndefined = 0x0,
+        kRead      = 0x1,
+        kWrite     = 0x2,
+        kReadWrite = kRead | kWrite,
+
+        kAccessCount
+    };
+
+    enum Share : int
+    {
+        kExclusive = 0,
+        kShared    = 1,
+
+        kShareCount
+    };
+
+public:
+    FileStream() :
+        m_file(nullptr),
+        m_access(kUndefined),
+        m_opened(false),
+        m_size(0),
+        m_position(0)
+    {
+    }
+
+
+    FileStream(const char* fname, OpenMode, Access, Share);
+
+
+    virtual ~FileStream()
+    {
+        close_file();
+    }
+
+public:
+    virtual uint8_t read_byte() override;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
+
+    virtual void write_byte(uint8_t value) override;
+    virtual void write(uint8_t* buffer, index_t write_bytes) override;
+
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
+
+    virtual index_t position()    const override { return m_position;          }
+    virtual index_t size()        const override { return m_size;              }
+            index_t stream_rest() const          { return size() - m_position; }
+
+    virtual bool is_open()        const override { return m_opened;                 }
+    virtual bool eos()            const override { return m_position == size() - 1; }
+
+    virtual void close() override { close_file(); }
+    virtual void flush() override;
+public:
+    void*              file_id()        { return m_file;     }
+    const std::string& filename() const { return m_filename; }
+
+private:
+    void    close_file();
+    index_t file_size();
+
+public:
+    virtual bool can_read()  const override { return m_access & Access::kRead;  }
+    virtual bool can_write() const override { return m_access & Access::kWrite; }
+    virtual bool can_seek()  const override { return true;                      }
+
+private:
+    void*   m_file;
+
+    Access  m_access;
+    bool    m_opened;
+    index_t m_size;
+    index_t m_position;
+
+    std::string m_filename;
+};
+
+
+
+}
+#endif // EX_STREAM_FILE_HEADER
