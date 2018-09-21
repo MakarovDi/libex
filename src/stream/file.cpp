@@ -127,9 +127,12 @@ FileStream::FileStream(const char* fname,
 
 void FileStream::close_file()
 {
-    std::fclose((FILE*)m_file);
+    if (m_file != nullptr)
+    {
+        std::fclose((FILE*)m_file);
+        m_file = nullptr;
+    }
 
-    m_file     = nullptr;
     m_position = 0;
     m_size     = 0;
     m_opened   = false;
@@ -248,5 +251,6 @@ void FileStream::seek(index_t position, IStream::SeekMode mode)
 
 void FileStream::flush()
 {
+    if (m_file == nullptr) return;
     fflush((FILE*)m_file);
 }
