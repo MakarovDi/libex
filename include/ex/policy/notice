@@ -59,6 +59,8 @@ struct DebugNotice
     {
     #ifndef NDEBUG
         throw Exception(message);
+    #else
+        (void)(message); // UNUSED: message
     #endif
     }
 

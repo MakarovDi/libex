@@ -6,7 +6,7 @@ set(PARENT_PROJECT ${PROJECT_NAME})
 project(ex) # Initialize PROJECT_xxx variables
 
 set(EX_VERSION_MAJOR     0)
-set(EX_VERSION_MINOR     3)
+set(EX_VERSION_MINOR     4)
 set(EX_VERSION_REVISION  0)
 
 set(CMAKE_CXX_STANDARD  14)
@@ -60,6 +60,7 @@ set(SOURCES
     src/platform.cpp
     src/version.cpp
     src/cprint.cpp
+    src/stream/file.cpp
 )
 
 # Enumerate header files
@@ -117,6 +118,7 @@ set(HEADERS
     include/ex/window
     include/ex/utility
     include/ex/stream/interface
+    include/ex/stream/file
 )
 
 

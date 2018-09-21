@@ -6,7 +6,7 @@
 
 
 #ifndef EX_INDEX_TYPE
-#   define EX_INDEX_TYPE std::ptrdiff_t;
+#   define EX_INDEX_TYPE ptrdiff_t
 #endif
 
 
