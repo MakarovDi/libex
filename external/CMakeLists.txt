@@ -8,5 +8,10 @@ if (BUILD_TESTS)
 
     # initialize googletest framework
     add_subdirectory(googletest)
+
     # ingnore warnings for googletest's code
+    if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        set_property(TARGET gtest APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
+        set_property(TARGET gtest_main APPEND_STRING PROPERTY COMPILE_FLAGS " -w")
+    endif()
 endif()
