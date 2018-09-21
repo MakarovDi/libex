@@ -21,7 +21,7 @@ using namespace ex;
 
 
 
-const static bool compatibility[FileStream::kOpenModeCount][FileStream::kAccessCount - 1][2] =
+static const bool compatibility[FileStream::kOpenModeCount][FileStream::kAccessCount - 1][2] =
 {
     //           R                     W                     R+W
     //  !Exists    Exists      !Exists   Exists       !Exists   Exists
@@ -33,7 +33,7 @@ const static bool compatibility[FileStream::kOpenModeCount][FileStream::kAccessC
 };
 
 
-const static bool check_existance[FileStream::kOpenModeCount] =
+static const bool check_existance[FileStream::kOpenModeCount] =
 {
     false, // kOpenExisting
     true,  // kOpenCreate
@@ -43,7 +43,7 @@ const static bool check_existance[FileStream::kOpenModeCount] =
 };
 
 
-const static char mode_selector[FileStream::kOpenModeCount][FileStream::kAccessCount - 1][2][4] =
+static const char* mode_selector[FileStream::kOpenModeCount][FileStream::kAccessCount - 1][2] =
 {
     //            R                     W                     R+W
     //    !Exists   Exists     !Exists    Exists      !Exists    Exists
@@ -55,7 +55,7 @@ const static char mode_selector[FileStream::kOpenModeCount][FileStream::kAccessC
 };
 
 
-const static char open_mode_str[FileStream::kOpenModeCount][sizeof(LITERAL(FileStream::kOpenExisting))] =
+static const char open_mode_str[FileStream::kOpenModeCount][sizeof(LITERAL(FileStream::kOpenExisting))] =
 {
     LITERAL(FileStream::kOpenExisting),
     LITERAL(FileStream::kOpenCreate),
@@ -65,7 +65,7 @@ const static char open_mode_str[FileStream::kOpenModeCount][sizeof(LITERAL(FileS
 };
 
 
-const static char access_mode_str[FileStream::kAccessCount-1][sizeof(LITERAL(FileStream::kReadWrite))] =
+static const char access_mode_str[FileStream::kAccessCount-1][sizeof(LITERAL(FileStream::kReadWrite))] =
 {
     LITERAL(FileStream::kRead),
     LITERAL(FileStream::kWrite),
@@ -225,26 +225,34 @@ void FileStream::seek(index_t position, IStream::SeekMode mode)
 {
     // TODO: position range check
 
-    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
-
-    int result = fseek((FILE*)m_file, long(position), seek_mode[mode]);
-    if (result)
-        throw std::runtime_error("seek file failed");
-
     switch (mode)
     {
         case kBegin:
+            // TODO: assert > 0 ?
             m_position = position;
             break;
         case kOffset:
             m_position += position;
-            // TODO: unit test for values < 0
             break;
         case kEnd:
-            m_position = size() - position - 1;
-            // TODO: unit test for values < 0
-            // TODO: unit test for size = 0
+            // TODO: assert < 0 ?
+            m_position = size() + position;
             break;
+    }
+
+    if (m_position > size() || m_position < 0)
+    {
+        m_position = (index_t)ftell((FILE*)m_file);
+        throw std::logic_error("seek to position out of file");
+    }
+
+    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
+
+    int result = fseek((FILE*)m_file, long(position), seek_mode[mode]);
+    if (result)
+    {
+        m_position = (index_t)ftell((FILE*)m_file);
+        throw std::runtime_error("seek file failed");
     }
 }
 
