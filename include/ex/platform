@@ -5,6 +5,10 @@
 // see: ex/doc/platform for more details
 //
 
+//
+// TODO: split to macro and functions
+//
+
 #include "ex/string"
 
 
