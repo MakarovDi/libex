@@ -1,0 +1,18 @@
+#ifndef    EX_STREAM_TMP_HEADER
+#   define EX_STREAM_TMP_HEADER
+
+
+#include <string>
+#include <stdexcept>
+
+
+namespace ex
+{
+
+
+std::string generate_tmp_file_name();
+
+
+}
+
+#endif // EX_STREAM_TMP_HEADER

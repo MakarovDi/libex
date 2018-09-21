@@ -59,6 +59,7 @@ set(SOURCES
     src/version.cpp
     src/placebo.cpp
     src/cprint.cpp
+    src/stream/tmp.cpp
     src/stream/file.cpp
 )
 
@@ -119,6 +120,7 @@ set(HEADERS
     include/ex/utility
     include/ex/stream/interface
     include/ex/stream/file
+    include/ex/stream/tmp
 )
 
 
