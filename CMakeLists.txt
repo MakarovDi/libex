@@ -56,9 +56,8 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 
 # Enumerate source files
 set(SOURCES
-    src/placebo.cpp
-    src/platform.cpp
     src/version.cpp
+    src/placebo.cpp
     src/cprint.cpp
     src/stream/file.cpp
 )
@@ -74,7 +73,8 @@ set(HEADERS
     include/ex/iterator/make
     include/ex/macro
     include/ex/placebo
-    include/ex/platform
+    include/ex/platform/detect
+    include/ex/platform/macro
     include/ex/scopeguard
     include/ex/string
     include/ex/version

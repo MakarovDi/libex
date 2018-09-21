@@ -3,7 +3,8 @@
 #endif
 
 #include "ex/cprint"
-#include "ex/platform"
+#include "ex/platform/macro"
+
 
 #include <cstdio>
 

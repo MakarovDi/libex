@@ -1,0 +1,93 @@
+#ifndef    EX_PLATFORM_DETECT_HEADER
+#   define EX_PLATFORM_DETECT_HEADER
+
+
+#include "ex/platform/macro"
+
+
+namespace ex
+{
+
+
+struct platform
+{
+    static constexpr bool is_posix();
+    static constexpr bool is_unix();
+
+    static constexpr bool is_linux();
+    static constexpr bool is_windows();
+    static constexpr bool is_bsd();
+    static constexpr bool is_apple();
+    static constexpr bool is_android();
+
+    static constexpr bool is_x64();
+    static constexpr bool is_x86();
+};
+
+
+
+#ifdef PLATFORM_IS_POSIX
+    constexpr bool platform::is_posix()   { return true;  }
+#else
+    constexpr bool platform::is_posix()   { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_UNIX
+    constexpr bool platform::is_unix()    { return true;  }
+#else
+    constexpr bool platform::is_unix()    { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_LINUX
+    constexpr bool platform::is_linux()   { return true;  }
+#else
+    constexpr bool platform::is_linux()   { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_WINDOWS
+    constexpr bool platform::is_windows() { return true;  }
+#else
+    constexpr bool platform::is_windows() { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_BSD
+    constexpr bool platform::is_bsd()     { return true;  }
+#else
+    constexpr bool platform::is_bsd()     { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_APPLE
+    constexpr bool platform::is_apple()   { return true;  }
+#else
+    constexpr bool platform::is_apple()   { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_ANDROID
+    constexpr bool platform::is_android() { return true;  }
+#else
+    constexpr bool platform::is_android() { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_x64
+    constexpr bool platform::is_x64()     { return true;  }
+#else
+    constexpr bool platform::is_x64()     { return false; }
+#endif
+
+
+#ifdef PLATFORM_IS_x86
+    constexpr bool platform::is_x86()     { return true;  }
+#else
+    constexpr bool platform::is_x86()     { return false; }
+#endif
+
+
+}
+#endif // EX_PLATFORM_DETECT_HEADER
