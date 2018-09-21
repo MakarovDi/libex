@@ -1,0 +1,72 @@
+#ifndef    EX_STREAM_INTERFACE_HEADER
+#   define EX_STREAM_INTERFACE_HEADER
+
+
+#include "ex/common/type"
+#include "ex/interface"
+
+
+
+namespace ex
+{
+
+
+class IStream : INonCopyable
+{
+public:
+    enum SeekMode : int { kBegin = 0, kOffset = 1, kEnd = 2 };
+
+public:
+    virtual ~IStream() = default;
+
+    virtual bool is_open() const = 0;
+    virtual void close() = 0;
+    virtual void flush() = 0;
+
+    virtual bool    eos()  const = 0;
+    virtual index_t size() const = 0;
+
+    virtual void    seek(index_t position, SeekMode = SeekMode::kBegin) = 0;
+    virtual index_t position() const = 0;
+
+public:
+    virtual bool can_read()  const = 0;
+    virtual bool can_write() const = 0;
+    virtual bool can_seek()  const = 0;
+
+protected:
+    IStream() = default;
+};
+
+
+class IInputStream : public virtual IStream
+{
+public:
+    virtual uint8_t read_byte() = 0;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) = 0;
+
+protected:
+    IInputStream() {}
+};
+
+
+class IOutputStream : public virtual IStream
+{
+public:
+    virtual void write_byte(uint8_t value) = 0;
+    virtual void write(uint8_t* buffer, index_t write_bytes) = 0;
+
+protected:
+    IOutputStream() {}
+};
+
+
+class IIoStream : public IInputStream, public IOutputStream
+{
+protected:
+    IIoStream() {}
+};
+
+
+}
+#endif // EX_STREAM_INTERFACE_HEADER

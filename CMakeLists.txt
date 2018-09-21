@@ -70,6 +70,7 @@ set(HEADERS
     include/ex/format
     include/ex/iterator/any_iterator
     include/ex/iterator/index_iterator
+    include/ex/iterator/make
     include/ex/macro
     include/ex/placebo
     include/ex/platform
@@ -115,7 +116,7 @@ set(HEADERS
     include/ex/random
     include/ex/window
     include/ex/utility
-    include/ex/iterator/make
+    include/ex/stream/interface
 )
 
 
