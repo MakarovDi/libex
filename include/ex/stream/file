@@ -54,7 +54,7 @@ public:
     }
 
 
-    FileStream(const char* fname, OpenMode, Access, Share);
+    FileStream(const char* fname, OpenMode, Access, Share = Share::kShared);
 
 
     virtual ~FileStream()
@@ -75,8 +75,8 @@ public:
     virtual index_t size()        const override { return m_size;              }
             index_t stream_rest() const          { return size() - m_position; }
 
-    virtual bool is_open()        const override { return m_opened;                 }
-    virtual bool eos()            const override { return m_position == size() - 1; }
+    virtual bool is_open()        const override { return m_opened;             }
+    virtual bool eos()            const override { return m_position == size(); }
 
     virtual void close() override { close_file(); }
     virtual void flush() override;
