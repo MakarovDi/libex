@@ -45,6 +45,10 @@ public:
     virtual uint8_t read_byte() = 0;
     virtual index_t read(uint8_t* buffer, index_t read_bytes) = 0;
 
+public:
+    virtual bool can_read()  const override { return true;  }
+    virtual bool can_write() const override { return false; }
+
 protected:
     IInputStream() {}
 };
@@ -56,6 +60,11 @@ public:
     virtual void write_byte(uint8_t value) = 0;
     virtual void write(uint8_t* buffer, index_t write_bytes) = 0;
 
+public:
+    virtual bool can_read()   const override { return false; }
+    virtual bool can_write()  const override { return true;  }
+    virtual bool can_extend() const = 0;
+
 protected:
     IOutputStream() {}
 };
@@ -63,6 +72,10 @@ protected:
 
 class IIoStream : public IInputStream, public IOutputStream
 {
+public:
+    virtual bool can_read()  const override { return true; }
+    virtual bool can_write() const override { return true; }
+
 protected:
     IIoStream() {}
 };
