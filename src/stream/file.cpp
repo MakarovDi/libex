@@ -116,7 +116,7 @@ FileStream::FileStream(const char* fname,
 
     // TODO: range check
 
-    m_position = (index_t)ftell((FILE*)m_file);
+    m_position = (index_t)std::ftell((FILE*)m_file);
     m_size     = file_size();
 
     // TODO: set_share_mode(m_file);
@@ -166,7 +166,7 @@ index_t FileStream::file_size()
 
 index_t FileStream::read(uint8_t* buffer, index_t read_bytes)
 {
-    index_t read = (index_t)fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
+    index_t read = (index_t)std::fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
 
     m_position += read;
 
@@ -176,7 +176,7 @@ index_t FileStream::read(uint8_t* buffer, index_t read_bytes)
 
 uint8_t FileStream::read_byte()
 {
-    int result = fgetc((FILE*)m_file);
+    int result = std::fgetc((FILE*)m_file);
     if (result == EOF)
         throw std::runtime_error("eof reached or error when reading byte");
 
@@ -191,7 +191,7 @@ void FileStream::write(uint8_t* buffer, index_t write_bytes)
     index_t rest_size = stream_rest();
 
     // TODO: range_check
-    index_t written = (index_t)fwrite(buffer, 1, size_t(write_bytes), (FILE*)m_file);
+    index_t written = (index_t)std::fwrite(buffer, 1, size_t(write_bytes), (FILE*)m_file);
 
     index_t oversize = written - rest_size;
     if (oversize > 0)
@@ -208,7 +208,7 @@ void FileStream::write(uint8_t* buffer, index_t write_bytes)
 
 void FileStream::write_byte(uint8_t value)
 {
-    int result = fputc(value, (FILE*)m_file);
+    int result = std::fputc(value, (FILE*)m_file);
     if (result == EOF)
         throw std::runtime_error("writing byte to file failed");
 
@@ -242,16 +242,16 @@ void FileStream::seek(index_t position, IStream::SeekMode mode)
 
     if (m_position > size() || m_position < 0)
     {
-        m_position = (index_t)ftell((FILE*)m_file);
+        m_position = (index_t)std::ftell((FILE*)m_file);
         throw std::logic_error("seek to position out of file");
     }
 
     const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
 
-    int result = fseek((FILE*)m_file, long(position), seek_mode[mode]);
+    int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
     if (result)
     {
-        m_position = (index_t)ftell((FILE*)m_file);
+        m_position = (index_t)std::ftell((FILE*)m_file);
         throw std::runtime_error("seek file failed");
     }
 }
@@ -260,5 +260,5 @@ void FileStream::seek(index_t position, IStream::SeekMode mode)
 void FileStream::flush()
 {
     if (m_file == nullptr) return;
-    fflush((FILE*)m_file);
+    std::fflush((FILE*)m_file);
 }
