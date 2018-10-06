@@ -61,6 +61,7 @@ set(SOURCES
     src/cprint.cpp
     src/stream/tmp.cpp
     src/stream/file.cpp
+    src/stream/interface.cpp
 )
 
 # Enumerate header files

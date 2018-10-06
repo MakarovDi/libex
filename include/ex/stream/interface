@@ -1,6 +1,7 @@
 #ifndef    EX_STREAM_INTERFACE_HEADER
 #   define EX_STREAM_INTERFACE_HEADER
 
+#include <stdexcept>
 
 #include "ex/common/type"
 #include "ex/interface"
@@ -35,6 +36,9 @@ public:
     virtual bool can_seek()  const = 0;
 
 protected:
+    index_t abs_position(index_t position, SeekMode mode) const;
+
+protected:
     IStream() = default;
 };
 
@@ -58,7 +62,7 @@ class IOutputStream : public virtual IStream
 {
 public:
     virtual void write_byte(uint8_t value) = 0;
-    virtual void write(uint8_t* buffer, index_t write_bytes) = 0;
+    virtual void write(const uint8_t* buffer, index_t write_bytes) = 0;
 
 public:
     virtual bool can_read()   const override { return false; }

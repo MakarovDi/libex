@@ -65,7 +65,6 @@ public:
         m_size(stream.m_size),
         m_position(stream.m_position)
     {
-
     }
 
 
@@ -87,7 +86,7 @@ public:
     virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
 
     virtual void write_byte(uint8_t value) override;
-    virtual void write(uint8_t* buffer, index_t write_bytes) override;
+    virtual void write(const uint8_t* buffer, index_t write_bytes) override;
 
     virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
 
@@ -95,12 +94,12 @@ public:
     virtual void flush() override;
 
 public:
+    virtual bool    is_open()  const override { return m_opened;             }
+    virtual bool    eos()      const override { return m_position == size(); } // TODO: m_eos
+
     virtual index_t position()    const override { return m_position; }
     virtual index_t size()        const override { return m_size;     }
             index_t stream_rest() const { return size() - m_position; }
-
-    virtual bool    eos()      const override { return m_position == size(); }
-    virtual bool    is_open()  const override { return m_opened;             }
 
 public:
     const std::string& filename() const { return m_filename; }

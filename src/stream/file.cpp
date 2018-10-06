@@ -186,7 +186,7 @@ uint8_t FileStream::read_byte()
 }
 
 
-void FileStream::write(uint8_t* buffer, index_t write_bytes)
+void FileStream::write(const uint8_t* buffer, index_t write_bytes)
 {
     index_t rest_size = stream_rest();
 
@@ -223,31 +223,16 @@ void FileStream::write_byte(uint8_t value)
 
 void FileStream::seek(index_t position, IStream::SeekMode mode)
 {
-    // TODO: position range check
+    index_t pos = abs_position(position, mode);
 
-    switch (mode)
-    {
-        case kBegin:
-            // TODO: assert > 0 ?
-            m_position = position;
-            break;
-        case kOffset:
-            m_position += position;
-            break;
-        case kEnd:
-            // TODO: assert < 0 ?
-            m_position = size() + position;
-            break;
-    }
-
-    if (m_position > size() || m_position < 0)
-    {
-        m_position = (index_t)std::ftell((FILE*)m_file);
+    if (pos > size() || pos < 0)
         throw std::logic_error("seek to position out of file");
-    }
+
+    m_position = pos;
 
     const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
 
+    // TODO: position range check
     int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
     if (result)
     {
@@ -259,6 +244,8 @@ void FileStream::seek(index_t position, IStream::SeekMode mode)
 
 void FileStream::flush()
 {
-    if (m_file == nullptr) return;
-    std::fflush((FILE*)m_file);
+    if (m_file)
+    {
+        std::fflush((FILE*)m_file);
+    }
 }
