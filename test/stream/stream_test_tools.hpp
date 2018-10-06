@@ -134,8 +134,8 @@ struct EmptyStreamCase
     {
         ASSERT_EQ(s.size(), 0);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.eos());
+        ASSERT_TRUE(s.is_open());
     }
 };
 
@@ -143,41 +143,36 @@ struct EmptyStreamCase
 struct WriteByteCase
 {
     static const char*       data() { return nullptr; }
-    static constexpr index_t size = 0;
+    static constexpr index_t size = 4;
 
 
     static void check(ex::IOutputStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.size(), 0);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
         ASSERT_EQ(s.is_open(), true);
 
         s.write_byte((uint8_t)'1');
-        ASSERT_EQ(s.size(), 1);
+        ASSERT_TRUE(s.size() >= 1);
         ASSERT_EQ(s.position(), 1);
-        ASSERT_EQ(s.eos(), true);
 
         s.write_byte((uint8_t)'2');
-        ASSERT_EQ(s.size(), 2);
+        ASSERT_TRUE(s.size() >= 2);
         ASSERT_EQ(s.position(), 2);
-        ASSERT_EQ(s.eos(), true);
 
         s.write_byte((uint8_t)'3');
-        ASSERT_EQ(s.size(), 3);
+        ASSERT_TRUE(s.size() >= 3);
         ASSERT_EQ(s.position(), 3);
-        ASSERT_EQ(s.eos(), true);
 
         s.write_byte((uint8_t)'\0');
-        ASSERT_EQ(s.size(), 4);
+        ASSERT_TRUE(s.size() == 4);
+        ASSERT_TRUE(s.eos());
         ASSERT_EQ(s.position(), 4);
-        ASSERT_EQ(s.eos(), true);
 
         s.flush();
 
-        uint8_t buf[4];
-        ASSERT_EQ(result.read(buf, 4), 4);
-        ASSERT_MEMEQ(buf, "123\0", 4);
+        uint8_t buf[size];
+        ASSERT_EQ(result.read(buf, size), size);
+        ASSERT_MEMEQ(buf, "123\0", size);
     }
 };
 
@@ -185,31 +180,27 @@ struct WriteByteCase
 struct WriteCase
 {
     static const char*       data() { return nullptr; }
-    static constexpr index_t size = 0;
+    static constexpr index_t size = 5;
 
 
     static void check(ex::IOutputStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.size(), 0);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
         ASSERT_EQ(s.is_open(), true);
 
         s.write((uint8_t*)"123", 3);
-        ASSERT_EQ(s.size(), 3);
         ASSERT_EQ(s.position(), 3);
-        ASSERT_EQ(s.eos(), true);
 
         s.write((uint8_t*)"4\0", 2);
-        ASSERT_EQ(s.size(), 5);
-        ASSERT_EQ(s.position(), 5);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_EQ(s.size(), size);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
 
         s.flush();
 
-        uint8_t buf[5];
-        ASSERT_EQ(result.read(buf, 5), 5);
-        ASSERT_MEMEQ(buf, "1234\0", 5);
+        uint8_t buf[size];
+        ASSERT_EQ(result.read(buf, size), size);
+        ASSERT_MEMEQ(buf, "1234\0", size);
     }
 };
 
@@ -217,41 +208,39 @@ struct WriteCase
 struct WriteReadCase
 {
     static const char*       data() { return nullptr; }
-    static constexpr index_t size = 0;
+    static constexpr index_t size = 5;
 
 
     static void check(ex::IIoStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.size(), 0);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.is_open());
 
-        s.write((uint8_t*)"1234\0", 5);
-        ASSERT_EQ(s.size(), 5);
-        ASSERT_EQ(s.position(), 5);
-        ASSERT_EQ(s.eos(), true);
+        s.write((uint8_t*)"1234\0", size);
+        ASSERT_EQ(s.size(), size);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
 
         s.seek(3, ex::IStream::SeekMode::kBegin);
-        ASSERT_EQ(s.size(), 5);
+        ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 3);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         ASSERT_EQ(s.read_byte(), (uint8_t)'4');
-        ASSERT_EQ(s.size(), 5);
+        ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 4);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         s.write_byte((uint8_t)'5');
-        ASSERT_EQ(s.size(), 5);
-        ASSERT_EQ(s.position(), 5);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_EQ(s.size(), size);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
 
         s.flush();
 
-        uint8_t buf[5];
-        ASSERT_EQ(result.read(buf, 5), 5);
-        ASSERT_MEMEQ(buf, "12345", 5);
+        uint8_t buf[size];
+        ASSERT_EQ(result.read(buf, size), size);
+        ASSERT_MEMEQ(buf, "12345", size);
     }
 };
 
@@ -266,37 +255,37 @@ struct SeekCase
     {
         ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_FALSE(s.eos());
+        ASSERT_TRUE(s.is_open());
 
         s.seek(2, ex::IStream::SeekMode::kBegin);
         ASSERT_EQ(s.position(), 2);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         ASSERT_EQ(s.read_byte(), (uint8_t)'3');
         ASSERT_EQ(s.position(), 3);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         s.seek(-1, ex::IStream::SeekMode::kOffset);
         ASSERT_EQ(s.position(), 2);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         s.write_byte((uint8_t)'0');
-        ASSERT_EQ(s.size(), 5);
+        ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 3);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         s.seek(0,  ex::IStream::SeekMode::kEnd);
-        ASSERT_EQ(s.position(), 5);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
 
         s.seek(-1,  ex::IStream::SeekMode::kEnd);
         ASSERT_EQ(s.position(), 4);
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
 
         ASSERT_EQ(s.read_byte(), (uint8_t)'5');
-        ASSERT_EQ(s.position(), 5);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
     }
 };
 
@@ -372,13 +361,13 @@ struct WriteExtendCase
 
         ASSERT_EQ(s.size(), 4);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_FALSE(s.eos());
+        ASSERT_TRUE(s.is_open());
 
         s.seek(2, ex::IStream::SeekMode::kBegin);
         s.write((uint8_t*)"8901", 4);
         ASSERT_EQ(s.position(), 6);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_TRUE(s.eos());
         ASSERT_EQ(s.size(), 6);
 
         s.flush();

@@ -1,0 +1,117 @@
+#ifndef    EX_STREAM_MEMORY_HEADER
+#   define EX_STREAM_MEMORY_HEADER
+
+#include "ex/stream/interface"
+#include <stdexcept>
+
+
+namespace ex
+{
+
+
+class MemoryStream : public IIoStream
+{
+public:
+    MemoryStream() :
+        m_data(nullptr),
+        m_position(0),
+        m_size(0),
+        m_eos(true)
+    {
+    }
+
+
+    MemoryStream(uint8_t* data, index_t size) :
+        m_data(data),
+        m_position(0),
+        m_size(size),
+        m_eos(m_position == m_size)
+    {
+        if (data == nullptr && size < 0)
+            throw std::invalid_argument("invalid data and size");
+    }
+
+public:
+    MemoryStream(MemoryStream&& stream) :
+        m_data(stream.m_data),
+        m_position(stream.m_position),
+        m_size(stream.m_size),
+        m_eos(stream.m_eos)
+    {
+        stream.m_position = 0;
+        stream.m_data = nullptr;
+        stream.m_size = 0;
+        stream.m_eos  = true;
+    }
+
+
+    MemoryStream& operator=(MemoryStream&& stream)
+    {
+        m_position = stream.m_position; stream.m_position = 0;
+        m_data     = stream.m_data;     stream.m_data     = nullptr;
+        m_size     = stream.m_size;     stream.m_size     = 0;
+        m_eos      = stream.m_eos;      stream.m_eos      = true;
+
+        return *this;
+    }
+
+public:
+    virtual uint8_t read_byte() override;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
+
+    virtual void write_byte(uint8_t value) override;
+    virtual void write(const uint8_t* buffer, index_t write_bytes) override;
+
+public:
+    const uint8_t* data() const { return m_data; }
+          uint8_t* data()       { return m_data; }
+
+    const uint8_t* current() const { return &m_data[m_position]; }
+          uint8_t* current()       { return &m_data[m_position]; }
+
+public:
+    virtual bool is_open()  const override { return true;  }
+    virtual bool eos()      const override { return m_eos; }
+
+    virtual void    seek(index_t position, SeekMode mode) override;
+    virtual index_t position()    const override { return m_position; }
+
+    virtual index_t size()        const override { return m_size;     }
+            index_t stream_rest() const { return size() - m_position; }
+
+
+    virtual void flush() override
+    {
+    }
+
+
+    virtual void close() override
+    {
+        m_data = nullptr;
+        m_size = 0;
+        m_position = 0;
+        m_eos  = false;
+    }
+
+public:
+    virtual bool can_read()   const override { return true;  }
+    virtual bool can_write()  const override { return true;  }
+    virtual bool can_seek()   const override { return true;  }
+    virtual bool can_extend() const override { return false; }
+
+protected:
+    void update_eos()
+    {
+        m_eos = (m_position == m_size);
+    }
+
+private:
+    uint8_t* m_data;
+    index_t  m_position;
+    index_t  m_size;
+    bool     m_eos;
+};
+
+
+}
+#endif // EX_STREAM_MEMORY_HEADER

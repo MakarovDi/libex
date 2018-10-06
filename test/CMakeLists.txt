@@ -24,6 +24,7 @@ add_executable(ExTests
     stream/file.cpp
 
     stream/stream_test_tools.hpp
+    stream/memory.cpp
 )
 
 
