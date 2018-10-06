@@ -22,6 +22,8 @@ add_executable(ExTests
     meta/traits.cpp
     algo.cpp
     stream/file.cpp
+
+    stream/stream_test_tools.hpp
 )
 
 
