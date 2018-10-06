@@ -65,6 +65,11 @@ public:
         m_size(stream.m_size),
         m_position(stream.m_position)
     {
+        stream.m_file     = nullptr;
+        stream.m_access   = kUndefined;
+        stream.m_opened   = false;
+        stream.m_size     = 0;
+        stream.m_position = 0;
     }
 
 
