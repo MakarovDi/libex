@@ -251,7 +251,7 @@ struct SeekCase
     static constexpr index_t size = 5;
 
 
-    static void check(ex::IIoStream& s)
+    static void check(ex::IInputStream& s)
     {
         ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 0);
@@ -270,9 +270,13 @@ struct SeekCase
         ASSERT_EQ(s.position(), 2);
         ASSERT_FALSE(s.eos());
 
-        s.write_byte((uint8_t)'0');
+        ASSERT_EQ(s.read_byte(), (uint8_t)'3');
         ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 3);
+        ASSERT_FALSE(s.eos());
+
+        s.seek(-1,  ex::IStream::SeekMode::kEnd);
+        ASSERT_EQ(s.position(), 4);
         ASSERT_FALSE(s.eos());
 
         s.seek(0,  ex::IStream::SeekMode::kEnd);
@@ -280,9 +284,6 @@ struct SeekCase
         ASSERT_TRUE(s.eos());
 
         s.seek(-1,  ex::IStream::SeekMode::kEnd);
-        ASSERT_EQ(s.position(), 4);
-        ASSERT_FALSE(s.eos());
-
         ASSERT_EQ(s.read_byte(), (uint8_t)'5');
         ASSERT_EQ(s.position(), size);
         ASSERT_TRUE(s.eos());
@@ -295,7 +296,7 @@ struct SeekOversizeCase
     static constexpr index_t size = 5;
 
 
-    static void check(ex::IIoStream& s)
+    static void check(ex::IStream& s)
     {
         ASSERT_EQ(s.size(), 5);
         ASSERT_EQ(s.position(), 0);
@@ -327,12 +328,11 @@ struct SeekEmptyCase
     static constexpr index_t size = 0;
 
 
-    static void check(ex::IIoStream& s)
+    static void check(ex::IStream& s)
     {
         ASSERT_EQ(s.size(), 0);
         ASSERT_EQ(s.position(), 0);
         ASSERT_EQ(s.eos(), true);
-        ASSERT_EQ(s.is_open(), true);
 
         s.seek(0, ex::IStream::SeekMode::kBegin);
         ASSERT_EQ(s.position(), 0);

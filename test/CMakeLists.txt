@@ -3,6 +3,8 @@ include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/include)
 
 
 add_executable(ExTests
+    stream/stream_test_tools.hpp
+
     ct/meta_str.cpp
     ct/char.cpp
     ct/charset.cpp
@@ -23,7 +25,7 @@ add_executable(ExTests
     algo.cpp
     stream/file.cpp
 
-    stream/stream_test_tools.hpp
+    stream/buffered.cpp
     stream/memory.cpp
 )
 

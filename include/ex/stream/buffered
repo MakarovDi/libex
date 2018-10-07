@@ -1,0 +1,114 @@
+#ifndef    EX_STREAM_BUFFERED_HEADER
+#   define EX_STREAM_BUFFERED_HEADER
+
+#include <memory>
+
+#include "ex/stream/interface"
+
+
+namespace ex
+{
+
+
+class InputBufferedStream final : public IInputStream
+{
+private:
+    static constexpr index_t kDiskBlockSize    = 4096;
+    static constexpr index_t kDefaulBufferSize = 4 * kDiskBlockSize;
+
+public:
+    InputBufferedStream() :
+        m_stream(nullptr),
+        m_buffer(nullptr),
+        m_stream_size(0),
+        m_buffer_size(0),
+        m_buffered(0),
+        m_buffer_index(0),
+        m_eos(true)
+    {
+    }
+
+
+    InputBufferedStream(IInputStream& stream, index_t buffer_size = kDefaulBufferSize);
+
+public:
+    InputBufferedStream(InputBufferedStream&& stream) :
+        m_stream(stream.m_stream),
+        m_buffer(std::move(stream.m_buffer)),
+        m_buffer_size(stream.m_buffer_size),
+        m_buffered(stream.m_buffered),
+        m_buffer_index(stream.m_buffer_index),
+        m_eos(stream.m_eos)
+    {
+        stream.m_stream       = nullptr;
+        stream.m_buffer_size  = 0;
+        stream.m_buffered     = 0;
+        stream.m_buffer_index = 0;
+        stream.m_eos          = true;
+    }
+
+
+    InputBufferedStream& operator=(InputBufferedStream&& stream)
+    {
+        m_buffer       = std::move(stream.m_buffer);
+        m_buffer_size  = stream.m_buffer_size;  stream.m_buffer_size  = 0;
+        m_buffered     = stream.m_buffered;     stream.m_buffered     = 0;
+        m_buffer_index = stream.m_buffer_index; stream.m_buffer_index = 0;
+
+        m_stream = stream.m_stream; stream.m_stream = nullptr;
+        m_eos    = stream.m_eos;    stream.m_eos    = true;
+
+        return *this;
+    }
+
+public:
+    virtual bool can_seek()   const override { return m_stream->can_seek();   }
+    virtual bool can_extend() const override { return m_stream->can_extend(); }
+
+public:
+    virtual uint8_t read_byte() override;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
+
+public:
+    virtual bool    is_open()  const override { return m_stream && m_stream->is_open(); }
+
+    virtual void    seek(index_t position, SeekMode mode) override;
+    virtual index_t position() const override;
+    virtual index_t size()     const override { return m_stream_size; }
+    virtual bool    eos()      const override { return m_eos;         }
+
+    virtual void close() override;
+    virtual void flush() override { m_stream->flush(); }
+
+public:
+    index_t buffer_size() const { return m_buffer_size; }
+
+protected:
+    void    refresh_buffer();
+    index_t buffer_rest() const { return m_buffered - m_buffer_index; }
+
+private:
+    using StreamBuffer = std::unique_ptr<uint8_t[]>;
+
+private:
+    IInputStream* m_stream;
+    StreamBuffer  m_buffer;
+
+    index_t m_stream_size;
+    index_t m_buffer_size;
+    index_t m_buffered;
+    index_t m_buffer_index;
+
+    bool m_eos;
+};
+
+
+
+//class OutputBufferedStream final : public IOutputStream
+//{
+//
+//};
+
+
+}
+#endif // EX_STREAM_BUFFERED_HEADER

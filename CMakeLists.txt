@@ -61,6 +61,7 @@ set(SOURCES
     src/cprint.cpp
     src/stream/tmp.cpp
     src/stream/file.cpp
+    src/stream/buffered.cpp
     src/stream/memory.cpp
     src/stream/interface.cpp
 )
@@ -123,6 +124,7 @@ set(HEADERS
     include/ex/stream/interface
     include/ex/stream/file
     include/ex/stream/tmp
+    include/ex/stream/buffered
     include/ex/stream/memory
 )
 

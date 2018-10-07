@@ -31,9 +31,10 @@ public:
     virtual index_t position() const = 0;
 
 public:
-    virtual bool can_read()  const = 0;
-    virtual bool can_write() const = 0;
-    virtual bool can_seek()  const = 0;
+    virtual bool can_read()   const = 0;
+    virtual bool can_write()  const = 0;
+    virtual bool can_seek()   const = 0;
+    virtual bool can_extend() const = 0;
 
 protected:
     index_t abs_position(index_t position, SeekMode mode) const;
@@ -50,8 +51,8 @@ public:
     virtual index_t read(uint8_t* buffer, index_t read_bytes) = 0;
 
 public:
-    virtual bool can_read()  const override { return true;  }
-    virtual bool can_write() const override { return false; }
+    virtual bool can_read()   const override { return true;  }
+    virtual bool can_write()  const override { return false; }
 
 protected:
     IInputStream() {}
@@ -67,7 +68,6 @@ public:
 public:
     virtual bool can_read()   const override { return false; }
     virtual bool can_write()  const override { return true;  }
-    virtual bool can_extend() const = 0;
 
 protected:
     IOutputStream() {}
