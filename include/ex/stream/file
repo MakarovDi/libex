@@ -47,9 +47,7 @@ public:
     FileStream() :
         m_file(nullptr),
         m_access(kUndefined),
-        m_opened(false),
-        m_size(0),
-        m_position(0)
+        m_opened(false)
     {
     }
 
@@ -61,15 +59,11 @@ public:
     FileStream(FileStream&& stream) :
         m_file(stream.m_file),
         m_access(stream.m_access),
-        m_opened(stream.m_opened),
-        m_size(stream.m_size),
-        m_position(stream.m_position)
+        m_opened(stream.m_opened)
     {
         stream.m_file     = nullptr;
         stream.m_access   = kUndefined;
         stream.m_opened   = false;
-        stream.m_size     = 0;
-        stream.m_position = 0;
     }
 
 
@@ -78,8 +72,6 @@ public:
         m_file     = stream.m_file;     stream.m_file     = nullptr;
         m_access   = stream.m_access;   stream.m_access   = kUndefined;
         m_opened   = stream.m_opened;   stream.m_opened   = false;
-        m_size     = stream.m_size;     stream.m_size     = 0;
-        m_position = stream.m_position; stream.m_position = 0;
 
         m_filename = std::move(stream.m_filename);
 
@@ -87,7 +79,7 @@ public:
     }
 
 public:
-    virtual uint8_t read_byte() override;
+    virtual byte    read_byte() override;
     virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
 
     virtual void write_byte(uint8_t value) override;
@@ -99,12 +91,12 @@ public:
     virtual void flush() override;
 
 public:
-    virtual bool    is_open()  const override { return m_opened;             }
-    virtual bool    eos()      const override { return m_position == size(); } // TODO: m_eos
+    virtual bool is_open()  const override { return m_opened; }
+    virtual bool is_valid() const override;
 
-    virtual index_t position()    const override { return m_position; }
-    virtual index_t size()        const override { return m_size;     }
-            index_t stream_rest() const { return size() - m_position; }
+    virtual index_t position() const override;
+    virtual bool    eos()      const override;
+    virtual index_t size()     const override;
 
 public:
     const std::string& filename() const { return m_filename; }
@@ -113,22 +105,21 @@ public:
           void* file_id()       { return m_file; }
 
 protected:
-    void    close_file();
-    index_t file_size();
+    void close_file();
+    void seek_validate(index_t position, IStream::SeekMode mode);
 
 public:
-    virtual bool can_read()   const override { return m_access & Access::kRead;  }
-    virtual bool can_write()  const override { return m_access & Access::kWrite; }
-    virtual bool can_seek()   const override { return true;                      }
-    virtual bool can_extend() const override { return true;                      }
+    virtual bool is_readable()   const override { return m_access & Access::kRead;  }
+    virtual bool is_writable()   const override { return m_access & Access::kWrite; }
+    virtual bool is_seekable()   const override { return true;                      }
+    virtual bool is_expandable() const override { return m_access & Access::kWrite; }
+    virtual bool is_sizeless()   const override { return false;                     }
 
 private:
     void*   m_file;
 
     Access  m_access;
     bool    m_opened;
-    index_t m_size;
-    index_t m_position;
 
     std::string m_filename;
 };

@@ -11,6 +11,9 @@
 
 #ifdef _WIN32
 #  include <io.h>
+#include <ex/stream/file>
+
+
 #  define access  _access_s
 #else
 #  include <unistd.h>
@@ -114,11 +117,6 @@ FileStream::FileStream(const char* fname,
     if (!m_file)
         throw std::runtime_error("can't open file");
 
-    // TODO: range check
-
-    m_position = (index_t)std::ftell((FILE*)m_file);
-    m_size     = file_size();
-
     // TODO: set_share_mode(m_file);
 
     m_opened = true;
@@ -133,15 +131,94 @@ void FileStream::close_file()
         m_file = nullptr;
     }
 
-    m_position = 0;
-    m_size     = 0;
     m_opened   = false;
 }
 
 
-index_t FileStream::file_size()
+index_t FileStream::read(uint8_t* buffer, index_t read_bytes)
 {
-    // TODO: assert m_file != nullptr
+    index_t read = (index_t)std::fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
+    // TODO: error check
+    return read;
+}
+
+
+FileStream::byte FileStream::read_byte()
+{
+    // TODO
+    int result = std::fgetc((FILE*)m_file);
+
+    return FileStream::byte(result);
+}
+
+
+void FileStream::write(const uint8_t* buffer, index_t write_bytes)
+{
+    // TODO: range_check
+    index_t written = (index_t)std::fwrite(buffer, 1, size_t(write_bytes), (FILE*)m_file);
+
+    if (written != write_bytes)
+        throw std::runtime_error("write operation failed");
+}
+
+
+void FileStream::write_byte(uint8_t value)
+{
+    int result = std::fputc(value, (FILE*)m_file);
+
+    if (result == EOF)
+        throw std::runtime_error("write error");
+}
+
+
+void FileStream::seek(index_t position, IStream::SeekMode mode)
+{
+    seek_validate(position, mode);
+
+    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
+
+    // TODO: position range check
+    int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
+    if (result)
+    {
+        throw std::runtime_error("seek file failed");
+    }
+}
+
+
+void FileStream::flush()
+{
+    if (m_file)
+    {
+        std::fflush((FILE*)m_file);
+    }
+}
+
+
+bool FileStream::eos() const
+{
+    // TODO: assert is open
+    return std::feof((FILE*)m_file) != 0;
+}
+
+
+index_t FileStream::position() const
+{
+    // TODO: assert is open
+    // TODO: assert range_check
+    return index_t(ftell((FILE*)m_file));
+}
+
+
+bool FileStream::is_valid() const
+{
+    return ferror((FILE*)m_file) == 0;
+}
+
+
+index_t FileStream::size() const
+{
+     // TODO: assert m_file != nullptr
 
     long pos = ftell((FILE*)m_file);
     if (pos == -1)
@@ -164,88 +241,28 @@ index_t FileStream::file_size()
 }
 
 
-index_t FileStream::read(uint8_t* buffer, index_t read_bytes)
+void FileStream::seek_validate(index_t position, IStream::SeekMode mode)
 {
-    index_t read = (index_t)std::fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
+    index_t abs_position;
 
-    m_position += read;
-
-    return read;
-}
-
-
-uint8_t FileStream::read_byte()
-{
-    int result = std::fgetc((FILE*)m_file);
-    if (result == EOF)
-        throw std::runtime_error("eof reached or error when reading byte");
-
-    ++m_position;
-
-    return uint8_t(result);
-}
-
-
-void FileStream::write(const uint8_t* buffer, index_t write_bytes)
-{
-    index_t rest_size = stream_rest();
-
-    // TODO: range_check
-    index_t written = (index_t)std::fwrite(buffer, 1, size_t(write_bytes), (FILE*)m_file);
-
-    index_t oversize = written - rest_size;
-    if (oversize > 0)
+    switch (mode)
     {
-        m_size += oversize;
+        case kBegin:
+            // TODO: assert > 0 ?
+            abs_position = position;
+            break;
+        case kOffset:
+            abs_position = this->position() + position;
+            break;
+        case kEnd:
+            // TODO: assert < 0 ?
+            abs_position = size() + position;
+            break;
+        default:
+            throw std::logic_error("invalid state");
     }
 
-    m_position += written;
-
-    if (written != write_bytes)
-        throw std::runtime_error("write operation failed");
+    if (abs_position < 0 || abs_position > size())
+        throw std::out_of_range("seek to invalid position");
 }
 
-
-void FileStream::write_byte(uint8_t value)
-{
-    int result = std::fputc(value, (FILE*)m_file);
-    if (result == EOF)
-        throw std::runtime_error("writing byte to file failed");
-
-    if (eos())
-    {
-        ++m_size;
-    }
-
-    ++m_position;
-}
-
-
-void FileStream::seek(index_t position, IStream::SeekMode mode)
-{
-    index_t pos = abs_position(position, mode);
-
-    if (pos > size() || pos < 0)
-        throw std::logic_error("seek to position out of file");
-
-    m_position = pos;
-
-    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
-
-    // TODO: position range check
-    int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
-    if (result)
-    {
-        m_position = (index_t)std::ftell((FILE*)m_file);
-        throw std::runtime_error("seek file failed");
-    }
-}
-
-
-void FileStream::flush()
-{
-    if (m_file)
-    {
-        std::fflush((FILE*)m_file);
-    }
-}

@@ -72,26 +72,35 @@ struct ReadByteCase
     static void check(ex::IInputStream& s)
     {
         ASSERT_EQ(s.size(), 4);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_readable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
-        ASSERT_EQ(s.eos(), false);
+        ASSERT_FALSE(s.eos());
         ASSERT_EQ(s.position(), 0);
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'1');
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.position(), 1);
+        ASSERT_TRUE(s.read_byte() == uint8_t('1'));
+        ASSERT_FALSE(s.eos());
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 1);
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'2');
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.position(), 2);
+        ASSERT_TRUE(s.read_byte() == uint8_t('2'));
+        ASSERT_FALSE(s.eos());
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 2);
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'3');
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.position(), 3);
+        ASSERT_TRUE(s.read_byte() == uint8_t('3'));
+        ASSERT_FALSE(s.eos());
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 3);
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'\0');
-        ASSERT_EQ(s.eos(), true);
-        ASSERT_EQ(s.position(), 4);
+        ASSERT_TRUE(s.read_byte() == uint8_t('\0'));
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 4);
+        ASSERT_TRUE(s);
+
+        ASSERT_TRUE(s.read_byte() == false);
+        ASSERT_TRUE(s.eos());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(!s);
     }
 };
 
@@ -104,22 +113,32 @@ struct ReadCase
 
     static void check(ex::IInputStream& s)
     {
-        ASSERT_EQ(s.size(), size);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_readable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.position(), 0);
+        ASSERT_FALSE(s.eos());
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 0);
 
         uint8_t buf[3];
-        ASSERT_TRUE(s.read(buf, 3) == 3);
+        ASSERT_EQ(s.read(buf, 3), 3);
         ASSERT_MEMEQ(buf, data(), 3);
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.position(), 3);
+        ASSERT_FALSE(s.eos());
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 3);
 
-        ASSERT_TRUE(s.read(buf, size) == 1);
+        ASSERT_EQ(s.read(buf, size), 1);
         ASSERT_MEMEQ(buf, "\0", 1);
-        ASSERT_EQ(s.eos(), true);
-        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos());
+        ASSERT_TRUE(!s);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), size);
+
+        ASSERT_EQ(s.read(buf, size), 0);
+        ASSERT_TRUE(s.eos());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(!s);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), size);
     }
 };
 
@@ -132,10 +151,16 @@ struct EmptyStreamCase
 
     static void check(const ex::IStream& s)
     {
-        ASSERT_EQ(s.size(), 0);
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_TRUE(s.eos());
         ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_valid());
+
+        if (s.is_seekable())
+            ASSERT_EQ(s.position(), 0);
+
+        if (!s.is_sizeless())
+            ASSERT_EQ(s.size(), 0);
+
+        ASSERT_TRUE(s.eos() || !s.eos());
     }
 };
 
@@ -148,25 +173,29 @@ struct WriteByteCase
 
     static void check(ex::IOutputStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_writable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 0);
 
-        s.write_byte((uint8_t)'1');
-        ASSERT_TRUE(s.size() >= 1);
-        ASSERT_EQ(s.position(), 1);
+        s.write_byte(uint8_t('1'));
+        if (!s.is_sizeless()) ASSERT_TRUE(s.size() == 1);
+        if (s.is_seekable())  ASSERT_EQ(s.position(), 1);
 
-        s.write_byte((uint8_t)'2');
-        ASSERT_TRUE(s.size() >= 2);
-        ASSERT_EQ(s.position(), 2);
+        s.write_byte(uint8_t('2'));
+        if (!s.is_sizeless()) ASSERT_TRUE(s.size() == 2);
+        if (s.is_seekable())  ASSERT_EQ(s.position(), 2);
 
-        s.write_byte((uint8_t)'3');
-        ASSERT_TRUE(s.size() >= 3);
-        ASSERT_EQ(s.position(), 3);
+        s.write_byte(uint8_t('3'));
+        if (!s.is_sizeless()) ASSERT_TRUE(s.size() == 3);
+        if (s.is_seekable())  ASSERT_EQ(s.position(), 3);
 
-        s.write_byte((uint8_t)'\0');
-        ASSERT_TRUE(s.size() == 4);
-        ASSERT_TRUE(s.eos());
-        ASSERT_EQ(s.position(), 4);
+        s.write_byte(uint8_t('\0'));
+        if (!s.is_sizeless()) ASSERT_TRUE(s.size() == 4);
+        if (s.is_seekable())  ASSERT_EQ(s.position(), 4);
+
+        ASSERT_TRUE(s.eos() || !s.eos());
 
         s.flush();
 
@@ -185,16 +214,21 @@ struct WriteCase
 
     static void check(ex::IOutputStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.is_open(), true);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_writable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 0);
 
         s.write((uint8_t*)"123", 3);
-        ASSERT_EQ(s.position(), 3);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), 3);
+        if (!s.is_sizeless()) ASSERT_TRUE(s.size() == 3);
 
         s.write((uint8_t*)"4\0", 2);
-        ASSERT_EQ(s.size(), size);
-        ASSERT_EQ(s.position(), size);
-        ASSERT_TRUE(s.eos());
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
+        if (s.is_seekable()) ASSERT_EQ(s.position(), size);
+
+        ASSERT_TRUE(s.eos() || !s.eos());
 
         s.flush();
 
@@ -213,28 +247,30 @@ struct WriteReadCase
 
     static void check(ex::IIoStream& s, ex::IInputStream& result)
     {
-        ASSERT_EQ(s.position(), 0);
         ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_writable());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        ASSERT_EQ(s.position(), 0);
 
         s.write((uint8_t*)"1234\0", size);
-        ASSERT_EQ(s.size(), size);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), size);
-        ASSERT_TRUE(s.eos());
 
         s.seek(3, ex::IStream::SeekMode::kBegin);
-        ASSERT_EQ(s.size(), size);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 3);
-        ASSERT_FALSE(s.eos());
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'4');
-        ASSERT_EQ(s.size(), size);
+        ASSERT_TRUE(s.read_byte() == uint8_t('4'));
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 4);
-        ASSERT_FALSE(s.eos());
 
-        s.write_byte((uint8_t)'5');
-        ASSERT_EQ(s.size(), size);
+        s.write_byte(uint8_t('5'));
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), size);
-        ASSERT_TRUE(s.eos());
+
+        ASSERT_TRUE(s.eos() || !s.eos());
 
         s.flush();
 
@@ -253,16 +289,19 @@ struct SeekCase
 
     static void check(ex::IInputStream& s)
     {
-        ASSERT_EQ(s.size(), size);
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_FALSE(s.eos());
         ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        ASSERT_TRUE(!s.eos());
+        ASSERT_EQ(s.position(), 0);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
         s.seek(2, ex::IStream::SeekMode::kBegin);
         ASSERT_EQ(s.position(), 2);
         ASSERT_FALSE(s.eos());
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'3');
+        ASSERT_TRUE(s.read_byte() == uint8_t('3'));
         ASSERT_EQ(s.position(), 3);
         ASSERT_FALSE(s.eos());
 
@@ -270,7 +309,7 @@ struct SeekCase
         ASSERT_EQ(s.position(), 2);
         ASSERT_FALSE(s.eos());
 
-        ASSERT_EQ(s.read_byte(), (uint8_t)'3');
+        ASSERT_TRUE(s.read_byte() == uint8_t('3'));
         ASSERT_EQ(s.size(), size);
         ASSERT_EQ(s.position(), 3);
         ASSERT_FALSE(s.eos());
@@ -281,10 +320,15 @@ struct SeekCase
 
         s.seek(0,  ex::IStream::SeekMode::kEnd);
         ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos() || !s.eos());
+        ASSERT_FALSE(s.read_byte());
+        ASSERT_EQ(s.position(), size);
         ASSERT_TRUE(s.eos());
 
         s.seek(-1,  ex::IStream::SeekMode::kEnd);
-        ASSERT_EQ(s.read_byte(), (uint8_t)'5');
+        ASSERT_TRUE(s.read_byte() == uint8_t('5'));
+        ASSERT_EQ(s.position(), size);
+        ASSERT_FALSE(s.read_byte());
         ASSERT_EQ(s.position(), size);
         ASSERT_TRUE(s.eos());
     }
@@ -298,24 +342,27 @@ struct SeekOversizeCase
 
     static void check(ex::IStream& s)
     {
-        ASSERT_EQ(s.size(), 5);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        ASSERT_TRUE(!s.eos());
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), false);
-        ASSERT_EQ(s.is_open(), true);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
-        ASSERT_THROW(s.seek(8, ex::IStream::SeekMode::kBegin), std::logic_error);
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), false);
-
-        ASSERT_THROW(s.seek(8, ex::IStream::SeekMode::kOffset), std::logic_error);
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), false);
-
-        ASSERT_THROW(s.seek(-1, ex::IStream::SeekMode::kOffset), std::logic_error);
+        ASSERT_THROW(s.seek(8, ex::IStream::SeekMode::kBegin), std::out_of_range);
         ASSERT_EQ(s.position(), 0);
         ASSERT_EQ(s.eos(), false);
 
-        ASSERT_THROW(s.seek(-10, ex::IStream::SeekMode::kEnd), std::logic_error);
+        ASSERT_THROW(s.seek(8, ex::IStream::SeekMode::kOffset), std::out_of_range);
+        ASSERT_EQ(s.position(), 0);
+        ASSERT_EQ(s.eos(), false);
+
+        ASSERT_THROW(s.seek(-1, ex::IStream::SeekMode::kOffset), std::out_of_range);
+        ASSERT_EQ(s.position(), 0);
+        ASSERT_EQ(s.eos(), false);
+
+        ASSERT_THROW(s.seek(-10, ex::IStream::SeekMode::kEnd), std::out_of_range);
         ASSERT_EQ(s.position(), 0);
         ASSERT_EQ(s.eos(), false);
     }
@@ -330,21 +377,21 @@ struct SeekEmptyCase
 
     static void check(ex::IStream& s)
     {
-        ASSERT_EQ(s.size(), 0);
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
+        ASSERT_TRUE(s.eos() || !s.eos());
 
         s.seek(0, ex::IStream::SeekMode::kBegin);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
 
         s.seek(0, ex::IStream::SeekMode::kOffset);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
 
         s.seek(0, ex::IStream::SeekMode::kOffset);
         ASSERT_EQ(s.position(), 0);
-        ASSERT_EQ(s.eos(), true);
     }
 };
 
@@ -357,18 +404,20 @@ struct WriteExtendCase
 
     static void check(ex::IOutputStream& s, ex::IInputStream& result)
     {
-        ASSERT_TRUE(s.can_extend());
+        ASSERT_TRUE(s.is_expandable());
 
-        ASSERT_EQ(s.size(), 4);
-        ASSERT_EQ(s.position(), 0);
-        ASSERT_FALSE(s.eos());
         ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        ASSERT_TRUE(!s.eos());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_EQ(s.position(), 0);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
         s.seek(2, ex::IStream::SeekMode::kBegin);
         s.write((uint8_t*)"8901", 4);
         ASSERT_EQ(s.position(), 6);
-        ASSERT_TRUE(s.eos());
-        ASSERT_EQ(s.size(), 6);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), 6);
 
         s.flush();
 
