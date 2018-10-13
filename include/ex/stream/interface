@@ -53,7 +53,7 @@ public:
     {
         static constexpr int kInvalidValue = -1;
     public:
-        explicit byte(int value) : m_value(value) {}
+        explicit byte(int value = kInvalidValue) : m_value(value) {}
 
         operator bool()    const { return is_valid(); }
         operator uint8_t() const { return value();    }

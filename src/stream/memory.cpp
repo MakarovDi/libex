@@ -2,16 +2,18 @@
 
 
 
-uint8_t ex::MemoryStream::read_byte()
+ex::MemoryStream::byte ex::MemoryStream::read_byte()
 {
     // TODO: assert
+    if (eos())
+        return ex::MemoryStream::byte();
 
     uint8_t value = m_data[m_position];
 
     m_position++;
     update_eos();
 
-    return value;
+    return ex::MemoryStream::byte(value);
 }
 
 
@@ -57,10 +59,24 @@ void ex::MemoryStream::write(const uint8_t* buffer, index_t write_bytes)
 
 void ex::MemoryStream::seek(index_t position, ex::IStream::SeekMode mode)
 {
-    position = abs_position(position, mode);
+    switch (mode)
+    {
+        case kBegin:
+            // TODO: assert > 0 ?
+            break;
+        case kOffset:
+            position = this->position() + position;
+            break;
+        case kEnd:
+            // TODO: assert < 0 ?
+            position = size() + position;
+            break;
+        default:
+            throw std::logic_error("invalid state");
+    }
 
     if (position > size() || position < 0)
-        throw std::logic_error("seek to position out of stream");
+        throw std::out_of_range("seek to position out of stream");
 
     m_position = position;
     update_eos();
