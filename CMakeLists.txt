@@ -63,8 +63,7 @@ set(SOURCES
     src/stream/file.cpp
     src/stream/buffered.cpp
     src/stream/memory.cpp
-    src/stream/interface.cpp
-)
+    )
 
 # Enumerate header files
 set(HEADERS
