@@ -1,8 +1,10 @@
 #ifndef    EX_STREAM_MEMORY_HEADER
 #   define EX_STREAM_MEMORY_HEADER
 
-#include "ex/stream/interface"
+
 #include <stdexcept>
+
+#include "ex/stream/interface"
 
 
 namespace ex
@@ -62,29 +64,8 @@ public:
     virtual void write_byte(uint8_t value) override;
     virtual void write(const uint8_t* buffer, index_t write_bytes) override;
 
-public:
-    const uint8_t* data() const { return m_data; }
-          uint8_t* data()       { return m_data; }
 
-    const uint8_t* current() const { return &m_data[m_position]; }
-          uint8_t* current()       { return &m_data[m_position]; }
-
-public:
-    virtual bool is_open()  const override { return m_data != nullptr;  }
-    virtual bool is_valid() const override { return true;  }
-    virtual bool eos()      const override { return m_eos; }
-
-    virtual void    seek(index_t position, SeekMode mode) override;
-    virtual index_t position()    const override { return m_position; }
-
-    virtual index_t size()        const override { return m_size;     }
-            index_t stream_rest() const { return size() - m_position; }
-
-
-    virtual void flush() override
-    {
-    }
-
+    virtual void flush() override { }
 
     virtual void close() override
     {
@@ -95,11 +76,30 @@ public:
     }
 
 public:
+    virtual bool is_open()     const override { return m_data != nullptr;  }
+    virtual bool is_valid()    const override { return true;  }
+
+    virtual index_t position() const override { return m_position; }
+    virtual bool    eos()      const override { return m_eos; }
+    virtual index_t size()     const override { return m_size;     }
+
+    virtual void seek(index_t position, SeekMode mode) override;
+
+    index_t stream_rest()      const { return size() - m_position; }
+
+public:
     virtual bool is_readable()   const override { return true;  }
     virtual bool is_writable()   const override { return true;  }
     virtual bool is_seekable()   const override { return true;  }
     virtual bool is_expandable() const override { return false; }
     virtual bool is_sizeless()   const override { return false; }
+
+public:
+    const uint8_t* data()    const { return m_data; }
+          uint8_t* data()          { return m_data; }
+
+    const uint8_t* current() const { return &m_data[m_position]; }
+          uint8_t* current()       { return &m_data[m_position]; }
 
 protected:
     void update_eos()

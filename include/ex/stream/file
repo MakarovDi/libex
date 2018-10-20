@@ -2,6 +2,7 @@
 #   define EX_STREAM_FILE_HEADER
 
 #include <string>
+#include <memory>
 
 #include "ex/policy/notice"
 #include "ex/stream/interface"
@@ -85,10 +86,8 @@ public:
     virtual void write_byte(uint8_t value) override;
     virtual void write(const uint8_t* buffer, index_t write_bytes) override;
 
-    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
-
-    virtual void close() override { close_file(); }
     virtual void flush() override;
+    virtual void close() override { close_file(); }
 
 public:
     virtual bool is_open()  const override { return m_opened; }
@@ -97,6 +96,8 @@ public:
     virtual index_t position() const override;
     virtual bool    eos()      const override;
     virtual index_t size()     const override;
+
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
 
 public:
     const std::string& filename() const { return m_filename; }

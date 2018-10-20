@@ -22,14 +22,14 @@ public:
     virtual bool is_open()  const = 0;
     virtual bool is_valid() const = 0;
 
-    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) = 0;
-
     virtual index_t position() const = 0;
     virtual bool    eos()  const = 0;
     virtual index_t size() const = 0;
 
-    virtual void close() = 0;
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) = 0;
+
     virtual void flush() = 0;
+    virtual void close() = 0;
 
     operator bool() const { return is_valid() && !eos(); }
 
