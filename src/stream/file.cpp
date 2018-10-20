@@ -8,9 +8,10 @@
 #include "ex/macro"
 #include "ex/assert"
 #include "ex/range_check"
+#include "ex/platform/macro"
 
 
-#ifdef _WIN32
+#ifdef PLATFORM_IS_WINDOWS
 #  include <io.h>
 #  define access  _access_s
 #else
@@ -84,12 +85,9 @@ static bool is_file_exists(const char* fname)
 }
 
 
-// TODO: C++17 string_view
-
 FileStream::FileStream(const char* fname,
                        FileStream::OpenMode open_mode,
-                       FileStream::Access   access_mode,
-                       FileStream::Share    share_mode) : // TODO: all
+                       FileStream::Access   access_mode) :
    m_access(access_mode),
    m_opened(false),
    m_size(kInvalidSize),
@@ -115,8 +113,6 @@ FileStream::FileStream(const char* fname,
     m_file = (void*)std::fopen(fname, mode_str);
     if (!m_file)
         throw std::runtime_error("can't open file");
-
-    // TODO: set_share_mode(m_file);
 
     m_opened = true;
 }

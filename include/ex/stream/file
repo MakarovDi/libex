@@ -37,14 +37,6 @@ public:
         kAccessCount
     };
 
-    enum Share : int
-    {
-        kExclusive = 0,
-        kShared    = 1,
-
-        kShareCount
-    };
-
 public:
     FileStream() :
         m_file(nullptr),
@@ -54,15 +46,11 @@ public:
     {
     }
 
-    FileStream(const char* fname, OpenMode, Access, Share = Share::kShared);
+    // TODO: C++17 string_view
 
+    FileStream(const char* fname, OpenMode, Access);
 
-    FileStream(const std::string& fname,
-               OpenMode mode,
-               Access   access,
-               Share    share = Share::kShared) : FileStream(fname.c_str(), mode, access, share)
-    {
-    }
+    FileStream(const std::string& fname, OpenMode mode, Access access) : FileStream(fname.c_str(), mode, access) { }
 
     virtual ~FileStream() { close_file(); }
 

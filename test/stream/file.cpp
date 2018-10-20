@@ -131,6 +131,3 @@ TEST_F(file_stream, write_extend)
 
     test::WriteExtendCase::check(fs, fs_result);
 }
-
-
-// TODO: sharing test
