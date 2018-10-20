@@ -17,7 +17,7 @@ struct ThrowNotice
     static constexpr bool is_empty = false;
 
 
-    static void notice(const char* message)
+    static void notify(const char* message)
     {
         throw Exception(message);
     }
@@ -33,7 +33,7 @@ struct StderrNotice
     static constexpr bool is_empty = false;
 
 
-    static void notice(const char* message)
+    static void notify(const char* message)
     {
         std::cerr << message << std::endl;
     }
@@ -55,7 +55,7 @@ struct DebugNotice
 #endif
 
 
-    static void notice(const char* message)
+    static void notify(const char* message)
     {
     #ifndef NDEBUG
         throw Exception(message);
@@ -75,7 +75,7 @@ struct FatalNotice
     static constexpr bool is_empty = false;
 
 
-    static void notice(const char* message)
+    static void notify(const char* message)
     {
         std::cerr << message << std::endl;
         abort();
@@ -92,7 +92,7 @@ struct NoNotice
     static constexpr bool is_empty = true;
 
 
-    static void notice(const char*)
+    static void notify(const char*)
     {
     }
 
