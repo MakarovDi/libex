@@ -7,13 +7,11 @@
 #include "ex/stream/file"
 #include "ex/macro"
 #include "ex/assert"
+#include "ex/range_check"
 
 
 #ifdef _WIN32
 #  include <io.h>
-#include <ex/stream/file>
-
-
 #  define access  _access_s
 #else
 #  include <unistd.h>
@@ -94,6 +92,7 @@ FileStream::FileStream(const char* fname,
                        FileStream::Share    share_mode) : // TODO: all
    m_access(access_mode),
    m_opened(false),
+   m_size(kInvalidSize),
    m_filename(fname)
 {
     bool file_exists = check_existance[open_mode] ? is_file_exists(fname) : true;
@@ -131,21 +130,27 @@ void FileStream::close_file()
         m_file = nullptr;
     }
 
-    m_opened   = false;
+    m_opened = false;
 }
 
 
 index_t FileStream::read(uint8_t* buffer, index_t read_bytes)
 {
-    index_t read = (index_t)std::fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
-    // TODO: error check
-    return read;
+    ex::assert(is_open(), "file must be opened");
+    ex::assert(is_readable(), "file must be open in read mode");
+    ex::range_check<size_t>(read_bytes);
+
+    index_t readed = (index_t)std::fread(buffer, 1, size_t(read_bytes), (FILE*)m_file);
+    return readed;
 }
 
 
 FileStream::byte FileStream::read_byte()
 {
-    // TODO
+    ex::assert(is_open(), "file must be opened");
+    ex::assert(is_readable(), "file must be open in read mode");
+    static_assert(EOF == FileStream::byte::kInvalidValue, "constant equivalence");
+
     int result = std::fgetc((FILE*)m_file);
 
     return FileStream::byte(result);
@@ -154,8 +159,13 @@ FileStream::byte FileStream::read_byte()
 
 void FileStream::write(const uint8_t* buffer, index_t write_bytes)
 {
-    // TODO: range_check
+    ex::assert(is_open(), "file must be opened");
+    ex::assert(is_writable(), "file must be open in write mode");
+    ex::range_check<size_t>(write_bytes);
+
     index_t written = (index_t)std::fwrite(buffer, 1, size_t(write_bytes), (FILE*)m_file);
+
+    m_size = kInvalidSize; // request for size update
 
     if (written != write_bytes)
         throw std::runtime_error("write operation failed");
@@ -164,25 +174,15 @@ void FileStream::write(const uint8_t* buffer, index_t write_bytes)
 
 void FileStream::write_byte(uint8_t value)
 {
+    ex::assert(is_open(), "file must be opened");
+    ex::assert(is_writable(), "file must be open in write mode");
+
     int result = std::fputc(value, (FILE*)m_file);
 
     if (result == EOF)
         throw std::runtime_error("write error");
-}
 
-
-void FileStream::seek(index_t position, IStream::SeekMode mode)
-{
-    seek_validate(position, mode);
-
-    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
-
-    // TODO: position range check
-    int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
-    if (result)
-    {
-        throw std::runtime_error("seek file failed");
-    }
+    m_size = kInvalidSize; // request for size update
 }
 
 
@@ -197,28 +197,35 @@ void FileStream::flush()
 
 bool FileStream::eos() const
 {
-    // TODO: assert is open
+    ex::assert(is_open(), "file must be opened");
     return std::feof((FILE*)m_file) != 0;
 }
 
 
 index_t FileStream::position() const
 {
-    // TODO: assert is open
-    // TODO: assert range_check
-    return index_t(ftell((FILE*)m_file));
+    ex::assert(is_open(), "file must be opened");
+
+    auto pos = ftell((FILE*)m_file);
+    ex::range_check<index_t>(pos);
+
+    return index_t(pos);
 }
 
 
 bool FileStream::is_valid() const
 {
+    ex::assert(is_open(), "file must be opened");
+
     return ferror((FILE*)m_file) == 0;
 }
 
 
 index_t FileStream::size() const
 {
-     // TODO: assert m_file != nullptr
+    ex::assert(is_open(), "file must be opened");
+
+    if (m_size != kInvalidSize) return m_size;
 
     long pos = ftell((FILE*)m_file);
     if (pos == -1)
@@ -229,15 +236,32 @@ index_t FileStream::size() const
         throw std::runtime_error("fseek failure");
 
     long size = ftell((FILE*)m_file);
-    if (size == -1)
+    if (size == -1L)
         throw std::runtime_error("ftell failure");
 
     result = fseek((FILE*)m_file, pos, SEEK_SET);
     if (result != 0)
         throw std::runtime_error("fseek failure");
 
-    // TODO: range_check
+    ex::range_check<index_t>(size);
     return index_t(size);
+}
+
+
+void FileStream::seek(index_t position, IStream::SeekMode mode)
+{
+    ex::assert(is_open(), "file must be opened");
+    ex::range_check<long>(position);
+
+    seek_validate(position, mode);
+
+    const static int seek_mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
+
+    int result = std::fseek((FILE*)m_file, long(position), seek_mode[mode]);
+    if (result)
+    {
+        throw std::runtime_error("seek file failed");
+    }
 }
 
 
@@ -248,21 +272,23 @@ void FileStream::seek_validate(index_t position, IStream::SeekMode mode)
     switch (mode)
     {
         case kBegin:
-            // TODO: assert > 0 ?
+            ex::assert<std::out_of_range>(position >= 0, "position must be >= 0 for SeekMode::kBegin");
             abs_position = position;
             break;
+
         case kOffset:
             abs_position = this->position() + position;
             break;
+
         case kEnd:
-            // TODO: assert < 0 ?
+            ex::assert<std::out_of_range>(position <= 0, "position must be >= 0 for SeekMode::kEnd");
             abs_position = size() + position;
             break;
+
         default:
             throw std::logic_error("invalid state");
     }
 
-    if (abs_position < 0 || abs_position > size())
-        throw std::out_of_range("seek to invalid position");
+    ex::assert<std::out_of_range>(abs_position <= size() && abs_position >= 0, "seek to position out of stream");
 }
 

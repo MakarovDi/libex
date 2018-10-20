@@ -1,8 +1,10 @@
 #ifndef    EX_STREAM_BUFFERED_HEADER
 #   define EX_STREAM_BUFFERED_HEADER
 
+#include <stdexcept>
 #include <memory>
 
+#include "ex/assert"
 #include "ex/stream/interface"
 
 
@@ -125,27 +127,29 @@ public:
 
     virtual index_t position() const override
     {
-        // TODO: assert
+        ex::assert(m_stream, "stream must be opened");
         return m_stream->position() - m_buffered + m_buffer_index;
     }
 
 
     virtual void seek(index_t position, SeekMode mode) override
     {
-        // TODO: assert seekable
-        // TODO: assert m_stream
+        ex::assert(m_stream, "stream must be opened");
+        ex::assert(is_seekable(), "stream must be seekable");
 
         switch (mode)
         {
-            case kBegin: break;
+            case kBegin:
+                ex::assert<std::out_of_range>(position >= 0, "position must be >= 0 for SeekMode::kBegin");
+                break;
 
             case kOffset:
                 position = this->position() + position;
                 break;
 
             case kEnd:
-                // TODO: assert < 0 ?
-                // TODO: assert !sizeless
+                ex::assert<std::out_of_range>(position <= 0, "position must be <= 0 for SeekMode::kENd");
+                ex::assert(!is_sizeless(), "stream size must be available");
                 position = size() + position;
                 break;
             default:

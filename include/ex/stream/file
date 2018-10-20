@@ -14,6 +14,7 @@ namespace ex
 
 class FileStream final : public IIoStream
 {
+    static const index_t kInvalidSize = -1;
 public:
     enum OpenMode : int
     {
@@ -48,11 +49,20 @@ public:
     FileStream() :
         m_file(nullptr),
         m_access(kUndefined),
-        m_opened(false)
+        m_opened(false),
+        m_size(0)
     {
     }
 
     FileStream(const char* fname, OpenMode, Access, Share = Share::kShared);
+
+
+    FileStream(const std::string& fname,
+               OpenMode mode,
+               Access   access,
+               Share    share = Share::kShared) : FileStream(fname.c_str(), mode, access, share)
+    {
+    }
 
     virtual ~FileStream() { close_file(); }
 
@@ -60,19 +70,22 @@ public:
     FileStream(FileStream&& stream) :
         m_file(stream.m_file),
         m_access(stream.m_access),
-        m_opened(stream.m_opened)
+        m_opened(stream.m_opened),
+        m_size(stream.m_size)
     {
-        stream.m_file     = nullptr;
-        stream.m_access   = kUndefined;
-        stream.m_opened   = false;
+        stream.m_file   = nullptr;
+        stream.m_access = kUndefined;
+        stream.m_opened = false;
+        stream.m_size   = 0;
     }
 
 
     FileStream& operator=(FileStream&& stream)
     {
-        m_file     = stream.m_file;     stream.m_file     = nullptr;
-        m_access   = stream.m_access;   stream.m_access   = kUndefined;
-        m_opened   = stream.m_opened;   stream.m_opened   = false;
+        m_file   = stream.m_file;   stream.m_file   = nullptr;
+        m_access = stream.m_access; stream.m_access = kUndefined;
+        m_opened = stream.m_opened; stream.m_opened = false;
+        m_size   = stream.m_size;   stream.m_size   = 0;
 
         m_filename = std::move(stream.m_filename);
 
@@ -121,6 +134,7 @@ private:
 
     Access  m_access;
     bool    m_opened;
+    index_t m_size;
 
     std::string m_filename;
 };
