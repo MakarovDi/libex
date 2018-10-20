@@ -1,7 +1,7 @@
 #include "stream_test_tools.hpp"
 
-#include <ex/stream/buffered>
 #include <ex/stream/memory>
+#include <ex/stream/buffered>
 
 
 using namespace ex;
@@ -25,9 +25,9 @@ TEST(buffered_input_stream, read_byte)
     MemoryStream s_odd(buf.get(), test::ReadByteCase::size);
     MemoryStream s_big(buf.get(), test::ReadByteCase::size);
 
-    InputBufferedStream bs_even(s_even, 2);
-    InputBufferedStream bs_odd(s_odd, 3);
-    InputBufferedStream bs_big(s_big);
+    InputBufferedStream<MemoryStream> bs_even(s_even, 2);
+    InputBufferedStream<MemoryStream> bs_odd(s_odd, 3);
+    InputBufferedStream<MemoryStream> bs_big(s_big);
 
     test::ReadByteCase::check(bs_even);
     test::ReadByteCase::check(bs_odd);
@@ -43,9 +43,9 @@ TEST(buffered_input_stream, read)
     MemoryStream s_odd(buf.get(), test::ReadCase::size);
     MemoryStream s_big(buf.get(), test::ReadCase::size);
 
-    InputBufferedStream bs_even(s_even, 2);
-    InputBufferedStream bs_odd(s_odd, 3);
-    InputBufferedStream bs_big(s_big);
+    InputBufferedStream<MemoryStream> bs_even(s_even, 2);
+    InputBufferedStream<MemoryStream> bs_odd(s_odd, 3);
+    InputBufferedStream<MemoryStream> bs_big(s_big);
 
     test::ReadCase::check(bs_even);
     test::ReadCase::check(bs_odd);
@@ -58,7 +58,7 @@ TEST(buffered_input_stream, empty)
     std::unique_ptr<uint8_t[]> buf(init_buffer<test::EmptyStreamCase>());
 
     MemoryStream s(buf.get(), test::EmptyStreamCase::size);
-    InputBufferedStream bs(s);
+    InputBufferedStream<MemoryStream> bs(s);
 
     test::EmptyStreamCase::check(bs);
 }
@@ -73,9 +73,9 @@ TEST(buffered_input_stream, seek)
     MemoryStream s_odd(buf.get(), test::SeekCase::size);
     MemoryStream s_big(buf.get(), test::SeekCase::size);
 
-    InputBufferedStream bs_even(s_even, 1);
-    InputBufferedStream bs_odd(s_odd, 2);
-    InputBufferedStream bs_big(s_big);
+    InputBufferedStream<MemoryStream> bs_even(s_even, 1);
+    InputBufferedStream<MemoryStream> bs_odd(s_odd, 2);
+    InputBufferedStream<MemoryStream> bs_big(s_big);
 
     test::SeekCase::check(bs_even);
     test::SeekCase::check(bs_odd);
@@ -88,7 +88,7 @@ TEST(buffered_input_stream, seek_oversize)
     std::unique_ptr<uint8_t[]> buf(init_buffer<test::SeekOversizeCase>());
 
     MemoryStream s(buf.get(), test::SeekOversizeCase::size);
-    InputBufferedStream bs(s);
+    InputBufferedStream<MemoryStream> bs(s);
 
     test::SeekOversizeCase::check(bs);
 }
@@ -96,8 +96,10 @@ TEST(buffered_input_stream, seek_oversize)
 
 TEST(buffered_input_stream, seek_empty)
 {
-    InputBufferedStream bs;
-    ASSERT_FALSE(bs.is_open());
+    uint8_t buf[1] = {1};
+
+    MemoryStream s(buf, 0);
+    InputBufferedStream<MemoryStream> bs(s);
 
     test::SeekEmptyCase::check(bs);
 }

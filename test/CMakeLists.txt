@@ -23,8 +23,8 @@ add_executable(ExTests
     window.cpp
     meta/traits.cpp
     algo.cpp
-    stream/file.cpp
 
+    stream/file.cpp
     stream/buffered.cpp
     stream/memory.cpp
 )

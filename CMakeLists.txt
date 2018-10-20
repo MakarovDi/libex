@@ -61,7 +61,6 @@ set(SOURCES
     src/cprint.cpp
     src/stream/tmp.cpp
     src/stream/file.cpp
-    src/stream/buffered.cpp
     src/stream/memory.cpp
     )
 
