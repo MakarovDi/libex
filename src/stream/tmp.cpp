@@ -47,4 +47,13 @@ std::string generate_tmp_file_name()
 }
 
 
+
+TmpFileStream::~TmpFileStream()
+{
+    close_file();
+
+    std::remove(filename().c_str());
+}
+
+
 }

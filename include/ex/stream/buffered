@@ -41,8 +41,7 @@ public:
         m_buffer_index(0),
         m_eos(stream.eos())
     {
-        if (!stream.is_open())
-            throw std::logic_error("stream must be opened");
+        ex::assert<std::logic_error>(stream.is_open(), "stream must be opened");
     }
 
 public:

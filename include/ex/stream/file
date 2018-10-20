@@ -12,7 +12,7 @@ namespace ex
 {
 
 
-class FileStream final : public IIoStream
+class FileStream : public IIoStream
 {
     static const index_t kInvalidSize = -1;
 public:
