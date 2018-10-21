@@ -1,0 +1,133 @@
+#ifndef    EX_STREAM_FILE_HEADER
+#   define EX_STREAM_FILE_HEADER
+
+#include <string>
+#include <memory>
+
+#include "ex/policy/notice"
+#include "ex/stream/interface"
+
+
+namespace ex
+{
+
+
+class FileStream : public IIoStream
+{
+    static const index_t kInvalidSize = -1;
+public:
+    enum OpenMode : int
+    {
+        kOpenExisting = 0,
+        kOpenCreate   = 1,
+        kCreateNew    = 2,
+        kCreate       = 3,
+        kAppend       = 4,
+
+        kOpenModeCount
+    };
+
+    enum Access : int
+    {
+        kUndefined = 0x0,
+        kRead      = 0x1,
+        kWrite     = 0x2,
+        kReadWrite = kRead | kWrite,
+
+        kAccessCount
+    };
+
+public:
+    FileStream() :
+        m_file(nullptr),
+        m_access(kUndefined),
+        m_opened(false),
+        m_size(0)
+    {
+    }
+
+    // TODO: C++17 string_view
+
+    FileStream(const char* fname, OpenMode, Access);
+
+    FileStream(const std::string& fname, OpenMode mode, Access access) : FileStream(fname.c_str(), mode, access) { }
+
+    virtual ~FileStream() { close_file(); }
+
+public:
+    FileStream(FileStream&& stream) :
+        m_file(stream.m_file),
+        m_access(stream.m_access),
+        m_opened(stream.m_opened),
+        m_size(stream.m_size)
+    {
+        stream.m_file   = nullptr;
+        stream.m_access = kUndefined;
+        stream.m_opened = false;
+        stream.m_size   = 0;
+    }
+
+
+    FileStream& operator=(FileStream&& stream)
+    {
+        m_file   = stream.m_file;   stream.m_file   = nullptr;
+        m_access = stream.m_access; stream.m_access = kUndefined;
+        m_opened = stream.m_opened; stream.m_opened = false;
+        m_size   = stream.m_size;   stream.m_size   = 0;
+
+        m_filename = std::move(stream.m_filename);
+
+        return *this;
+    }
+
+public:
+    virtual byte    read_byte() override;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) override;
+
+    virtual void write_byte(uint8_t value) override;
+    virtual void write(const uint8_t* buffer, index_t write_bytes) override;
+
+    virtual void flush() override;
+    virtual void close() override { close_file(); }
+
+public:
+    virtual bool is_open()  const override { return m_opened; }
+    virtual bool is_valid() const override;
+
+    virtual index_t position() const override;
+    virtual bool    eos()      const override;
+    virtual index_t size()     const override;
+
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
+
+public:
+    const std::string& filename() const { return m_filename; }
+
+    const void* file_id() const { return m_file; }
+          void* file_id()       { return m_file; }
+
+protected:
+    void close_file();
+    void seek_validate(index_t position, IStream::SeekMode mode);
+
+public:
+    virtual bool is_readable()   const override { return m_access & Access::kRead;  }
+    virtual bool is_writable()   const override { return m_access & Access::kWrite; }
+    virtual bool is_seekable()   const override { return true;                      }
+    virtual bool is_expandable() const override { return m_access & Access::kWrite; }
+    virtual bool is_sizeless()   const override { return false;                     }
+
+private:
+    void*   m_file;
+
+    Access  m_access;
+    bool    m_opened;
+    index_t m_size;
+
+    std::string m_filename;
+};
+
+
+
+}
+#endif // EX_STREAM_FILE_HEADER

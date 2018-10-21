@@ -121,7 +121,7 @@ public:
     expected(const E& exception) : m_have_value(false)
     {
         if (typeid(exception) != typeid(E))
-            ex::policy::DefaultNotice::notice("slicing detected");
+            ex::policy::DefaultNotice::notify("slicing detected");
 
         new(&m_exception) std::exception_ptr(std::move(std::make_exception_ptr(exception)));
     }

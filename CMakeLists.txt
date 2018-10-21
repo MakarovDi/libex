@@ -56,11 +56,13 @@ include_directories(${PROJECT_BINARY_DIR}/include) # for config.h using
 
 # Enumerate source files
 set(SOURCES
-    src/placebo.cpp
-    src/platform.cpp
     src/version.cpp
+    src/placebo.cpp
     src/cprint.cpp
-)
+    src/stream/tmp.cpp
+    src/stream/file.cpp
+    src/stream/memory.cpp
+    )
 
 # Enumerate header files
 set(HEADERS
@@ -70,9 +72,11 @@ set(HEADERS
     include/ex/format
     include/ex/iterator/any_iterator
     include/ex/iterator/index_iterator
+    include/ex/iterator/make
     include/ex/macro
     include/ex/placebo
-    include/ex/platform
+    include/ex/platform/detect
+    include/ex/platform/macro
     include/ex/scopeguard
     include/ex/string
     include/ex/version
@@ -115,7 +119,11 @@ set(HEADERS
     include/ex/random
     include/ex/window
     include/ex/utility
-    include/ex/iterator/make
+    include/ex/stream/interface
+    include/ex/stream/file
+    include/ex/stream/tmp
+    include/ex/stream/buffered
+    include/ex/stream/memory
 )
 
 

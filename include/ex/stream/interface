@@ -1,0 +1,114 @@
+#ifndef    EX_STREAM_INTERFACE_HEADER
+#   define EX_STREAM_INTERFACE_HEADER
+
+#include <stdexcept>
+
+#include "ex/common/type"
+#include "ex/interface"
+
+
+namespace ex
+{
+
+
+class IStream : INonCopyable
+{
+public:
+    enum SeekMode : int { kBegin = 0, kOffset = 1, kEnd = 2 };
+
+public:
+    virtual ~IStream() = default;
+
+    virtual bool is_open()  const = 0;
+    virtual bool is_valid() const = 0;
+
+    virtual index_t position() const = 0;
+    virtual bool    eos()  const = 0;
+    virtual index_t size() const = 0;
+
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) = 0;
+
+    virtual void flush() = 0;
+    virtual void close() = 0;
+
+    operator bool() const { return is_valid() && !eos(); }
+
+public:
+    virtual bool is_readable()   const = 0;
+    virtual bool is_writable()   const = 0;
+    virtual bool is_seekable()   const = 0;
+    virtual bool is_expandable() const = 0;
+    virtual bool is_sizeless()   const = 0;
+
+protected:
+    IStream() = default;
+};
+
+
+
+class IInputStream : public virtual IStream
+{
+public:
+    struct byte final
+    {
+        static constexpr int kInvalidValue = -1;
+    public:
+        explicit byte(int value = kInvalidValue) : m_value(value) {}
+
+        operator bool()    const { return is_valid(); }
+        operator uint8_t() const { return value();    }
+
+        uint8_t value()    const { return uint8_t(m_value);         }
+        bool    is_valid() const { return m_value != kInvalidValue; }
+
+    public:
+        friend inline bool operator==(const IInputStream::byte& a, bool b)    { return a.is_valid() == b; }
+        friend inline bool operator==(bool b, const IInputStream::byte& a)    { return a.is_valid() == b; }
+        friend inline bool operator==(const IInputStream::byte& a, uint8_t b) { return a.value()    == b; }
+        friend inline bool operator==(uint8_t b, const IInputStream::byte& a) { return a.value()    == b; }
+
+    private:
+        int m_value;
+    };
+
+public:
+    virtual byte    read_byte() = 0;
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) = 0;
+
+public:
+    virtual bool is_readable()  const override { return true;  }
+    virtual bool is_writable()  const override { return false; }
+
+protected:
+    IInputStream() {}
+};
+
+
+class IOutputStream : public virtual IStream
+{
+public:
+    virtual void write_byte(uint8_t value) = 0;
+    virtual void write(const uint8_t* buffer, index_t write_bytes) = 0;
+
+public:
+    virtual bool is_readable()  const override { return false; }
+    virtual bool is_writable()  const override { return true;  }
+
+protected:
+    IOutputStream() {}
+};
+
+
+class IIoStream : public IInputStream, public IOutputStream
+{
+public:
+    virtual bool is_readable() const override { return true; }
+    virtual bool is_writable() const override { return true; }
+
+protected:
+    IIoStream() {}
+};
+
+
+}
+#endif // EX_STREAM_INTERFACE_HEADER

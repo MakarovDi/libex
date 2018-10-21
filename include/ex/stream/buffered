@@ -1,0 +1,430 @@
+#ifndef    EX_STREAM_BUFFERED_HEADER
+#   define EX_STREAM_BUFFERED_HEADER
+
+#include <stdexcept>
+#include <memory>
+
+#include "ex/assert"
+#include "ex/stream/interface"
+
+
+namespace ex
+{
+
+
+template <class InputStream>
+class InputBufferedStream final : public IInputStream
+{
+private:
+    static constexpr index_t kDiskBlockSize    = 4096;
+    static constexpr index_t kDefaulBufferSize = 4 * kDiskBlockSize;
+
+public:
+    InputBufferedStream() :
+        m_stream(nullptr),
+        m_buffer(nullptr),
+        m_buffer_size(0),
+        m_buffered(0),
+        m_buffer_index(0),
+        m_eos(true)
+    {
+    }
+
+
+    InputBufferedStream(InputStream& stream, index_t buffer_size = kDefaulBufferSize) :
+        m_stream(&stream),
+        m_buffer(new uint8_t[size_t(buffer_size)]),
+        m_buffer_size(buffer_size),
+        m_buffered(0),
+        m_buffer_index(0),
+        m_eos(stream.eos())
+    {
+        ex::assert<std::logic_error>(stream.is_open(), "stream must be opened");
+    }
+
+public:
+    InputBufferedStream(InputBufferedStream&& stream) :
+        m_stream(stream.m_stream),
+        m_buffer(std::move(stream.m_buffer)),
+        m_buffer_size(stream.m_buffer_size),
+        m_buffered(stream.m_buffered),
+        m_buffer_index(stream.m_buffer_index),
+        m_eos(stream.m_eos)
+    {
+        stream.m_stream       = nullptr;
+        stream.m_buffer_size  = 0;
+        stream.m_buffered     = 0;
+        stream.m_buffer_index = 0;
+        stream.m_eos          = true;
+    }
+
+
+    InputBufferedStream& operator=(InputBufferedStream&& stream)
+    {
+        m_buffer       = std::move(stream.m_buffer);
+        m_buffer_size  = stream.m_buffer_size;  stream.m_buffer_size  = 0;
+        m_buffered     = stream.m_buffered;     stream.m_buffered     = 0;
+        m_buffer_index = stream.m_buffer_index; stream.m_buffer_index = 0;
+
+        m_stream = stream.m_stream; stream.m_stream = nullptr;
+        m_eos    = stream.m_eos;    stream.m_eos    = true;
+
+        return *this;
+    }
+
+public:
+    virtual byte read_byte() override
+    {
+        ex::assert(is_open(), "stream must be opened");
+
+        if (m_buffer_index == m_buffered)
+        {
+            if (!refresh_buffer())
+                return byte();
+        }
+
+        uint8_t value = m_buffer[size_t(m_buffer_index++)];
+
+        return byte(value);
+    }
+
+
+    virtual index_t read(uint8_t* buffer, index_t read_bytes) override
+    {
+        ex::assert(is_open(), "stream must be opened");
+
+        uint8_t* buf = m_buffer.get();
+
+        if (read_bytes < buffer_rest())
+        {
+            memcpy(buffer, &buf[m_buffer_index], size_t(read_bytes));
+            m_buffer_index += read_bytes;
+            return read_bytes;
+        }
+
+        memcpy(buffer, &buf[m_buffer_index], size_t(buffer_rest()));
+        index_t readed = buffer_rest();
+        index_t rest = read_bytes - readed;
+
+        readed += m_stream->read(&buffer[readed], rest);
+
+        refresh_buffer();
+
+        return readed;
+    }
+
+public:
+    virtual bool is_open()  const override { return m_stream && m_stream->is_open();  }
+    virtual bool is_valid() const override { return m_stream && m_stream->is_valid(); }
+
+    virtual bool eos()      const override { return m_eos; }
+
+
+    virtual index_t size()  const override
+    {
+        ex::assert(is_open(), "stream must be opened");
+        return m_stream->size();
+    }
+
+
+    virtual index_t position() const override
+    {
+        ex::assert(is_open(), "stream must be opened");
+        return m_stream->position() - m_buffered + m_buffer_index;
+    }
+
+
+    virtual void seek(index_t position, SeekMode mode = SeekMode::kBegin) override
+    {
+        ex::assert(is_open(), "stream must be opened");
+        ex::assert(is_seekable(), "stream must be seekable");
+
+        switch (mode)
+        {
+            case kBegin:
+                ex::assert<std::out_of_range>(position >= 0, "position must be >= 0 for SeekMode::kBegin");
+                break;
+
+            case kOffset:
+                position = this->position() + position;
+                break;
+
+            case kEnd:
+                ex::assert<std::out_of_range>(position <= 0, "position must be <= 0 for SeekMode::kENd");
+                ex::assert(!is_sizeless(), "stream size must be available");
+                position = size() + position;
+                break;
+            default:
+                throw std::logic_error("invalid state");
+        }
+
+        if (position >= m_stream->position() - m_buffered && position < m_stream->position())
+        {
+            m_buffer_index += position - this->position();
+            return;
+        }
+
+        m_stream->seek(position, SeekMode::kBegin);
+
+        m_eos = false;
+        refresh_buffer();
+    }
+
+
+    virtual void flush() override
+    {
+        if (!m_stream) return;
+        m_stream->flush();
+    }
+
+
+    virtual void close() override
+    {
+        if (!m_stream) return;
+
+        m_stream->close();
+
+        m_eos = true;
+
+        m_buffer_index = 0;
+        m_buffered     = 0;
+    }
+
+public:
+    virtual bool is_seekable()   const override { return m_stream && m_stream->is_seekable(); }
+    virtual bool is_expandable() const override { return false;                               }
+    virtual bool is_sizeless()   const override { return m_stream &&m_stream->is_sizeless();  }
+
+public:
+    index_t buffer_size() const { return m_buffer_size; }
+
+protected:
+    bool refresh_buffer()
+    {
+        m_buffer_index = 0;
+        m_buffered = m_stream->read(m_buffer.get(), buffer_size());
+
+        m_eos = (m_buffered == 0);
+        return !m_eos;
+    }
+
+
+    index_t buffer_rest() const { return m_buffered - m_buffer_index; }
+
+private:
+    using StreamBuffer = std::unique_ptr<uint8_t[]>;
+
+private:
+    InputStream* m_stream;
+    StreamBuffer m_buffer;
+
+    index_t m_buffer_size;
+    index_t m_buffered;
+    index_t m_buffer_index;
+
+    bool m_eos;
+};
+
+
+template <class OutputStream>
+class OutputBufferedStream final : public IOutputStream
+{
+ private:
+    static constexpr index_t kDiskBlockSize    = 4096;
+    static constexpr index_t kDefaulBufferSize = 4 * kDiskBlockSize;
+
+public:
+    OutputBufferedStream() :
+        m_stream(nullptr),
+        m_buffer(nullptr),
+        m_buffer_size(0),
+        m_buffer_index(0)
+    {
+    }
+
+
+    OutputBufferedStream(OutputStream& stream, index_t buffer_size = kDefaulBufferSize) :
+        m_stream(&stream),
+        m_buffer(new uint8_t[size_t(buffer_size)]),
+        m_buffer_size(buffer_size),
+        m_buffer_index(0)
+    {
+        ex::assert<std::logic_error>(stream.is_open(), "stream must be opened");
+    }
+
+
+    virtual ~OutputBufferedStream()
+    {
+        flush_buffer();
+    }
+
+public:
+    OutputBufferedStream(OutputBufferedStream&& stream) :
+        m_stream(stream.m_stream),
+        m_buffer(std::move(stream.m_buffer)),
+        m_buffer_size(stream.m_buffer_size),
+        m_buffer_index(stream.m_buffer_index)
+    {
+        stream.m_stream       = nullptr;
+        stream.m_buffer_size  = 0;
+        stream.m_buffer_index = 0;
+    }
+
+
+    OutputBufferedStream& operator=(OutputBufferedStream&& stream)
+    {
+        m_buffer       = std::move(stream.m_buffer);
+        m_buffer_size  = stream.m_buffer_size;  stream.m_buffer_size  = 0;
+        m_buffer_index = stream.m_buffer_index; stream.m_buffer_index = 0;
+
+        m_stream = stream.m_stream; stream.m_stream = nullptr;
+
+        return *this;
+    }
+
+public:
+    virtual void write_byte(uint8_t byte) override
+    {
+        ex::assert(is_open(), "stream must be opened");
+
+        uint8_t* buf = m_buffer.get();
+
+        buf[m_buffer_index++] = byte;
+
+        if (m_buffer_index == m_buffer_size)
+        {
+            flush_buffer();
+        }
+    }
+
+
+    virtual void write(const uint8_t* buffer, index_t write_bytes) override
+    {
+        uint8_t* buf = m_buffer.get();
+
+        if (write_bytes < buffer_rest())
+        {
+            memcpy(&buf[m_buffer_index], buffer, size_t(write_bytes));
+            m_buffer_index += write_bytes;
+            return;
+        }
+
+        memcpy(&buf[m_buffer_index], buffer, size_t(buffer_rest()));
+        index_t written = buffer_rest();
+        index_t rest = write_bytes - written;
+
+        m_buffer_index += written;
+        flush_buffer();
+
+        if (rest)
+            m_stream->write(&buffer[written], rest);
+    }
+
+public:
+    virtual bool is_open()  const override { return m_stream && m_stream->is_open();  }
+    virtual bool is_valid() const override { return m_stream && m_stream->is_valid(); }
+
+    virtual bool eos()      const override { return false; }
+
+
+    virtual index_t size()  const override
+    {
+        ex::assert(is_open(), "stream must be opened");
+
+        return std::max(m_stream->size(), position());
+    }
+
+
+    virtual index_t position() const override
+    {
+        ex::assert(is_open(), "stream must be opened");
+        return m_stream->position() + m_buffer_index;
+    }
+
+
+    virtual void seek(index_t position, SeekMode mode = SeekMode::kBegin) override
+    {
+        ex::assert(m_stream, "stream must be opened");
+        ex::assert(is_seekable(), "stream must be seekable");
+
+        switch (mode)
+        {
+            case kBegin:
+                ex::assert<std::out_of_range>(position >= 0, "position must be >= 0 for SeekMode::kBegin");
+                break;
+
+            case kOffset:
+                position = this->position() + position;
+                break;
+
+            case kEnd:
+                ex::assert<std::out_of_range>(position <= 0, "position must be <= 0 for SeekMode::kENd");
+                ex::assert(!is_sizeless(), "stream size must be available");
+                position = size() + position;
+                break;
+            default:
+                throw std::logic_error("invalid state");
+        }
+
+        if (position >= m_stream->position() && position <= m_stream->position() + m_buffer_index)
+        {
+            m_buffer_index += position - this->position();
+            return;
+        }
+
+        flush_buffer();
+
+        m_stream->seek(position, SeekMode::kBegin);
+    }
+
+
+    virtual void flush() override
+    {
+        if (!m_stream) return;
+
+        flush_buffer();
+        m_stream->flush();
+    }
+
+
+    virtual void close() override
+    {
+        if (!m_stream) return;
+
+        flush_buffer();
+        m_stream->close();
+    }
+
+public:
+    virtual bool is_seekable()   const override { return m_stream && m_stream->is_seekable();   }
+    virtual bool is_expandable() const override { return m_stream && m_stream->is_expandable(); }
+    virtual bool is_sizeless()   const override { return m_stream && m_stream->is_sizeless();   }
+
+public:
+    index_t buffer_size() const { return m_buffer_size - m_buffer_index; }
+
+protected:
+    void flush_buffer()
+    {
+        m_stream->write(m_buffer.get(), m_buffer_index);
+        m_buffer_index = 0;
+    }
+
+
+    index_t buffer_rest() const { return buffer_size() - m_buffer_index; }
+
+private:
+    using StreamBuffer = std::unique_ptr<uint8_t[]>;
+
+private:
+    OutputStream* m_stream;
+    StreamBuffer  m_buffer;
+
+    index_t m_stream_size;
+    index_t m_buffer_size;
+    index_t m_buffer_index;
+};
+
+
+}
+#endif // EX_STREAM_BUFFERED_HEADER

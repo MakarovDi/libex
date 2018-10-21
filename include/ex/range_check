@@ -81,12 +81,12 @@ template
 void range_check(T value, T max)
 {
     //
-    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notice is empty function
+    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notify is empty function
     //
     if (NoticePolicy::is_empty) return; // TODO: remove it when ms vc will be not so stupid (last check VS2017)
 
     if (value > max)
-        NoticePolicy::notice("wrong value range");
+        NoticePolicy::notify("wrong value range");
 }
 
 
@@ -98,12 +98,12 @@ template
 void range_check(T value, T min, T max)
 {
     //
-    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notice is empty function
+    // hint for microsoft compiler not to do t1 != t2 in case when Notice::notify is empty function
     //
     if (NoticePolicy::is_empty) return; // TODO: remove it when ms vc will be not so stupid (last check VS2017)
 
     if (value > max || value < min)
-        NoticePolicy::notice("wrong value range");
+        NoticePolicy::notify("wrong value range");
 }
 
 
@@ -172,7 +172,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value < 0)
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -184,7 +184,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value > Source(std::numeric_limits<Dest>::max()))
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -193,7 +193,7 @@ namespace internal
     template <typename Source, typename Dest, typename NoticePolicy>
     struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, false, false>
     {
-        inline static void check(Source value) { }
+        inline static void check(Source) { }
     };
 
 
@@ -201,7 +201,7 @@ namespace internal
     template <typename Source, typename Dest, typename NoticePolicy>
     struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, false, true>
     {
-        inline static void check(Source value) { }
+        inline static void check(Source) { }
     };
 
 
@@ -212,7 +212,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value < 0)
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -221,7 +221,7 @@ namespace internal
     template <typename Source, typename Dest, typename NoticePolicy>
     struct CheckMethodSplitter<Source, Dest, NoticePolicy, DestSize::kLarger, true, true>
     {
-        inline static void check(Source value) { }
+        inline static void check(Source) { }
     };
 
 
@@ -232,7 +232,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value > std::numeric_limits<Dest>::max())
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -244,7 +244,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value > std::numeric_limits<Dest>::max())
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -256,7 +256,7 @@ namespace internal
         inline static void check(Source value)
         {
             if (value < 0 || value > std::numeric_limits<Dest>::max())
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
@@ -268,11 +268,11 @@ namespace internal
         inline static void check(Source value)
         {
             if (value < std::numeric_limits<Dest>::min() || value > std::numeric_limits<Dest>::max())
-                NoticePolicy::notice(message);
+                NoticePolicy::notify(message);
         }
     };
 
-};
+}
 
 }
 

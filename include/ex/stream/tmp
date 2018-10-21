@@ -1,0 +1,30 @@
+#ifndef    EX_STREAM_TMP_HEADER
+#   define EX_STREAM_TMP_HEADER
+
+
+#include <string>
+#include <stdexcept>
+
+#include "ex/stream/file"
+
+
+namespace ex
+{
+
+
+std::string generate_tmp_file_name();
+
+
+
+class TmpFileStream final : public FileStream
+{
+public:
+    TmpFileStream() : FileStream(generate_tmp_file_name(), FileStream::kCreateNew, FileStream::kReadWrite) {}
+
+    virtual ~TmpFileStream();
+};
+
+
+}
+
+#endif // EX_STREAM_TMP_HEADER
