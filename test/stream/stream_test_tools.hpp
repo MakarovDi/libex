@@ -200,6 +200,8 @@ struct WriteByteCase
         s.flush();
 
         uint8_t buf[size];
+
+        result.seek(0);
         ASSERT_EQ(result.read(buf, size), size);
         ASSERT_MEMEQ(buf, "123\0", size);
     }
@@ -233,6 +235,8 @@ struct WriteCase
         s.flush();
 
         uint8_t buf[size];
+
+        result.seek(0);
         ASSERT_EQ(result.read(buf, size), size);
         ASSERT_MEMEQ(buf, "1234\0", size);
     }
@@ -275,13 +279,15 @@ struct WriteReadCase
         s.flush();
 
         uint8_t buf[size];
+
+        result.seek(0);
         ASSERT_EQ(result.read(buf, size), size);
         ASSERT_MEMEQ(buf, "12345", size);
     }
 };
 
 
-struct SeekCase
+struct SeekInputCase
 {
     static const char*       data() { static const char value[] = "12345\0"; return  value; }
     static constexpr index_t size = 5;
@@ -333,6 +339,68 @@ struct SeekCase
         ASSERT_TRUE(s.eos());
     }
 };
+
+
+struct SeekOutputCase
+{
+    static const char*       data() { static const char value[] = "12345\0"; return  value; }
+    static constexpr index_t size = 5;
+
+
+    static void check(ex::IOutputStream& s, ex::IInputStream& result)
+    {
+        ASSERT_TRUE(s.is_open());
+        ASSERT_TRUE(s.is_seekable());
+        ASSERT_TRUE(s.is_valid());
+        ASSERT_TRUE(s);
+        ASSERT_TRUE(!s.eos());
+        ASSERT_EQ(s.position(), 0);
+        if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
+
+        s.seek(2, ex::IStream::SeekMode::kBegin);
+        ASSERT_EQ(s.position(), 2);
+        ASSERT_FALSE(s.eos());
+
+        s.write_byte(uint8_t('4'));
+        ASSERT_EQ(s.position(), 3);
+        ASSERT_FALSE(s.eos());
+
+        s.seek(-1, ex::IStream::SeekMode::kOffset);
+        ASSERT_EQ(s.position(), 2);
+        ASSERT_FALSE(s.eos());
+
+        s.write_byte(uint8_t('8'));
+        ASSERT_EQ(s.size(), size);
+        ASSERT_EQ(s.position(), 3);
+        ASSERT_FALSE(s.eos());
+
+        s.seek(-1,  ex::IStream::SeekMode::kEnd);
+        s.write_byte(uint8_t('8'));
+        ASSERT_EQ(s.position(), 5);
+        ASSERT_FALSE(s.eos());
+
+        s.seek(0,  ex::IStream::SeekMode::kEnd);
+        ASSERT_EQ(s.position(), size);
+        ASSERT_TRUE(s.eos() || !s.eos());
+
+        s.seek(-4,  ex::IStream::SeekMode::kOffset);
+        s.write_byte(uint8_t('5'));
+        ASSERT_EQ(s.position(), 2);
+
+        s.write_byte(uint8_t('9'));
+        ASSERT_EQ(s.position(), 3);
+        ASSERT_FALSE(s.eos());
+
+        s.flush();
+
+        uint8_t buf[5];
+
+        result.seek(0);
+        ASSERT_EQ(result.read(buf, sizeof(buf)), sizeof(buf));
+        ASSERT_MEMEQ(buf, "15946", sizeof(buf));
+    }
+};
+
 
 struct SeekOversizeCase
 {
@@ -413,6 +481,7 @@ struct WriteExtendCase
         if (!s.is_sizeless()) ASSERT_EQ(s.size(), size);
 
         s.seek(2, ex::IStream::SeekMode::kBegin);
+        ASSERT_EQ(s.position(), 2);
         s.write((uint8_t*)"8901", 4);
         ASSERT_EQ(s.position(), 6);
         if (!s.is_sizeless()) ASSERT_EQ(s.size(), 6);
@@ -420,6 +489,8 @@ struct WriteExtendCase
         s.flush();
 
         uint8_t buf[6];
+
+        result.seek(0);
         ASSERT_EQ(result.read(buf, sizeof(buf)), sizeof(buf));
         ASSERT_MEMEQ(buf, "128901", sizeof(buf));
     }

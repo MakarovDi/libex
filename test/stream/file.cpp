@@ -98,10 +98,10 @@ TEST_F(file_stream, write_read)
 
 TEST_F(file_stream, seek)
 {
-    tool::init_file<test::SeekCase>(tmp_fname);
+    tool::init_file<test::SeekInputCase>(tmp_fname);
     fs = FileStream(tmp_fname, FileStream::kOpenExisting, FileStream::kReadWrite);
 
-    test::SeekCase::check(fs);
+    test::SeekInputCase::check(fs);
 }
 
 

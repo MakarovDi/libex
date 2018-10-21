@@ -76,10 +76,10 @@ TEST(memory_stream, write_read)
 
 TEST(memory_stream, seek)
 {
-    std::unique_ptr<uint8_t[]> buf(init_buffer<test::SeekCase>());
-    MemoryStream s(buf.get(), test::SeekCase::size);
+    std::unique_ptr<uint8_t[]> buf(init_buffer<test::SeekInputCase>());
+    MemoryStream s(buf.get(), test::SeekInputCase::size);
 
-    test::SeekCase::check(s);
+    test::SeekInputCase::check(s);
 }
 
 

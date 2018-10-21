@@ -80,10 +80,10 @@ public:
     virtual bool is_valid()    const override { return true;  }
 
     virtual index_t position() const override { return m_position; }
-    virtual bool    eos()      const override { return m_eos; }
+    virtual bool    eos()      const override { return m_eos;      }
     virtual index_t size()     const override { return m_size;     }
 
-    virtual void seek(index_t position, SeekMode mode) override;
+    virtual void seek(index_t position, SeekMode = SeekMode::kBegin) override;
 
     index_t stream_rest()      const { return size() - m_position; }
 
