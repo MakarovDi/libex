@@ -163,6 +163,14 @@ inline IOutputStream& operator << (IOutputStream& stream, const std::string& val
     return stream;
 }
 
+template <index_t N>
+inline IOutputStream& operator << (IOutputStream& stream, const char (&data)[N])
+{
+    stream.write((const uint8_t*)data, N-1);
+    return stream;
+}
+
+
 inline IOutputStream& operator << (IOutputStream& stream, uint8_t value)
 {
     stream.write_byte(value);
