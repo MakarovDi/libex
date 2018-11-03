@@ -73,6 +73,9 @@ public:
     }
 
 public:
+    using IInputStream::read;
+
+
     virtual byte read_byte() override
     {
         ex::assert(is_open(), "stream must be opened");
@@ -283,6 +286,9 @@ public:
     }
 
 public:
+    using IOutputStream::write;
+
+
     virtual void write_byte(uint8_t byte) override
     {
         ex::assert(is_open(), "stream must be opened");

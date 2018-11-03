@@ -87,6 +87,9 @@ public:
     virtual void write_byte(uint8_t value) override;
     virtual void write(const uint8_t* buffer, index_t write_bytes) override;
 
+    using IOutputStream::write;
+    using IInputStream::read;
+
     virtual void flush() override;
     virtual void close() override { close_file(); }
 

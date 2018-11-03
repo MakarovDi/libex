@@ -1,6 +1,7 @@
 #ifndef    EX_STREAM_INTERFACE_HEADER
 #   define EX_STREAM_INTERFACE_HEADER
 
+#include <memory>
 #include <stdexcept>
 
 #include "ex/common/type"
@@ -75,6 +76,29 @@ public:
     virtual byte    read_byte() = 0;
     virtual index_t read(uint8_t* buffer, index_t read_bytes) = 0;
 
+    template<typename T>
+    T read()
+    {
+        static_assert(std::is_fundamental<T>::value || std::is_pod<T>::value, "type limit");
+
+        T value;
+        if (read(reinterpret_cast<uint8_t*>(&value), index_t(sizeof(T))) != sizeof(T))
+            throw std::runtime_error("read error");
+
+        return value;
+    }
+
+
+    std::string read(index_t length)
+    {
+        std::unique_ptr<char[]> buf(new char[size_t(length)]);
+
+        if (read(reinterpret_cast<uint8_t*>(buf.get()), length) != length)
+            throw std::runtime_error("read error");
+
+        return std::string(buf.get(), size_t(length));
+    }
+
 public:
     virtual bool is_readable()  const override { return true;  }
     virtual bool is_writable()  const override { return false; }
@@ -90,6 +114,18 @@ public:
     virtual void write_byte(uint8_t value) = 0;
     virtual void write(const uint8_t* buffer, index_t write_bytes) = 0;
 
+    template<typename T>
+    void write(const T& value)
+    {
+        static_assert(std::is_fundamental<T>::value || std::is_pod<T>::value, "type limit");
+        write(reinterpret_cast<const uint8_t*>(&value), index_t(sizeof(T)));
+    }
+
+    void write(const std::string& str)
+    {
+        write(reinterpret_cast<const uint8_t*>(str.c_str()), index_t(str.size()));
+    }
+
 public:
     virtual bool is_readable()  const override { return false; }
     virtual bool is_writable()  const override { return true;  }
@@ -102,12 +138,63 @@ protected:
 class IIoStream : public IInputStream, public IOutputStream
 {
 public:
+    using IOutputStream::write;
+    using IInputStream::read;
+
+public:
     virtual bool is_readable() const override { return true; }
     virtual bool is_writable() const override { return true; }
 
 protected:
     IIoStream() {}
 };
+
+
+template <typename T>
+inline IOutputStream& operator << (IOutputStream& stream, const T& value)
+{
+    stream.write<T>(value);
+    return stream;
+}
+
+inline IOutputStream& operator << (IOutputStream& stream, const std::string& value)
+{
+    stream.write(value);
+    return stream;
+}
+
+inline IOutputStream& operator << (IOutputStream& stream, uint8_t value)
+{
+    stream.write_byte(value);
+    return stream;
+}
+
+inline IOutputStream& operator << (IOutputStream& stream, char value)
+{
+    stream.write_byte(uint8_t(value));
+    return stream;
+}
+
+
+template <typename T>
+inline IInputStream& operator >> (IInputStream& stream, T& value)
+{
+    value = stream.read<T>();
+    return stream;
+}
+
+inline IInputStream& operator >> (IInputStream& stream, uint8_t& value)
+{
+    value = stream.read_byte().value();
+    return stream;
+}
+
+inline IInputStream& operator >> (IInputStream& stream, char& value)
+{
+    value = char(stream.read_byte().value());
+    return stream;
+}
+
 
 
 }
